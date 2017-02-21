@@ -3,5 +3,6 @@
 
 void init_ffplay(char *filename, void* hwnd, int width, int height);
 void stop_ffplay(void);
+void pause_ffplay();
 
 #endif

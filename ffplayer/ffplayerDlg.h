@@ -44,4 +44,5 @@ public:
 	afx_msg void OnBnClickedButtonPlay();
 	afx_msg void OnClose();
 	afx_msg void OnBnClickedButtonStop();
+	afx_msg void OnBnClickedButtonPause();
 };

@@ -361,8 +361,9 @@ static AVPacket flush_pkt;
 
 static SDL_Window *window;
 static SDL_Renderer *renderer;
-static VideoState *g_cur_stream;
-int g_cur_playflag;
+static VideoState *m_curstream;
+int m_curPlayFlag;
+int m_streamIndex[AVMEDIA_TYPE_NB];
 
 
 #if CONFIG_AVFILTER
@@ -2849,7 +2850,7 @@ static int read_thread(void *arg)
     if (st_index[AVMEDIA_TYPE_SUBTITLE] >= 0) {
         stream_component_open(is, st_index[AVMEDIA_TYPE_SUBTITLE]);
     }
-
+	memcpy(m_streamIndex, st_index, sizeof(m_streamIndex));
     if (is->video_stream < 0 && is->audio_stream < 0) {
         av_log(NULL, AV_LOG_FATAL, "Failed to open file '%s' or configure filtergraph\n",
                is->filename);
@@ -3399,7 +3400,7 @@ static void event_loop(VideoState *cur_stream, void *hwnd)
         default:
             break;
         }
-		if(g_cur_playflag == 1)
+		if(m_curPlayFlag == 1)
 			break;
     }
 }
@@ -3699,8 +3700,8 @@ void init_ffplay(char *filename, void* hwnd, int width, int height)
     
     screen_width  = is->width  = width;
     screen_height = is->height = height;
-	g_cur_stream = is;
-    g_cur_playflag = 0;
+	m_curstream = is;
+    m_curPlayFlag = 0;
 	event_loop(is, hwnd);
 
 	/* never returns */
@@ -3708,9 +3709,23 @@ void init_ffplay(char *filename, void* hwnd, int width, int height)
 
 void stop_ffplay(void)
 {
-	do_exit(g_cur_stream);
-    g_cur_stream = NULL;
-    g_cur_playflag = 1;
+	if (NULL != m_curstream)
+	{
+		if(m_streamIndex[AVMEDIA_TYPE_VIDEO] > 0)
+			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_VIDEO]]->codec);
+		if(m_streamIndex[AVMEDIA_TYPE_AUDIO] > 0)
+			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_AUDIO]]->codec);
+		do_exit(m_curstream);
+		m_curstream = NULL;
+		m_curPlayFlag = 1;
+	}
+}
+void pause_ffplay()
+{
+	if (NULL != m_curstream)
+	{
+		toggle_pause(m_curstream);
+    }
 }
 
 

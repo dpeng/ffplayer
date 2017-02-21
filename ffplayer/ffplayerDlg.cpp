@@ -67,6 +67,7 @@ BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
 	ON_BN_CLICKED(ID_BUTTON_PLAY, &CffplayerDlg::OnBnClickedButtonPlay)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(ID_BUTTON_STOP, &CffplayerDlg::OnBnClickedButtonStop)
+	ON_BN_CLICKED(ID_BUTTON_PAUSE, &CffplayerDlg::OnBnClickedButtonPause)
 END_MESSAGE_MAP()
 
 
@@ -186,7 +187,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
 	int width = rc.right - rc.left;
 	int height = rc.bottom - rc.top;
-	//strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
+	strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
 	init_ffplay(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);
 }
 
@@ -203,4 +204,11 @@ void CffplayerDlg::OnBnClickedButtonStop()
 {
 	// TODO: Add your control notification handler code here
 	stop_ffplay();
+}
+
+
+void CffplayerDlg::OnBnClickedButtonPause()
+{
+	// TODO: Add your control notification handler code here
+	pause_ffplay();
 }
