@@ -1223,10 +1223,14 @@ static void do_exit(VideoState *is)
         stream_close(is);
         is = NULL;
     }
-    if (renderer)
+    if (renderer){
         SDL_DestroyRenderer(renderer);
-    if (window)
+        renderer = NULL;
+    }
+    if (window){
         SDL_DestroyWindow(window);
+        window = NULL;
+    }
     av_lockmgr_register(NULL);
     uninit_opts();
 #if CONFIG_AVFILTER
@@ -1237,7 +1241,7 @@ static void do_exit(VideoState *is)
         printf("\n");
     SDL_Quit();
     av_log(NULL, AV_LOG_QUIET, "%s", "");
-    //exit(0);
+    exit(0);
 }
 
 static void sigterm_handler(int sig)
@@ -3707,7 +3711,7 @@ void ffplay_init(char *filename, void* hwnd, int width, int height)
 	/* never returns */
 }
 
-void ffplay_stop(void)
+void ffplay_exit(void)
 {
 	if (NULL != m_curstream)
 	{
@@ -3718,6 +3722,38 @@ void ffplay_stop(void)
 		do_exit(m_curstream);
 		m_curstream = NULL;
 		m_curPlayFlag = 1;
+	}
+}
+
+
+void ffplay_stop(void)
+{
+	if (NULL != m_curstream)
+	{
+		avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_VIDEO]]->codec);
+		avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_AUDIO]]->codec);
+		//do_exit(m_curstream);
+		m_curPlayFlag = 1;
+        
+	    if (m_curstream) {
+	        stream_close(m_curstream);
+	       m_curstream = NULL;
+	    }
+	    if (renderer){
+	        SDL_DestroyRenderer(renderer);
+	        renderer = NULL;
+	    }
+	    if (window){
+	        SDL_DestroyWindow(window);
+	        window = NULL;
+	    }
+	    av_lockmgr_register(NULL);
+	    uninit_opts();
+	    av_freep(&vfilters_list);
+	    avformat_network_deinit();
+	    if (show_status)
+	        printf("\n");
+	    SDL_Quit();
 	}
 }
 void ffplay_pause()
@@ -3731,7 +3767,10 @@ void ffplay_pause()
 void ffplay_av_log_set_callback(void *func)
 {
 	if(NULL != func)
-        av_log_set_callback(func);
+    {
+    	av_log_set_level(AV_LOG_ERROR);
+	    av_log_set_callback(func);
+    }
 }
 
 

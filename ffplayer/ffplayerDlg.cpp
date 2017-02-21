@@ -180,6 +180,8 @@ void CffplayerDlg::OnBnClickedButtonOpenfile()
 
 static void av_log_encoder(void *ptr, int level, const char *fmt, va_list vargs)
 {
+	if(level >= 32)
+		return;
 	char logbuf[MAX_PATH];
 	vsnprintf(logbuf, sizeof(logbuf), fmt, vargs);
 	OutputDebugString(logbuf);
@@ -194,7 +196,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	int width = rc.right - rc.left;
 	int height = rc.bottom - rc.top;
 	//strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
-	//ffplay_av_log_set_callback(av_log_encoder);
+	ffplay_av_log_set_callback(av_log_encoder);
 	ffplay_init(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);
 }
 
@@ -202,7 +204,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 void CffplayerDlg::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
-	ffplay_stop();
+	ffplay_exit();
 	CDialogEx::OnClose();
 }
 
