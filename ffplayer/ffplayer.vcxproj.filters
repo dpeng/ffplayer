@@ -42,6 +42,9 @@
     <ClInclude Include="ffplay\cmdutils.h">
       <Filter>Source Files\ffplay</Filter>
     </ClInclude>
+    <ClInclude Include="ffplay\ffplay.h">
+      <Filter>Source Files\ffplay</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ffplayer.cpp">

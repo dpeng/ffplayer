@@ -11,7 +11,6 @@
 #define new DEBUG_NEW
 #endif
 
-
 // CAboutDlg dialog used for App About
 
 class CAboutDlg : public CDialogEx
@@ -64,6 +63,8 @@ BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(ID_BUTTON_OPENFILE, &CffplayerDlg::OnBnClickedButtonOpenfile)
+	ON_BN_CLICKED(ID_BUTTON_PLAY, &CffplayerDlg::OnBnClickedButtonPlay)
 END_MESSAGE_MAP()
 
 
@@ -101,7 +102,8 @@ BOOL CffplayerDlg::OnInitDialog()
 	ShowWindow(SW_MINIMIZE);
 
 	// TODO: Add extra initialization here
-
+	m_strFileName = _T("init");
+	//OnBnClickedButtonPlay();
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -154,3 +156,34 @@ HCURSOR CffplayerDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CffplayerDlg::OnBnClickedButtonOpenfile()
+{
+	// TODO: Add your control notification handler code here
+	CString tempfilename = _T("");
+	CFileDialog FileChooser(TRUE,
+		NULL,
+		NULL,
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("all files(*.*)|*.*|mp4 files(*.mp4)|*.mp4|mp3 files(*.mp3)|*.mp3||"));
+
+	if (FileChooser.DoModal() == IDOK)    tempfilename = FileChooser.GetPathName();
+	else    return;
+
+	m_strFileName = tempfilename;
+	tempfilename = _T("");
+}
+
+
+void CffplayerDlg::OnBnClickedButtonPlay()
+{
+	// TODO: Add your control notification handler code here
+	char filename[MAX_PATH] = "D:\\temp\\ShapeOfYou.mp4";
+	RECT rc = {0};
+	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
+	int width = rc.right - rc.left;
+	int height = rc.bottom - rc.top;
+	strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
+	init_ffplay(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);
+}

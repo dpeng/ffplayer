@@ -5,6 +5,11 @@
 #pragma once
 
 
+extern "C"
+{
+#include "./ffplay/ffplay.h"
+}
+
 // CffplayerDlg dialog
 class CffplayerDlg : public CDialogEx
 {
@@ -31,4 +36,10 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedButtonOpenfile();
+
+public:
+	CString m_strFileName;
+	afx_msg void OnBnClickedButtonPlay();
 };

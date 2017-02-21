@@ -1248,7 +1248,7 @@ static void set_default_window_size(int width, int height, AVRational sar)
     default_height = rect.h;
 }
 
-static int video_open(VideoState *is)
+static int video_open(VideoState *is, void *hwnd)
 {
     int w,h;
 
@@ -1270,7 +1270,8 @@ static int video_open(VideoState *is)
             flags |= SDL_WINDOW_BORDERLESS;
         else
             flags |= SDL_WINDOW_RESIZABLE;
-        window = SDL_CreateWindow(window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, flags);
+        //window = SDL_CreateWindow(window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, flags);
+		window = SDL_CreateWindowFrom(hwnd);
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
         if (window) {
             SDL_RendererInfo info;
@@ -1300,10 +1301,10 @@ static int video_open(VideoState *is)
 }
 
 /* display the current picture, if any */
-static void video_display(VideoState *is)
+static void video_display(VideoState *is, void *hwnd)
 {
     if (!window)
-        video_open(is);
+        video_open(is, hwnd);
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -1514,7 +1515,7 @@ static void update_video_pts(VideoState *is, double pts, int64_t pos, int serial
 }
 
 /* called to display each frame */
-static void video_refresh(void *opaque, double *remaining_time)
+static void video_refresh(void *opaque, double *remaining_time, void *hwnd)
 {
     VideoState *is = opaque;
     double time;
@@ -1527,7 +1528,7 @@ static void video_refresh(void *opaque, double *remaining_time)
     if (!display_disable && is->show_mode != SHOW_MODE_VIDEO && is->audio_st) {
         time = av_gettime_relative() / 1000000.0;
         if (is->force_refresh || is->last_vis_time + rdftspeed < time) {
-            video_display(is);
+            video_display(is, hwnd);
             is->last_vis_time = time;
         }
         *remaining_time = FFMIN(*remaining_time, is->last_vis_time + rdftspeed - time);
@@ -1628,7 +1629,7 @@ retry:
 display:
         /* display picture */
         if (!display_disable && is->force_refresh && is->show_mode == SHOW_MODE_VIDEO && is->pictq.rindex_shown)
-            video_display(is);
+            video_display(is, hwnd);
     }
     is->force_refresh = 0;
     if (show_status) {
@@ -3152,7 +3153,7 @@ static void toggle_audio_display(VideoState *is)
     }
 }
 
-static void refresh_loop_wait_event(VideoState *is, SDL_Event *event) {
+static void refresh_loop_wait_event(VideoState *is, SDL_Event *event, void *hwnd) {
     double remaining_time = 0.0;
     SDL_PumpEvents();
     while (!SDL_PeepEvents(event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
@@ -3164,7 +3165,7 @@ static void refresh_loop_wait_event(VideoState *is, SDL_Event *event) {
             av_usleep((int64_t)(remaining_time * 1000000.0));
         remaining_time = REFRESH_RATE;
         if (is->show_mode != SHOW_MODE_NONE && (!is->paused || is->force_refresh))
-            video_refresh(is, &remaining_time);
+            video_refresh(is, &remaining_time, hwnd);
         SDL_PumpEvents();
     }
 }
@@ -3197,14 +3198,14 @@ static void seek_chapter(VideoState *is, int incr)
 }
 
 /* handle an event sent by the GUI */
-static void event_loop(VideoState *cur_stream)
+static void event_loop(VideoState *cur_stream, void *hwnd)
 {
     SDL_Event event;
     double incr, pos, frac;
 
     for (;;) {
         double x;
-        refresh_loop_wait_event(cur_stream, &event);
+        refresh_loop_wait_event(cur_stream, &event, hwnd);
         switch (event.type) {
         case SDL_KEYDOWN:
             if (exit_on_keydown) {
@@ -3615,7 +3616,88 @@ static int lockmgr(void **mtx, enum AVLockOp op)
    }
    return 1;
 }
+void init_ffplay(char *filename, void* hwnd, int width, int height)
+{
 
+	int flags;
+	VideoState *is;
+
+	init_dynload();
+
+	av_log_set_flags(AV_LOG_SKIP_REPEATED);
+	parse_loglevel(1, filename, options);
+
+	/* register all codecs, demux and protocols */
+#if CONFIG_AVDEVICE
+	avdevice_register_all();
+#endif
+#if CONFIG_AVFILTER
+	avfilter_register_all();
+#endif
+	av_register_all();
+	avformat_network_init();
+
+	init_opts();
+
+	signal(SIGINT, sigterm_handler); /* Interrupt (ANSI).    */
+	signal(SIGTERM, sigterm_handler); /* Termination (ANSI).  */
+
+	show_banner(1, filename, options);
+
+	parse_options(NULL, 1, filename, options, opt_input_file);
+	input_filename = filename;
+	if (!input_filename) {
+		show_usage();
+		av_log(NULL, AV_LOG_FATAL, "An input file must be specified\n");
+		av_log(NULL, AV_LOG_FATAL,
+			"Use -h to get full help or, even better, run 'man %s'\n", program_name);
+		exit(1);
+	}
+
+	if (display_disable) {
+		video_disable = 1;
+	}
+	flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
+	if (audio_disable)
+		flags &= ~SDL_INIT_AUDIO;
+	else {
+		/* Try to work around an occasional ALSA buffer underflow issue when the
+		* period size is NPOT due to ALSA resampling by forcing the buffer size. */
+		if (!SDL_getenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE"))
+			SDL_setenv("SDL_AUDIO_ALSA_SET_BUFFER_SIZE", "1", 1);
+	}
+	if (display_disable)
+		flags &= ~SDL_INIT_VIDEO;
+	if (SDL_Init(flags)) {
+		av_log(NULL, AV_LOG_FATAL, "Could not initialize SDL - %s\n", SDL_GetError());
+		av_log(NULL, AV_LOG_FATAL, "(Did you set the DISPLAY variable?)\n");
+		exit(1);
+	}
+
+	SDL_EventState(SDL_SYSWMEVENT, SDL_IGNORE);
+	SDL_EventState(SDL_USEREVENT, SDL_IGNORE);
+
+	if (av_lockmgr_register(lockmgr)) {
+		av_log(NULL, AV_LOG_FATAL, "Could not initialize lock manager!\n");
+		do_exit(NULL);
+	}
+
+	av_init_packet(&flush_pkt);
+	flush_pkt.data = (uint8_t *)&flush_pkt;
+
+	is = stream_open(input_filename, file_iformat);
+	if (!is) {
+		av_log(NULL, AV_LOG_FATAL, "Failed to initialize VideoState!\n");
+		do_exit(NULL);
+	}
+    
+    screen_width  = is->width  = width;
+    screen_height = is->height = height;
+
+	event_loop(is, hwnd);
+
+	/* never returns */
+}
 /* Called from the main */
 int main(int argc, char **argv)
 {
@@ -3691,7 +3773,7 @@ int main(int argc, char **argv)
         do_exit(NULL);
     }
 
-    event_loop(is);
+    event_loop(is, NULL);
 
     /* never returns */
 
