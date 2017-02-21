@@ -3623,7 +3623,7 @@ static int lockmgr(void **mtx, enum AVLockOp op)
    }
    return 1;
 }
-void init_ffplay(char *filename, void* hwnd, int width, int height)
+void ffplay_init(char *filename, void* hwnd, int width, int height)
 {
 
 	int flags;
@@ -3707,7 +3707,7 @@ void init_ffplay(char *filename, void* hwnd, int width, int height)
 	/* never returns */
 }
 
-void stop_ffplay(void)
+void ffplay_stop(void)
 {
 	if (NULL != m_curstream)
 	{
@@ -3720,12 +3720,18 @@ void stop_ffplay(void)
 		m_curPlayFlag = 1;
 	}
 }
-void pause_ffplay()
+void ffplay_pause()
 {
 	if (NULL != m_curstream)
 	{
 		toggle_pause(m_curstream);
     }
+}
+
+void ffplay_av_log_set_callback(void *func)
+{
+	if(NULL != func)
+        av_log_set_callback(func);
 }
 
 

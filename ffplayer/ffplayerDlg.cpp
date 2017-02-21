@@ -178,6 +178,12 @@ void CffplayerDlg::OnBnClickedButtonOpenfile()
 	tempfilename = _T("");
 }
 
+static void av_log_encoder(void *ptr, int level, const char *fmt, va_list vargs)
+{
+	char logbuf[MAX_PATH];
+	vsnprintf(logbuf, sizeof(logbuf), fmt, vargs);
+	OutputDebugString(logbuf);
+}
 
 void CffplayerDlg::OnBnClickedButtonPlay()
 {
@@ -187,15 +193,16 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
 	int width = rc.right - rc.left;
 	int height = rc.bottom - rc.top;
-	strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
-	init_ffplay(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);
+	//strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
+	//ffplay_av_log_set_callback(av_log_encoder);
+	ffplay_init(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);
 }
 
 
 void CffplayerDlg::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
-	stop_ffplay();
+	ffplay_stop();
 	CDialogEx::OnClose();
 }
 
@@ -203,12 +210,12 @@ void CffplayerDlg::OnClose()
 void CffplayerDlg::OnBnClickedButtonStop()
 {
 	// TODO: Add your control notification handler code here
-	stop_ffplay();
+	ffplay_stop();
 }
 
 
 void CffplayerDlg::OnBnClickedButtonPause()
 {
 	// TODO: Add your control notification handler code here
-	pause_ffplay();
+	ffplay_pause();
 }
