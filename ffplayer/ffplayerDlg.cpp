@@ -105,7 +105,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	ShowWindow(SW_SHOWNORMAL);
 
 	// TODO: Add extra initialization here
-	m_strFileName = _T("init");
+	m_strFileName = _T("D:\\temp\\ShapeOfYou.mp4");
 	//OnBnClickedButtonPlay();
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -190,12 +190,12 @@ static void av_log_encoder(void *ptr, int level, const char *fmt, va_list vargs)
 void CffplayerDlg::OnBnClickedButtonPlay()
 {
 	// TODO: Add your control notification handler code here
-	char filename[MAX_PATH] = "D:\\temp\\ShapeOfYou.mp4";
+	char filename[MAX_PATH] = {};
 	RECT rc = {0};
 	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
 	int width = rc.right - rc.left;
 	int height = rc.bottom - rc.top;
-	//strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
+	strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
 	ffplay_av_log_set_callback(av_log_encoder);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 	ffplay_init(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);

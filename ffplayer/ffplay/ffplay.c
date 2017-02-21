@@ -3715,9 +3715,9 @@ void ffplay_exit(void)
 {
 	if (NULL != m_curstream)
 	{
-		if(m_streamIndex[AVMEDIA_TYPE_VIDEO] > 0)
+		if(m_streamIndex[AVMEDIA_TYPE_VIDEO] >= 0)
 			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_VIDEO]]->codec);
-		if(m_streamIndex[AVMEDIA_TYPE_AUDIO] > 0)
+		if(m_streamIndex[AVMEDIA_TYPE_AUDIO] >= 0)
 			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_AUDIO]]->codec);
 		do_exit(m_curstream);
 		m_curstream = NULL;
@@ -3730,9 +3730,10 @@ void ffplay_stop(void)
 {
 	if (NULL != m_curstream)
 	{
-		avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_VIDEO]]->codec);
-		avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_AUDIO]]->codec);
-		//do_exit(m_curstream);
+		if(m_streamIndex[AVMEDIA_TYPE_VIDEO] >= 0)
+			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_VIDEO]]->codec);
+		if (m_streamIndex[AVMEDIA_TYPE_AUDIO] >= 0)
+			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_AUDIO]]->codec);
 		m_curPlayFlag = 1;
         
 	    if (m_curstream) {
