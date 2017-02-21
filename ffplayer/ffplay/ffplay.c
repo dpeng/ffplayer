@@ -361,6 +361,9 @@ static AVPacket flush_pkt;
 
 static SDL_Window *window;
 static SDL_Renderer *renderer;
+static VideoState *g_cur_stream;
+int g_cur_playflag;
+
 
 #if CONFIG_AVFILTER
 static int opt_add_vfilter(void *optctx, const char *opt, const char *arg)
@@ -1217,6 +1220,7 @@ static void do_exit(VideoState *is)
 {
     if (is) {
         stream_close(is);
+        is = NULL;
     }
     if (renderer)
         SDL_DestroyRenderer(renderer);
@@ -1232,7 +1236,7 @@ static void do_exit(VideoState *is)
         printf("\n");
     SDL_Quit();
     av_log(NULL, AV_LOG_QUIET, "%s", "");
-    exit(0);
+    //exit(0);
 }
 
 static void sigterm_handler(int sig)
@@ -3395,6 +3399,8 @@ static void event_loop(VideoState *cur_stream, void *hwnd)
         default:
             break;
         }
+		if(g_cur_playflag == 1)
+			break;
     }
 }
 
@@ -3693,11 +3699,21 @@ void init_ffplay(char *filename, void* hwnd, int width, int height)
     
     screen_width  = is->width  = width;
     screen_height = is->height = height;
-
+	g_cur_stream = is;
+    g_cur_playflag = 0;
 	event_loop(is, hwnd);
 
 	/* never returns */
 }
+
+void stop_ffplay(void)
+{
+	do_exit(g_cur_stream);
+    g_cur_stream = NULL;
+    g_cur_playflag = 1;
+}
+
+
 /* Called from the main */
 int main(int argc, char **argv)
 {

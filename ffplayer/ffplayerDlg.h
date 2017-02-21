@@ -42,4 +42,6 @@ public:
 public:
 	CString m_strFileName;
 	afx_msg void OnBnClickedButtonPlay();
+	afx_msg void OnClose();
+	afx_msg void OnBnClickedButtonStop();
 };

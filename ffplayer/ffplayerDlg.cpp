@@ -65,6 +65,8 @@ BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(ID_BUTTON_OPENFILE, &CffplayerDlg::OnBnClickedButtonOpenfile)
 	ON_BN_CLICKED(ID_BUTTON_PLAY, &CffplayerDlg::OnBnClickedButtonPlay)
+	ON_WM_CLOSE()
+	ON_BN_CLICKED(ID_BUTTON_STOP, &CffplayerDlg::OnBnClickedButtonStop)
 END_MESSAGE_MAP()
 
 
@@ -99,7 +101,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	ShowWindow(SW_MINIMIZE);
+	ShowWindow(SW_SHOWNORMAL);
 
 	// TODO: Add extra initialization here
 	m_strFileName = _T("init");
@@ -184,6 +186,21 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
 	int width = rc.right - rc.left;
 	int height = rc.bottom - rc.top;
-	strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
+	//strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
 	init_ffplay(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);
+}
+
+
+void CffplayerDlg::OnClose()
+{
+	// TODO: Add your message handler code here and/or call default
+	stop_ffplay();
+	CDialogEx::OnClose();
+}
+
+
+void CffplayerDlg::OnBnClickedButtonStop()
+{
+	// TODO: Add your control notification handler code here
+	stop_ffplay();
 }
