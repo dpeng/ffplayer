@@ -197,6 +197,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	int height = rc.bottom - rc.top;
 	//strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
 	ffplay_av_log_set_callback(av_log_encoder);
+	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 	ffplay_init(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);
 }
 
