@@ -70,6 +70,7 @@ BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
 	ON_BN_CLICKED(ID_BUTTON_STOP, &CffplayerDlg::OnBnClickedButtonStop)
 	ON_BN_CLICKED(ID_BUTTON_PAUSE, &CffplayerDlg::OnBnClickedButtonPause)
 	ON_WM_TIMER()
+	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDERPLAYPROGRESS, &CffplayerDlg::OnNMReleasedcaptureSliderplayprogress)
 END_MESSAGE_MAP()
 
 
@@ -114,6 +115,9 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_sliderPlay.SetPos(0);
 	m_sliderPlay.SetLineSize(1);
 	m_sliderPlay.SetPageSize(5);
+	m_playHandler = NULL;
+    m_screenWidth = 0;
+    m_screenHeight = 0;
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -193,20 +197,28 @@ static void av_log_encoder(void *ptr, int level, const char *fmt, va_list vargs)
 	vsnprintf(logbuf, sizeof(logbuf), fmt, vargs);
 	OutputDebugString(logbuf);
 }
-
+DWORD CffplayerDlg::playProcess(LPVOID pParam)
+{
+	CffplayerDlg* pThis = (CffplayerDlg*)pParam;
+	char filename[MAX_PATH] = {};
+	strcpy(filename, (LPCSTR)(CStringA)pThis->m_strFileName);
+	ffplay_init(filename, pThis->m_playHandler, pThis->m_screenWidth, pThis->m_screenHeight);
+	return 0;
+}
 void CffplayerDlg::OnBnClickedButtonPlay()
 {
 	// TODO: Add your control notification handler code here
-	char filename[MAX_PATH] = {};
 	RECT rc = {0};
 	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
-	int width = rc.right - rc.left;
-	int height = rc.bottom - rc.top;
-	strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
+	m_screenWidth = rc.right - rc.left;
+	m_screenHeight = rc.bottom - rc.top;
 	ffplay_av_log_set_callback(av_log_encoder);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
+	m_playHandler = GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd();
 	SetTimer(1, 40, NULL);
-	ffplay_init(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);	
+	
+	DWORD dw;
+	m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &dw);
 }
 
 
@@ -253,4 +265,40 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 			m_sliderPlay.SetPos(curTime*1000/totalTime);
 	}
 	CDialogEx::OnTimer(nIDEvent);
+}
+
+
+BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) 
+		return TRUE;
+	if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_ESCAPE) 
+		return TRUE;
+	if ( pMsg->message == WM_LBUTTONDOWN)
+	{
+		CRect rect;
+        GetDlgItem(IDC_SLIDERPLAYPROGRESS)->GetWindowRect(&rect);
+		
+        CPoint  pt;
+        GetCursorPos(&pt);
+
+        if (rect.PtInRect(pt))
+        {
+			KillTimer(1);
+        }
+	}
+	if ( pMsg->message == WM_LBUTTONUP)
+		SetTimer(1, 40, NULL);
+	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+
+void CffplayerDlg::OnNMReleasedcaptureSliderplayprogress(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	// TODO: Add your control notification handler code here
+	int sliderPos = m_sliderPlay.GetPos();
+	double pos = (double)sliderPos / (double)1000;
+	ffplay_seek(pos);
+	*pResult = 0;
 }

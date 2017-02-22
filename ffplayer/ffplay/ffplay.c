@@ -3785,8 +3785,16 @@ int ffplay_get_stream_totaltime(void)
 //this function can get the current time of this stream in second.
 double ffplay_get_stream_curtime(void)
 {
-	return get_master_clock(m_curstream);
+	if(m_curstream)
+		return get_master_clock(m_curstream);
 }
+
+void ffplay_seek(double pos)/*pos indicate the precentage of whole file such as 45%*/
+{	
+	if ((NULL != m_curstream) && (m_curstream->ic))
+		stream_seek(m_curstream, pos*(m_curstream->ic->duration), 0, 0);
+}
+
 
 /* Called from the main */
 int main(int argc, char **argv)

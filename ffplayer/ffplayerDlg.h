@@ -41,11 +41,20 @@ public:
 	afx_msg void OnBnClickedButtonOpenfile();
 
 public:
-	CString m_strFileName;
 	afx_msg void OnBnClickedButtonPlay();
 	afx_msg void OnClose();
 	afx_msg void OnBnClickedButtonStop();
 	afx_msg void OnBnClickedButtonPause();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	CSliderCtrl m_sliderPlay;
+    HANDLE m_playProcessHandler;
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+private:
+	CString m_strFileName;
+	void * m_playHandler;
+	int m_screenWidth;
+	int m_screenHeight;
+	static DWORD WINAPI playProcess(LPVOID pParam);
+public:
+	afx_msg void OnNMReleasedcaptureSliderplayprogress(NMHDR *pNMHDR, LRESULT *pResult);
 };
