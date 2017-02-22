@@ -3173,8 +3173,11 @@ static void refresh_loop_wait_event(VideoState *is, SDL_Event *event, void *hwnd
         if (remaining_time > 0.0)
             av_usleep((int64_t)(remaining_time * 1000000.0));
         remaining_time = REFRESH_RATE;
-        if (is->show_mode != SHOW_MODE_NONE && (!is->paused || is->force_refresh))
-            video_refresh(is, &remaining_time, hwnd);
+		if ((m_curPlayFlag != 1) && (m_curstream != NULL))
+		{
+	        if (is->show_mode != SHOW_MODE_NONE && (!is->paused || is->force_refresh))
+	            video_refresh(is, &remaining_time, hwnd);
+		}
         SDL_PumpEvents();
     }
 }
@@ -3732,13 +3735,12 @@ void ffplay_stop(void)
 	{
 		if(m_streamIndex[AVMEDIA_TYPE_VIDEO] >= 0)
 			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_VIDEO]]->codec);
-		if (m_streamIndex[AVMEDIA_TYPE_AUDIO] >= 0)
+		if(m_streamIndex[AVMEDIA_TYPE_AUDIO] >= 0)
 			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_AUDIO]]->codec);
-		m_curPlayFlag = 1;
-        
+		//do_exit(m_curstream);********************		
 	    if (m_curstream) {
 	        stream_close(m_curstream);
-	       m_curstream = NULL;
+	        m_curstream = NULL;
 	    }
 	    if (renderer){
 	        SDL_DestroyRenderer(renderer);
@@ -3750,11 +3752,16 @@ void ffplay_stop(void)
 	    }
 	    av_lockmgr_register(NULL);
 	    uninit_opts();
+#if CONFIG_AVFILTER
 	    av_freep(&vfilters_list);
+#endif
 	    avformat_network_deinit();
 	    if (show_status)
 	        printf("\n");
 	    SDL_Quit();
+		//do_stop********************************
+		m_curstream = NULL;
+		m_curPlayFlag = 1;
 	}
 }
 void ffplay_pause()
