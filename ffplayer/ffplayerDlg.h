@@ -11,6 +11,7 @@ extern "C"
 }
 
 // CffplayerDlg dialog
+#include "afxcmn.h"
 class CffplayerDlg : public CDialogEx
 {
 // Construction
@@ -46,4 +47,5 @@ public:
 	afx_msg void OnBnClickedButtonStop();
 	afx_msg void OnBnClickedButtonPause();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	CSliderCtrl m_sliderPlay;
 };

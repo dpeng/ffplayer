@@ -57,6 +57,7 @@ CffplayerDlg::CffplayerDlg(CWnd* pParent /*=NULL*/)
 void CffplayerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_SLIDERPLAYPROGRESS, m_sliderPlay);
 }
 
 BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
@@ -108,6 +109,11 @@ BOOL CffplayerDlg::OnInitDialog()
 	// TODO: Add extra initialization here
 	m_strFileName = _T("D:\\temp\\ShapeOfYou.mp4");
 	//OnBnClickedButtonPlay();
+	m_sliderPlay.SetRangeMin(0);
+	m_sliderPlay.SetRangeMax(1000);
+	m_sliderPlay.SetPos(0);
+	m_sliderPlay.SetLineSize(1);
+	m_sliderPlay.SetPageSize(5);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -199,7 +205,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
 	ffplay_av_log_set_callback(av_log_encoder);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
-	SetTimer(1, 1000, NULL);
+	SetTimer(1, 40, NULL);
 	ffplay_init(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);	
 }
 
@@ -207,6 +213,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 void CffplayerDlg::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
+	KillTimer(1);
 	ffplay_exit();
 	CDialogEx::OnClose();
 }
@@ -215,7 +222,9 @@ void CffplayerDlg::OnClose()
 void CffplayerDlg::OnBnClickedButtonStop()
 {
 	// TODO: Add your control notification handler code here
+	KillTimer(1);
 	ffplay_stop();
+	m_sliderPlay.SetPos(0);
 }
 
 
@@ -235,9 +244,13 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		int	totalTime;
 		curTime = ffplay_get_stream_curtime();
 		totalTime = ffplay_get_stream_totaltime();
+		/*
 		CString str = _T(" ");
 		str.Format("Total: %d, Current: %7.2f\n", totalTime, curTime);
 		OutputDebugString(str);
+		*/
+		if(totalTime >= 1)
+			m_sliderPlay.SetPos(curTime*1000/totalTime);
 	}
 	CDialogEx::OnTimer(nIDEvent);
 }
