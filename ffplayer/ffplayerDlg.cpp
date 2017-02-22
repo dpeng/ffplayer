@@ -68,6 +68,7 @@ BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(ID_BUTTON_STOP, &CffplayerDlg::OnBnClickedButtonStop)
 	ON_BN_CLICKED(ID_BUTTON_PAUSE, &CffplayerDlg::OnBnClickedButtonPause)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -198,7 +199,8 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	strcpy(filename, (LPCSTR)(CStringA)m_strFileName);
 	ffplay_av_log_set_callback(av_log_encoder);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
-	ffplay_init(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);
+	SetTimer(1, 1000, NULL);
+	ffplay_init(filename, (void*)GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd(), width, height);	
 }
 
 
@@ -221,4 +223,21 @@ void CffplayerDlg::OnBnClickedButtonPause()
 {
 	// TODO: Add your control notification handler code here
 	ffplay_pause();
+}
+
+
+void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: Add your message handler code here and/or call default
+	if (nIDEvent == 1)
+	{
+		double curTime; 
+		int	totalTime;
+		curTime = ffplay_get_stream_curtime();
+		totalTime = ffplay_get_stream_totaltime();
+		CString str = _T(" ");
+		str.Format("Total: %d, Current: %7.2f\n", totalTime, curTime);
+		OutputDebugString(str);
+	}
+	CDialogEx::OnTimer(nIDEvent);
 }

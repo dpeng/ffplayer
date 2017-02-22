@@ -222,6 +222,7 @@
     <ResourceCompile Include="ffplayer.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="res\ffplayer.rc2" />
   </ItemGroup>
   <ItemGroup>

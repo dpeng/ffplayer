@@ -3774,6 +3774,19 @@ void ffplay_av_log_set_callback(void *func)
     }
 }
 
+//this function can get the duration of this stream in second.
+int ffplay_get_stream_totaltime(void)
+{
+	if ((NULL != m_curstream) && (m_curstream->ic))
+		return m_curstream->ic->duration / 1000000LL;
+}
+
+
+//this function can get the current time of this stream in second.
+double ffplay_get_stream_curtime(void)
+{
+	return get_master_clock(m_curstream);
+}
 
 /* Called from the main */
 int main(int argc, char **argv)

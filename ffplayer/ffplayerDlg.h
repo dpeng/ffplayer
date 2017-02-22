@@ -45,4 +45,5 @@ public:
 	afx_msg void OnClose();
 	afx_msg void OnBnClickedButtonStop();
 	afx_msg void OnBnClickedButtonPause();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
