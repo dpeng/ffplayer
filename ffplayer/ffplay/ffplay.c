@@ -362,7 +362,6 @@ static AVPacket flush_pkt;
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static VideoState *m_curstream;
-int m_curPlayFlag;
 int m_streamIndex[AVMEDIA_TYPE_NB];
 
 
@@ -1221,16 +1220,11 @@ static void do_exit(VideoState *is)
 {
     if (is) {
         stream_close(is);
-        is = NULL;
     }
-    if (renderer){
+    if (renderer)
         SDL_DestroyRenderer(renderer);
-        renderer = NULL;
-    }
-    if (window){
+    if (window)
         SDL_DestroyWindow(window);
-        window = NULL;
-    }
     av_lockmgr_register(NULL);
     uninit_opts();
 #if CONFIG_AVFILTER
@@ -3173,11 +3167,8 @@ static void refresh_loop_wait_event(VideoState *is, SDL_Event *event, void *hwnd
         if (remaining_time > 0.0)
             av_usleep((int64_t)(remaining_time * 1000000.0));
         remaining_time = REFRESH_RATE;
-		if ((m_curPlayFlag != 1) && (m_curstream != NULL))
-		{
-	        if (is->show_mode != SHOW_MODE_NONE && (!is->paused || is->force_refresh))
-	            video_refresh(is, &remaining_time, hwnd);
-		}
+        if (is->show_mode != SHOW_MODE_NONE && (!is->paused || is->force_refresh))
+            video_refresh(is, &remaining_time, hwnd);
         SDL_PumpEvents();
     }
 }
@@ -3407,8 +3398,6 @@ static void event_loop(VideoState *cur_stream, void *hwnd)
         default:
             break;
         }
-		if(m_curPlayFlag == 1)
-			break;
     }
 }
 
@@ -3708,7 +3697,6 @@ void ffplay_init(char *filename, void* hwnd, int width, int height)
     screen_width  = is->width  = width;
     screen_height = is->height = height;
 	m_curstream = is;
-    m_curPlayFlag = 0;
 	event_loop(is, hwnd);
 
 	/* never returns */
@@ -3724,7 +3712,6 @@ void ffplay_exit(void)
 			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_AUDIO]]->codec);
 		do_exit(m_curstream);
 		m_curstream = NULL;
-		m_curPlayFlag = 1;
 	}
 }
 
@@ -3761,7 +3748,6 @@ void ffplay_stop(void)
 	    SDL_Quit();
 		//do_stop********************************
 		m_curstream = NULL;
-		m_curPlayFlag = 1;
 	}
 }
 void ffplay_pause()
