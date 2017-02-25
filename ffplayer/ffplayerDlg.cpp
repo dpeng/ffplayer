@@ -227,7 +227,8 @@ void CffplayerDlg::OnClose()
 	// TODO: Add your message handler code here and/or call default
 	KillTimer(1);
 	ffplay_exit();
-	CloseHandle(m_playHandler);
+	CloseHandle(m_playProcessHandler);
+	m_playProcessHandler = NULL;
 	m_playHandler = NULL;
 	CDialogEx::OnClose();
 }
@@ -237,8 +238,10 @@ void CffplayerDlg::OnBnClickedButtonStop()
 {
 	// TODO: Add your control notification handler code here
 	KillTimer(1);
+	TerminateThread(m_playProcessHandler, 0);
 	ffplay_stop();
-	//CloseHandle(m_playHandler);
+	CloseHandle(m_playProcessHandler);
+	m_playProcessHandler = NULL;
 	m_playHandler = NULL;
 	m_sliderPlay.SetPos(0);
 }
