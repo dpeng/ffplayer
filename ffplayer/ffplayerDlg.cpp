@@ -202,8 +202,17 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 	CffplayerDlg* pThis = (CffplayerDlg*)pParam;
 	char filename[MAX_PATH] = {};
 	strcpy(filename, (LPCSTR)(CStringA)pThis->m_strFileName);
-	ffplay_init(filename, pThis->m_playHandler, pThis->m_screenWidth, pThis->m_screenHeight);
-	return 0;
+	int ret = ffplay_init(filename, pThis->m_playHandler, pThis->m_screenWidth, pThis->m_screenHeight);
+	if (ret == 0)
+	{
+		pThis->KillTimer(1);
+		ffplay_stop();
+		CloseHandle(pThis->m_playProcessHandler);
+		pThis->m_playProcessHandler = NULL;
+		pThis->m_playHandler = NULL;
+		pThis->m_sliderPlay.SetPos(0);
+	}
+	return ret;
 }
 void CffplayerDlg::OnBnClickedButtonPlay()
 {

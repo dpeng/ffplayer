@@ -2958,6 +2958,7 @@ static int read_thread(void *arg)
                 if (is->subtitle_stream >= 0)
                     packet_queue_put_nullpacket(&is->subtitleq, is->subtitle_stream);
                 is->eof = 1;
+				break;
             }
             if (ic->pb && ic->pb->error)
                 break;
@@ -2988,7 +2989,6 @@ static int read_thread(void *arg)
         }
     }
 
-    ret = 0;
  fail:
     if (ic && !is->ic)
         avformat_close_input(&ic);
@@ -3201,12 +3201,12 @@ static void seek_chapter(VideoState *is, int incr)
 }
 
 /* handle an event sent by the GUI */
-static void event_loop(VideoState *cur_stream, void *hwnd)
+static int event_loop(VideoState *cur_stream, void *hwnd)
 {
     SDL_Event event;
     double incr, pos, frac;
 
-    for (;;) {
+    for (;cur_stream->eof != 1;) {
         double x;
         refresh_loop_wait_event(cur_stream, &event, hwnd);
         switch (event.type) {
@@ -3393,12 +3393,13 @@ static void event_loop(VideoState *cur_stream, void *hwnd)
             break;
         case SDL_QUIT:
         case FF_QUIT_EVENT:
-            do_exit(cur_stream);
+            //do_exit(cur_stream);
             break;
         default:
             break;
         }
     }
+    return 0;
 }
 
 static int opt_frame_size(void *optctx, const char *opt, const char *arg)
@@ -3619,7 +3620,7 @@ static int lockmgr(void **mtx, enum AVLockOp op)
    }
    return 1;
 }
-void ffplay_init(char *filename, void* hwnd, int width, int height)
+int ffplay_init(char *filename, void* hwnd, int width, int height)
 {
 
 	int flags;
@@ -3697,7 +3698,7 @@ void ffplay_init(char *filename, void* hwnd, int width, int height)
     screen_width  = is->width  = width;
     screen_height = is->height = height;
 	m_curstream = is;
-	event_loop(is, hwnd);
+	return event_loop(is, hwnd);
 
 	/* never returns */
 }
