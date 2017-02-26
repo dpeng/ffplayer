@@ -235,6 +235,7 @@ void CffplayerDlg::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
 	KillTimer(1);
+	TerminateThread(m_playProcessHandler, 0);
 	ffplay_exit();
 	CloseHandle(m_playProcessHandler);
 	m_playProcessHandler = NULL;
