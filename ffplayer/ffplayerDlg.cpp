@@ -118,6 +118,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_playHandler = NULL;
     m_screenWidth = 0;
     m_screenHeight = 0;
+	m_bIsFullScreen = false;
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -290,8 +291,11 @@ BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
 	// TODO: Add your specialized code here and/or call the base class
 	if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) 
 		return TRUE;
-	if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_ESCAPE) 
+	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_ESCAPE)
+	{
+		OnWndFullScreen();
 		return TRUE;
+	}
 	if ( pMsg->message == WM_LBUTTONDOWN)
 	{
 		CRect rect;
@@ -318,4 +322,67 @@ void CffplayerDlg::OnNMReleasedcaptureSliderplayprogress(NMHDR *pNMHDR, LRESULT 
 	double pos = (double)sliderPos / (double)1000;
 	ffplay_seek(pos);
 	*pResult = 0;
+}
+
+void CffplayerDlg::OnWndFullScreen()
+{
+	m_bIsFullScreen = !m_bIsFullScreen;
+	CButton *pButton;
+	if (m_bIsFullScreen)
+	{
+		GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&m_rc);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_OPENFILE);
+		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_PLAY);
+		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_PAUSE);
+		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_STOP);
+		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
+		m_sliderPlay.ModifyStyle(WS_VISIBLE, 0, 0);
+		GetWindowPlacement(&m_OldWndplacement);
+		ModifyStyle(WS_SIZEBOX, 0, 0);
+		CRect WindowRect, ClientRect;
+		RECT m_FullScreenRect;
+		GetWindowRect(&WindowRect);
+		WindowRect.left += 1;
+		WindowRect.right += 1;
+		MoveWindow(CRect(0, 0, 352, 288), TRUE);
+		GetWindowRect(&WindowRect);
+		GetClientRect(&ClientRect);
+		ClientToScreen(&ClientRect);
+		int x = GetSystemMetrics(SM_CXSCREEN);
+		int y = GetSystemMetrics(SM_CYSCREEN);
+		m_FullScreenRect.left = WindowRect.left - ClientRect.left;
+		m_FullScreenRect.top = WindowRect.top - ClientRect.top;
+		m_FullScreenRect.right = WindowRect.right - ClientRect.right + x;
+		m_FullScreenRect.bottom = WindowRect.bottom - ClientRect.bottom + y;
+		WINDOWPLACEMENT wndpl;
+		wndpl.length = sizeof(WINDOWPLACEMENT);
+		wndpl.flags = 0;
+		wndpl.showCmd = SW_SHOWNORMAL;
+		wndpl.rcNormalPosition = m_FullScreenRect;
+		SetWindowPlacement(&wndpl);
+		RECT rc;
+		GetClientRect(&rc);
+		GetDlgItem(IDC_STATIC_PLAY)->MoveWindow(&rc, TRUE);
+	}
+	else
+	{
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_OPENFILE);
+		pButton->ModifyStyle(0, WS_VISIBLE, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_PLAY);
+		pButton->ModifyStyle(0, WS_VISIBLE, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_PAUSE);
+		pButton->ModifyStyle(0, WS_VISIBLE, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_STOP);
+		pButton->ModifyStyle(0, WS_VISIBLE, 0);
+		m_sliderPlay.ModifyStyle(0, WS_VISIBLE, 0);
+		SetWindowPlacement(&m_OldWndplacement);
+		RECT rc = { 5, 30, 5, 5 };
+		rc.right = m_rc.right - m_rc.left + 15;
+		rc.bottom = m_rc.bottom - m_rc.top + 30;
+		GetDlgItem(IDC_STATIC_PLAY)->MoveWindow(&rc, TRUE);
+	}
+	this->RedrawWindow();
 }

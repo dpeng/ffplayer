@@ -57,4 +57,9 @@ private:
 	static DWORD WINAPI playProcess(LPVOID pParam);
 public:
 	afx_msg void OnNMReleasedcaptureSliderplayprogress(NMHDR *pNMHDR, LRESULT *pResult);
+	//full screen related fuction(s)
+	RECT m_rc;
+	WINDOWPLACEMENT m_OldWndplacement;
+	BOOL m_bIsFullScreen;
+	void OnWndFullScreen();
 };
