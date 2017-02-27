@@ -205,6 +205,7 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 	char filename[MAX_PATH] = {};
 	strcpy(filename, (LPCSTR)(CStringA)pThis->m_strFileName);
 	int ret = ffplay_init(filename, pThis->m_playHandler, pThis->m_screenWidth, pThis->m_screenHeight);
+	//0 means return successful
 	if (ret == 0)
 	{
 		pThis->KillTimer(1);
