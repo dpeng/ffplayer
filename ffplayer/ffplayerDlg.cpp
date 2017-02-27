@@ -116,6 +116,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_sliderPlay.SetLineSize(1);
 	m_sliderPlay.SetPageSize(5);
 	m_playHandler = NULL;
+	m_playProcessHandler = NULL;
     m_screenWidth = 0;
     m_screenHeight = 0;
 	m_bIsFullScreen = false;
