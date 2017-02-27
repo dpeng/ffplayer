@@ -63,7 +63,8 @@ public:
 	RECT m_rc;
 	WINDOWPLACEMENT m_OldWndplacement;
 	BOOL m_bIsFullScreen;
-	CBrush m_Brush;
+	CBrush m_brushBackground;
+	CBrush m_brushPlayarea;
 	void OnWndFullScreen();
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	void CreateBtnSkin();

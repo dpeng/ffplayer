@@ -126,7 +126,8 @@ BOOL CffplayerDlg::OnInitDialog()
     m_screenHeight = 0;
 	m_bIsFullScreen = false;
 	CreateBtnSkin();
-	m_Brush.CreateSolidBrush(SYSTEM_BACKCOLOR);
+	m_brushBackground.CreateSolidBrush(SYSTEM_BACKCOLOR);
+	m_brushPlayarea.CreateSolidBrush(RGB(50, 50, 50));
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -267,6 +268,7 @@ void CffplayerDlg::OnBnClickedButtonStop()
 	m_playProcessHandler = NULL;
 	m_playHandler = NULL;
 	m_sliderPlay.SetPos(0);
+	GetDlgItem(IDC_STATIC_PLAY)->RedrawWindow();
 }
 
 
@@ -406,11 +408,10 @@ HBRUSH CffplayerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 	// TODO:  Change any attributes of the DC here
 
-	if( pWnd->GetDlgCtrlID() == IDC_STATIC_PLAY) 
-	{
-		pDC->SetBkMode(TRANSPARENT);
-		return m_Brush;
-	}
+	pDC->SetBkMode(TRANSPARENT);
+	if( pWnd->GetDlgCtrlID() == IDC_STATIC_PLAY)    
+		return m_brushPlayarea;
+	return m_brushBackground;
 	// TODO:  Return a different brush if the default is not desired
 	return hbr;
 }

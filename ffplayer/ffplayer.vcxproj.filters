@@ -96,8 +96,6 @@
     <None Include="res\ffplayer.rc2">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="ClassDiagram.cd" />
-    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\ffplayer.ico">
