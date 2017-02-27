@@ -18,6 +18,13 @@
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+#pragma warning (disable : 4133)
+#pragma warning (disable : 4090)
+#pragma warning (disable : 4244)
+#pragma warning (disable : 4305)
+#pragma warning (disable : 4996)
+#pragma warning (disable : 4018)
+#pragma warning (disable : 4267)
 
 #include "ffplay.h"
 #include <string.h>

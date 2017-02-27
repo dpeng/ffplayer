@@ -22,6 +22,13 @@
  * @file
  * simple media player based on the FFmpeg libraries
  */
+#pragma warning (disable : 4090)
+#pragma warning (disable : 4996)
+#pragma warning (disable : 4244)
+#pragma warning (disable : 4018)
+#pragma warning (disable : 4047)
+#pragma warning (disable : 4024)
+#pragma warning (disable : 4715)
 
 #include "config.h"
 #include <inttypes.h>

@@ -18,9 +18,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#pragma warning (disable : 4047)
 
 #include "config.h"
-
 
 char *avresample_configuration(void) {return *(char*)(0);}
 unsigned avresample_version(void) {return 0;}

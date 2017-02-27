@@ -197,13 +197,13 @@ static void av_log_encoder(void *ptr, int level, const char *fmt, va_list vargs)
 		return;
 	char logbuf[MAX_PATH];
 	vsnprintf(logbuf, sizeof(logbuf), fmt, vargs);
-	OutputDebugString(logbuf);
+	OutputDebugString((LPCWSTR)logbuf);
 }
 DWORD CffplayerDlg::playProcess(LPVOID pParam)
 {
 	CffplayerDlg* pThis = (CffplayerDlg*)pParam;
 	char filename[MAX_PATH] = {};
-	strcpy(filename, (LPCSTR)(CStringA)pThis->m_strFileName);
+	strcpy_s(filename, (LPCSTR)(CStringA)pThis->m_strFileName);
 	int ret = ffplay_init(filename, pThis->m_playHandler, pThis->m_screenWidth, pThis->m_screenHeight);
 	//0 means return successful
 	if (ret == 0)
@@ -220,6 +220,8 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 void CffplayerDlg::OnBnClickedButtonPlay()
 {
 	// TODO: Add your control notification handler code here
+	//stop the playing before open an new play
+	OnBnClickedButtonStop();
 	RECT rc = {0};
 	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
 	m_screenWidth = rc.right - rc.left;
@@ -282,7 +284,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		OutputDebugString(str);
 		*/
 		if(totalTime >= 1)
-			m_sliderPlay.SetPos(curTime*1000/totalTime);
+			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
 	}
 	CDialogEx::OnTimer(nIDEvent);
 }
