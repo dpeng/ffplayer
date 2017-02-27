@@ -3001,7 +3001,7 @@ static int read_thread(void *arg)
         SDL_PushEvent(&event);
     }
     SDL_DestroyMutex(wait_mutex);
-    return 0;
+    return ret;
 }
 
 static VideoState *stream_open(const char *filename, AVInputFormat *iformat)
@@ -3205,6 +3205,7 @@ static int event_loop(VideoState *cur_stream, void *hwnd)
 {
     SDL_Event event;
     double incr, pos, frac;
+    int ret = 0;
 
     for (;cur_stream->eof != 1;) {
         double x;
@@ -3212,13 +3213,13 @@ static int event_loop(VideoState *cur_stream, void *hwnd)
         switch (event.type) {
         case SDL_KEYDOWN:
             if (exit_on_keydown) {
-                do_exit(cur_stream);
+				ret = -1;
                 break;
             }
             switch (event.key.keysym.sym) {
             case SDLK_ESCAPE:
             case SDLK_q:
-                do_exit(cur_stream);
+				ret = -1;
                 break;
             case SDLK_f:
                 toggle_full_screen(cur_stream);
@@ -3325,7 +3326,7 @@ static int event_loop(VideoState *cur_stream, void *hwnd)
             break;
         case SDL_MOUSEBUTTONDOWN:
             if (exit_on_mousedown) {
-                do_exit(cur_stream);
+				ret = -1;
                 break;
             }
             if (event.button.button == SDL_BUTTON_LEFT) {
@@ -3393,13 +3394,13 @@ static int event_loop(VideoState *cur_stream, void *hwnd)
             break;
         case SDL_QUIT:
         case FF_QUIT_EVENT:
-            //do_exit(cur_stream);
+				ret = 0;
             break;
         default:
             break;
         }
     }
-    return 0;
+    return ret;
 }
 
 static int opt_frame_size(void *optctx, const char *opt, const char *arg)
@@ -3625,6 +3626,7 @@ int ffplay_init(char *filename, void* hwnd, int width, int height)
 
 	int flags;
 	VideoState *is;
+    int ret = 0;
 
 	init_dynload();
 
@@ -3655,7 +3657,7 @@ int ffplay_init(char *filename, void* hwnd, int width, int height)
 		av_log(NULL, AV_LOG_FATAL, "An input file must be specified\n");
 		av_log(NULL, AV_LOG_FATAL,
 			"Use -h to get full help or, even better, run 'man %s'\n", program_name);
-		exit(1);
+		ret = -1;
 	}
 
 	if (display_disable) {
@@ -3675,7 +3677,7 @@ int ffplay_init(char *filename, void* hwnd, int width, int height)
 	if (SDL_Init(flags)) {
 		av_log(NULL, AV_LOG_FATAL, "Could not initialize SDL - %s\n", SDL_GetError());
 		av_log(NULL, AV_LOG_FATAL, "(Did you set the DISPLAY variable?)\n");
-		exit(1);
+		ret = -1;
 	}
 
 	SDL_EventState(SDL_SYSWMEVENT, SDL_IGNORE);
@@ -3683,7 +3685,7 @@ int ffplay_init(char *filename, void* hwnd, int width, int height)
 
 	if (av_lockmgr_register(lockmgr)) {
 		av_log(NULL, AV_LOG_FATAL, "Could not initialize lock manager!\n");
-		do_exit(NULL);
+		ret = -1;
 	}
 
 	av_init_packet(&flush_pkt);
@@ -3692,14 +3694,14 @@ int ffplay_init(char *filename, void* hwnd, int width, int height)
 	is = stream_open(input_filename, file_iformat);
 	if (!is) {
 		av_log(NULL, AV_LOG_FATAL, "Failed to initialize VideoState!\n");
-		do_exit(NULL);
+		ret = -1;
 	}
     
     screen_width  = is->width  = width;
     screen_height = is->height = height;
 	m_curstream = is;
-	return event_loop(is, hwnd);
-
+	ret = event_loop(is, hwnd);
+	return ret;
 	/* never returns */
 }
 
