@@ -380,9 +380,10 @@ void CffplayerDlg::OnWndFullScreen()
 		pButton->ModifyStyle(0, WS_VISIBLE, 0);
 		m_sliderPlay.ModifyStyle(0, WS_VISIBLE, 0);
 		SetWindowPlacement(&m_OldWndplacement);
-		RECT rc = { 5, 30, 5, 5 };
-		rc.right = m_rc.right - m_rc.left + 15;
-		rc.bottom = m_rc.bottom - m_rc.top + 30;
+		//left top right  bottom;
+		RECT rc = { 0, 0, 0, 0 };
+		rc.right = m_rc.right - m_rc.left;
+		rc.bottom = m_rc.bottom - m_rc.top;
 		GetDlgItem(IDC_STATIC_PLAY)->MoveWindow(&rc, TRUE);
 	}
 	this->RedrawWindow();
