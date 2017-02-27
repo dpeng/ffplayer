@@ -12,6 +12,8 @@ extern "C"
 
 // CffplayerDlg dialog
 #include "afxcmn.h"
+#include "afxwin.h"
+#include "xskin/xskinbutton.h"
 class CffplayerDlg : public CDialogEx
 {
 // Construction
@@ -61,5 +63,12 @@ public:
 	RECT m_rc;
 	WINDOWPLACEMENT m_OldWndplacement;
 	BOOL m_bIsFullScreen;
+	CBrush m_Brush;
 	void OnWndFullScreen();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	void CreateBtnSkin();
+	CSkinButton m_btnOpenFile;
+	CSkinButton m_btnPlay;
+	CSkinButton m_btnPause;
+	CSkinButton m_btnStop;
 };

@@ -203,6 +203,9 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="xskin\sliderbase.h" />
+    <ClInclude Include="xskin\titleBar.h" />
+    <ClInclude Include="xskin\xskinbutton.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ffplayer.cpp" />
@@ -239,6 +242,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="xskin\sliderbase.cpp" />
+    <ClCompile Include="xskin\titleBar.cpp" />
+    <ClCompile Include="xskin\xskinbutton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ffplayer.rc" />
@@ -249,6 +255,9 @@
     <None Include="res\ffplayer.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\comonBtnDown.bmp" />
+    <Image Include="res\comonBtnNormal.bmp" />
+    <Image Include="res\comonBtnOver.bmp" />
     <Image Include="res\ffplayer.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

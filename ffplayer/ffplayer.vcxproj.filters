@@ -16,6 +16,9 @@
     <Filter Include="Source Files\ffplay">
       <UniqueIdentifier>{7cc69386-56f8-452b-a10e-293e88ee94db}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\xSkin">
+      <UniqueIdentifier>{753aa9a4-160b-4ea4-8b44-a665a83783bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -45,6 +48,15 @@
     <ClInclude Include="ffplay\ffplay.h">
       <Filter>Source Files\ffplay</Filter>
     </ClInclude>
+    <ClInclude Include="xskin\sliderbase.h">
+      <Filter>Source Files\xSkin</Filter>
+    </ClInclude>
+    <ClInclude Include="xskin\titleBar.h">
+      <Filter>Source Files\xSkin</Filter>
+    </ClInclude>
+    <ClInclude Include="xskin\xskinbutton.h">
+      <Filter>Source Files\xSkin</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ffplayer.cpp">
@@ -65,6 +77,15 @@
     <ClCompile Include="ffplay\dce_defs.c">
       <Filter>Source Files\ffplay</Filter>
     </ClCompile>
+    <ClCompile Include="xskin\sliderbase.cpp">
+      <Filter>Source Files\xSkin</Filter>
+    </ClCompile>
+    <ClCompile Include="xskin\titleBar.cpp">
+      <Filter>Source Files\xSkin</Filter>
+    </ClCompile>
+    <ClCompile Include="xskin\xskinbutton.cpp">
+      <Filter>Source Files\xSkin</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ffplayer.rc">
@@ -80,6 +101,15 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\ffplayer.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\comonBtnNormal.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\comonBtnDown.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\comonBtnOver.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

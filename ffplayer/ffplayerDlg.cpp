@@ -58,6 +58,10 @@ void CffplayerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_SLIDERPLAYPROGRESS, m_sliderPlay);
+	DDX_Control(pDX, ID_BUTTON_OPENFILE, m_btnOpenFile);
+	DDX_Control(pDX, ID_BUTTON_PLAY, m_btnPlay);
+	DDX_Control(pDX, ID_BUTTON_PAUSE, m_btnPause);
+	DDX_Control(pDX, ID_BUTTON_STOP, m_btnStop);
 }
 
 BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
@@ -71,6 +75,7 @@ BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
 	ON_BN_CLICKED(ID_BUTTON_PAUSE, &CffplayerDlg::OnBnClickedButtonPause)
 	ON_WM_TIMER()
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDERPLAYPROGRESS, &CffplayerDlg::OnNMReleasedcaptureSliderplayprogress)
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -120,6 +125,8 @@ BOOL CffplayerDlg::OnInitDialog()
     m_screenWidth = 0;
     m_screenHeight = 0;
 	m_bIsFullScreen = false;
+	CreateBtnSkin();
+	m_Brush.CreateSolidBrush(SYSTEM_BACKCOLOR);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -163,6 +170,7 @@ void CffplayerDlg::OnPaint()
 	{
 		CDialogEx::OnPaint();
 	}
+	this->UpdateWindow();
 }
 
 // The system calls this function to obtain the cursor to display while the user drags
@@ -390,4 +398,41 @@ void CffplayerDlg::OnWndFullScreen()
 		GetDlgItem(IDC_STATIC_PLAY)->MoveWindow(&rc, TRUE);
 	}
 	this->RedrawWindow();
+}
+
+HBRUSH CffplayerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	// TODO:  Change any attributes of the DC here
+
+	if( pWnd->GetDlgCtrlID() == IDC_STATIC_PLAY) 
+	{
+		pDC->SetBkMode(TRANSPARENT);
+		return m_Brush;
+	}
+	// TODO:  Return a different brush if the default is not desired
+	return hbr;
+}
+
+void CffplayerDlg::CreateBtnSkin()
+{
+	/* doesn't create title bar skin currently
+	m_titleBar.Create(CRect(0, 0, 520, 25), this,
+		IDB_COMONTITLE, IDB_COMONTITLE,
+		IDB_COMONTITLE, IDB_COMONTITLE);
+	m_titleBar.SetLabel("playing....");
+	*/
+	m_btnOpenFile.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
+	m_btnOpenFile.SetTextColor(SYSTEM_BTNCOLOR);
+	m_btnOpenFile.SizeToContent();
+	m_btnPlay.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
+	m_btnPlay.SetTextColor(SYSTEM_BTNCOLOR);
+	m_btnPlay.SizeToContent();
+	m_btnPause.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
+	m_btnPause.SetTextColor(SYSTEM_BTNCOLOR);
+	m_btnPause.SizeToContent();
+	m_btnStop.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
+	m_btnStop.SetTextColor(SYSTEM_BTNCOLOR);
+	m_btnStop.SizeToContent();
 }

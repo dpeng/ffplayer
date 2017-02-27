@@ -32,6 +32,8 @@
 
 #include <afxcontrolbars.h>     // MFC support for ribbons and control bars
 
+static const long SYSTEM_BACKCOLOR = RGB(75, 75, 75);
+static const long SYSTEM_BTNCOLOR = RGB(198, 206, 225);
 
 
 
