@@ -268,7 +268,9 @@ void CffplayerDlg::OnBnClickedButtonStop()
 	m_playProcessHandler = NULL;
 	m_playHandler = NULL;
 	m_sliderPlay.SetPos(0);
-	GetDlgItem(IDC_STATIC_PLAY)->RedrawWindow();
+	//force to set the Play area color
+	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 }
 
 
