@@ -112,7 +112,6 @@ BOOL CffplayerDlg::OnInitDialog()
 
 	ShowWindow(SW_SHOWNORMAL);
 
-	// TODO: Add extra initialization here
 	m_strFileName = _T("D:\\temp\\ShapeOfYou.mp4");
 	//OnBnClickedButtonPlay();
 	m_sliderPlay.SetRangeMin(0);
@@ -185,7 +184,6 @@ HCURSOR CffplayerDlg::OnQueryDragIcon()
 
 void CffplayerDlg::OnBnClickedButtonOpenfile()
 {
-	// TODO: Add your control notification handler code here
 	CString tempfilename = _T("");
 	CFileDialog FileChooser(TRUE,
 		NULL,
@@ -215,15 +213,11 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 	strcpy_s(filename, (LPCSTR)(CStringA)pThis->m_strFileName);
 	int ret = ffplay_init(filename, pThis->m_playHandler, pThis->m_screenWidth, pThis->m_screenHeight);
 	//0 means return successful
-	if (ret == 0)
-	{
-		pThis->cleanupResource(FALSE, FALSE);
-	}
+	if (ret == 0)		pThis->cleanupResource(FALSE, FALSE);
 	return ret;
 }
 void CffplayerDlg::OnBnClickedButtonPlay()
 {
-	// TODO: Add your control notification handler code here
 	//stop the playing before open an new play
 	OnBnClickedButtonStop();
 	RECT rc = {0};
@@ -242,7 +236,6 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 
 void CffplayerDlg::OnClose()
 {
-	// TODO: Add your message handler code here and/or call default
 	cleanupResource(TRUE, TRUE);
 	CDialogEx::OnClose();
 }
@@ -250,21 +243,18 @@ void CffplayerDlg::OnClose()
 
 void CffplayerDlg::OnBnClickedButtonStop()
 {
-	// TODO: Add your control notification handler code here
 	cleanupResource(TRUE, FALSE);
 }
 
 
 void CffplayerDlg::OnBnClickedButtonPause()
 {
-	// TODO: Add your control notification handler code here
 	ffplay_pause();
 }
 
 
 void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	// TODO: Add your message handler code here and/or call default
 	if (nIDEvent == 1)
 	{
 		double curTime; 
@@ -285,7 +275,6 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 
 BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
 {
-	// TODO: Add your specialized code here and/or call the base class
 	if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) 
 		return TRUE;
 	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_ESCAPE)
@@ -296,25 +285,20 @@ BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
 	if ( pMsg->message == WM_LBUTTONDOWN)
 	{
 		CRect rect;
-        GetDlgItem(IDC_SLIDERPLAYPROGRESS)->GetWindowRect(&rect);
-		
-        CPoint  pt;
+		CPoint  pt;
+        GetDlgItem(IDC_SLIDERPLAYPROGRESS)->GetWindowRect(&rect);		
         GetCursorPos(&pt);
-
         if (rect.PtInRect(pt))
-        {
 			KillTimer(1);
-        }
 	}
 	if ( pMsg->message == WM_LBUTTONUP)
-		SetTimer(1, 40, NULL);
+			SetTimer(1, 40, NULL);
 	return CDialogEx::PreTranslateMessage(pMsg);
 }
 
 
 void CffplayerDlg::OnNMReleasedcaptureSliderplayprogress(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	// TODO: Add your control notification handler code here
 	int sliderPos = m_sliderPlay.GetPos();
 	double pos = (double)sliderPos / (double)1000;
 	ffplay_seek(pos);
@@ -389,13 +373,11 @@ HBRUSH CffplayerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
 
-	// TODO:  Change any attributes of the DC here
 
 	pDC->SetBkMode(TRANSPARENT);
 	if( pWnd->GetDlgCtrlID() == IDC_STATIC_PLAY)    
 		return m_brushPlayarea;
 	return m_brushBackground;
-	// TODO:  Return a different brush if the default is not desired
 	return hbr;
 }
 
