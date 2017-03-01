@@ -1227,11 +1227,16 @@ static void do_exit(VideoState *is)
 {
     if (is) {
         stream_close(is);
+        is = NULL;
     }
-    if (renderer)
+    if (renderer) {
         SDL_DestroyRenderer(renderer);
-    if (window)
+        renderer = NULL;
+    }
+    if (window) {
         SDL_DestroyWindow(window);
+        window = NULL;
+    }
     av_lockmgr_register(NULL);
     uninit_opts();
 #if CONFIG_AVFILTER
@@ -1242,7 +1247,7 @@ static void do_exit(VideoState *is)
         printf("\n");
     SDL_Quit();
     av_log(NULL, AV_LOG_QUIET, "%s", "");
-    exit(0);
+    //exit(0);
 }
 
 static void sigterm_handler(int sig)
@@ -3712,7 +3717,7 @@ int ffplay_init(char *filename, void* hwnd, int width, int height)
 	/* never returns */
 }
 
-void ffplay_exit(void)
+void ffplay_stop(void)
 {
 	if (NULL != m_curstream)
 	{
@@ -3725,41 +3730,6 @@ void ffplay_exit(void)
 	}
 }
 
-
-void ffplay_stop(void)
-{
-	if (NULL != m_curstream)
-	{
-		if(m_streamIndex[AVMEDIA_TYPE_VIDEO] >= 0)
-			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_VIDEO]]->codec);
-		if(m_streamIndex[AVMEDIA_TYPE_AUDIO] >= 0)
-			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_AUDIO]]->codec);
-		//do_exit(m_curstream);********************		
-	    if (m_curstream) {
-	        stream_close(m_curstream);
-	        m_curstream = NULL;
-	    }
-	    if (renderer){
-	        SDL_DestroyRenderer(renderer);
-	        renderer = NULL;
-	    }
-	    if (window){
-	        SDL_DestroyWindow(window);
-	        window = NULL;
-	    }
-	    av_lockmgr_register(NULL);
-	    uninit_opts();
-#if CONFIG_AVFILTER
-	    av_freep(&vfilters_list);
-#endif
-	    avformat_network_deinit();
-	    if (show_status)
-	        printf("\n");
-	    SDL_Quit();
-		//do_stop********************************
-		m_curstream = NULL;
-	}
-}
 void ffplay_pause()
 {
 	if (NULL != m_curstream)

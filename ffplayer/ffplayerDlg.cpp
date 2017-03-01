@@ -2,6 +2,8 @@
 #include "ffplayer.h"
 #include "ffplayerDlg.h"
 #include "afxdialogex.h"
+#include <crtdbg.h>
+#define _CRTDBG_MAP_ALLOC 
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -208,8 +210,9 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 	char filename[MAX_PATH] = {};
 	strcpy_s(filename, (LPCSTR)(CStringA)pThis->m_strFileName);
 	int ret = ffplay_init(filename, pThis->m_playHandler, pThis->m_screenWidth, pThis->m_screenHeight);
+	_CrtDumpMemoryLeaks();
 	//0 means return successful
-	if (ret == 0)		pThis->cleanupResource(FALSE, FALSE);
+	if (ret == 0)		pThis->cleanupResource(FALSE);
 	return ret;
 }
 void CffplayerDlg::OnBnClickedButtonPlay()
@@ -236,14 +239,14 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 
 void CffplayerDlg::OnClose()
 {
-	cleanupResource(TRUE, TRUE);
+	cleanupResource(TRUE);
 	CDialogEx::OnClose();
 }
 
 
 void CffplayerDlg::OnBnClickedButtonStop()
 {
-	cleanupResource(TRUE, FALSE);
+	cleanupResource(TRUE);
 }
 
 
@@ -404,11 +407,10 @@ void CffplayerDlg::CreateBtnSkin()
 }
 
 
-void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess, bool isExit)
+void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 {   
 	KillTimer(1);
 	if (isTerminaterPlayProcess)    TerminateThread(m_playProcessHandler, 0);
-	if(isExit)                     ffplay_exit();
 	ffplay_stop();
 	CloseHandle(m_playProcessHandler);
 	m_playProcessHandler = NULL;

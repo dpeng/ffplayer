@@ -4,7 +4,6 @@
 #include <inttypes.h>
 int ffplay_init(char *filename, void* hwnd, int width, int height);
 void ffplay_stop(void);
-void ffplay_exit(void);
 void ffplay_pause(void);
 void ffplay_av_log_set_callback(void *func);
 int ffplay_get_stream_totaltime(void);

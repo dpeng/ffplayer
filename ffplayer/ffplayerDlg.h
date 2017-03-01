@@ -43,7 +43,7 @@ private:
 	static DWORD WINAPI playProcess(LPVOID pParam);
 	void OnWndFullScreen();
 	void CreateBtnSkin();
-	void cleanupResource(bool isTerminaterPlayProcess, bool isExit);
+	void cleanupResource(bool isTerminaterPlayProcess);
 	WINDOWPLACEMENT m_OldWndplacement;
     HANDLE m_playProcessHandler;
 	BOOL m_bIsFullScreen;
