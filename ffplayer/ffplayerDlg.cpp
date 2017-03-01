@@ -1,7 +1,3 @@
-
-// ffplayerDlg.cpp : implementation file
-//
-
 #include "stdafx.h"
 #include "ffplayer.h"
 #include "ffplayerDlg.h"
@@ -220,12 +216,16 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 {
 	//stop the playing before open an new play
 	OnBnClickedButtonStop();
+
 	RECT rc = {0};
 	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
 	m_screenWidth = rc.right - rc.left;
 	m_screenHeight = rc.bottom - rc.top;
 	ffplay_av_log_set_callback(av_log_encoder);
+
+	//need show the play area again because when we close the SDL, it will hide the play window
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
+
 	m_playHandler = GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd();
 	SetTimer(1, 40, NULL);
 	
@@ -405,9 +405,7 @@ void CffplayerDlg::CreateBtnSkin()
 
 
 void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess, bool isExit)
-{
-    ///////////////stop process///////////////////
-    
+{   
 	KillTimer(1);
 	if (isTerminaterPlayProcess)    TerminateThread(m_playProcessHandler, 0);
 	if(isExit)                     ffplay_exit();
@@ -416,6 +414,8 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess, bool isExit)
 	m_playProcessHandler = NULL;
 	m_playHandler = NULL;
 	m_sliderPlay.SetPos(0);
+
+	//this is for redraw play area
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 }

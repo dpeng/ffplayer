@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "titleBar.h"
 
 #ifdef _DEBUG
@@ -80,6 +79,7 @@ void CTitleBase::OnPaint()
 	memset(&lf, 0, sizeof(LOGFONT));
 	lf.lfHeight = 12;
 	lf.lfWeight = 12;
+#pragma warning (disable : 4996)
 	strcpy((char*)lf.lfFaceName, "MS Sans Serif");
 	lf.lfWeight=FW_BOLD;
 	VERIFY(font.CreateFontIndirect(&lf));
