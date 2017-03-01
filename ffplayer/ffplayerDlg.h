@@ -24,52 +24,39 @@ public:
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_FFPLAYER_DIALOG };
 #endif
-
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-
-
-// Implementation
-protected:
-	HICON m_hIcon;
-
-	// Generated message map functions
+	virtual void DoDataExchange(CDataExchange* pDX);
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
-public:
 	afx_msg void OnBnClickedButtonOpenfile();
-
-public:
 	afx_msg void OnBnClickedButtonPlay();
 	afx_msg void OnClose();
 	afx_msg void OnBnClickedButtonStop();
 	afx_msg void OnBnClickedButtonPause();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	CSliderCtrl m_sliderPlay;
-    HANDLE m_playProcessHandler;
+	afx_msg void OnNMReleasedcaptureSliderplayprogress(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 private:
+	static DWORD WINAPI playProcess(LPVOID pParam);
+	void OnWndFullScreen();
+	void CreateBtnSkin();
+	WINDOWPLACEMENT m_OldWndplacement;
+    HANDLE m_playProcessHandler;
+	BOOL m_bIsFullScreen;
 	CString m_strFileName;
+	CBrush m_brushBackground;
+	CBrush m_brushPlayarea;
 	void * m_playHandler;
 	int m_screenWidth;
 	int m_screenHeight;
-	static DWORD WINAPI playProcess(LPVOID pParam);
-public:
-	afx_msg void OnNMReleasedcaptureSliderplayprogress(NMHDR *pNMHDR, LRESULT *pResult);
-	//full screen related fuction(s)
-	RECT m_rc;
-	WINDOWPLACEMENT m_OldWndplacement;
-	BOOL m_bIsFullScreen;
-	CBrush m_brushBackground;
-	CBrush m_brushPlayarea;
-	void OnWndFullScreen();
-	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-	void CreateBtnSkin();
+	CSliderCtrl m_sliderPlay;
 	CSkinButton m_btnOpenFile;
 	CSkinButton m_btnPlay;
 	CSkinButton m_btnPause;
 	CSkinButton m_btnStop;
+	HICON m_hIcon;
+	RECT m_rc;
 };
