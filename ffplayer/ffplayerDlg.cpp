@@ -217,12 +217,7 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 	//0 means return successful
 	if (ret == 0)
 	{
-		pThis->KillTimer(1);
-		ffplay_stop();
-		CloseHandle(pThis->m_playProcessHandler);
-		pThis->m_playProcessHandler = NULL;
-		pThis->m_playHandler = NULL;
-		pThis->m_sliderPlay.SetPos(0);
+		pThis->cleanupResource(FALSE, FALSE);
 	}
 	return ret;
 }
@@ -248,12 +243,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 void CffplayerDlg::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
-	KillTimer(1);
-	TerminateThread(m_playProcessHandler, 0);
-	ffplay_exit();
-	CloseHandle(m_playProcessHandler);
-	m_playProcessHandler = NULL;
-	m_playHandler = NULL;
+	cleanupResource(TRUE, TRUE);
 	CDialogEx::OnClose();
 }
 
@@ -261,16 +251,7 @@ void CffplayerDlg::OnClose()
 void CffplayerDlg::OnBnClickedButtonStop()
 {
 	// TODO: Add your control notification handler code here
-	KillTimer(1);
-	TerminateThread(m_playProcessHandler, 0);
-	ffplay_stop();
-	CloseHandle(m_playProcessHandler);
-	m_playProcessHandler = NULL;
-	m_playHandler = NULL;
-	m_sliderPlay.SetPos(0);
-	//force to set the Play area color
-	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
-	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
+	cleanupResource(TRUE, FALSE);
 }
 
 
@@ -438,4 +419,21 @@ void CffplayerDlg::CreateBtnSkin()
 	m_btnStop.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
 	m_btnStop.SetTextColor(SYSTEM_BTNCOLOR);
 	m_btnStop.SizeToContent();
+}
+
+
+void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess, bool isExit)
+{
+    ///////////////stop process///////////////////
+    
+	KillTimer(1);
+	if (isTerminaterPlayProcess)    TerminateThread(m_playProcessHandler, 0);
+	if(isExit)                     ffplay_exit();
+	ffplay_stop();
+	CloseHandle(m_playProcessHandler);
+	m_playProcessHandler = NULL;
+	m_playHandler = NULL;
+	m_sliderPlay.SetPos(0);
+	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 }
