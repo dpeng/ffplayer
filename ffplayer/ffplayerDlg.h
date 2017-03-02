@@ -41,11 +41,14 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 private:
 	static DWORD WINAPI playProcess(LPVOID pParam);
+	static DWORD WINAPI consoleInputMonitor(LPVOID pParam);
+    DWORD ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs);
 	void OnWndFullScreen();
 	void CreateBtnSkin();
 	void cleanupResource(bool isTerminaterPlayProcess);
 	WINDOWPLACEMENT m_OldWndplacement;
     HANDLE m_playProcessHandler;
+    HANDLE m_consoleMonitorProcessHandler;
 	BOOL m_bIsFullScreen;
 	CString m_strFileName;
 	CBrush m_brushBackground;
@@ -58,6 +61,8 @@ private:
 	CSkinButton m_btnPlay;
 	CSkinButton m_btnPause;
 	CSkinButton m_btnStop;
+	HANDLE m_hOutputConsole;
+	HANDLE m_hInputConsole;
 	HICON m_hIcon;
 	RECT m_rc;
 };
