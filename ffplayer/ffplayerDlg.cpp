@@ -123,14 +123,11 @@ BOOL CffplayerDlg::OnInitDialog()
     m_screenWidth = 0;
     m_screenHeight = 0;
 	m_bIsFullScreen = false;
+	m_bIsPlaying = FALSE;
 	CreateBtnSkin();
 	m_brushBackground.CreateSolidBrush(SYSTEM_BACKCOLOR);
 	m_brushPlayarea.CreateSolidBrush(RGB(50, 50, 50));
-	AllocConsole();
-	m_hOutputConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	m_hInputConsole  = GetStdHandle(STD_INPUT_HANDLE);
-	DWORD dw;
-	m_consoleMonitorProcessHandler = CreateThread(NULL, 0, CffplayerDlg::consoleInputMonitor, this, 0, &dw);
+	initConsole();
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -236,6 +233,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 
 	m_playHandler = GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd();
+	m_bIsPlaying = TRUE;
 	SetTimer(1, 40, NULL);
 	
 	DWORD dw;
@@ -277,14 +275,15 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		int	totalTime;
 		curTime = ffplay_get_stream_curtime();
 		totalTime = ffplay_get_stream_totaltime();
-		
-		/*
+				
 		char logbuf[MAX_PATH];
 		memset(logbuf, 0, sizeof(logbuf));
-		sprintf(logbuf, "Total: %d, Current: %7.2f, pos: %d\n", totalTime, curTime, (int)(curTime * 1000 / totalTime));
-		OutputDebugStringA(logbuf);
-		*/
-		//isnan can judge the current time is invalide or not, it can happened when play start and seek
+		sprintf_s(logbuf, "Total: %d, Current: %7.2f, pos: %d\n", totalTime, curTime, (int)(curTime * 1000 / totalTime));
+		//OutputDebugStringA(logbuf);
+		DWORD len;
+	  	WriteConsoleA(m_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
+		
+		//isnan can judge the current time is invalid or not, it can happened when play start and seek
 		if((totalTime >= 1) && !isnan(curTime))
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
 	}
@@ -310,7 +309,7 @@ BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
         if (rect.PtInRect(pt))
 			KillTimer(1);
 	}
-	if (pMsg->message == WM_LBUTTONUP)
+	if ((pMsg->message == WM_LBUTTONUP) && (TRUE == m_bIsPlaying))
 	{
 		Sleep(500);// avoid the slider jump from the start and seek position
 		SetTimer(1, 40, NULL);
@@ -434,48 +433,115 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 	CloseHandle(m_playProcessHandler);
 	m_playProcessHandler = NULL;
 	m_playHandler = NULL;
+	m_bIsPlaying = FALSE;
 	m_sliderPlay.SetPos(0);
 
 	//this is for redraw play area
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 }
+
+void CffplayerDlg::initConsole()
+{
+	AllocConsole();
+	m_consoleWindowWidth = 0;
+	m_hOutputConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	m_hInputConsole  = GetStdHandle(STD_INPUT_HANDLE);
+	//SetConsoleMode(m_hInputConsole, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
+	SMALL_RECT rc = { 0, 0, 0, 0 };
+	COORD tmpCoord = GetLargestConsoleWindowSize(m_hOutputConsole);
+	if(tmpCoord.X >= 100)
+		tmpCoord.X = 100;
+	else if(tmpCoord.X - 1 >= 50)
+		tmpCoord.X = 50;
+	rc.Right = tmpCoord.X - 1;
+	rc.Bottom = (tmpCoord.Y)*2/3;
+	tmpCoord.Y = tmpCoord.Y * 5;
+	SetConsoleScreenBufferSize(m_hOutputConsole, tmpCoord);
+	BOOL ret = SetConsoleWindowInfo(m_hOutputConsole, TRUE, &rc);
+	if(ret == TRUE)
+		m_consoleWindowWidth = tmpCoord.X;
+	DWORD dw;
+	m_consoleMonitorProcessHandler = CreateThread(NULL, 0, CffplayerDlg::consoleInputMonitor, this, 0, &dw);
+
+}
+
 DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 {
-	INPUT_RECORD *temp = pInputRec;
-	DWORD tmp = dwInputs;
-	int abc =0;
+	if(pInputRec == NULL)	return 1;
 	char logbuf[MAX_PATH];
 	memset(logbuf, 0, sizeof(logbuf));
-	sprintf(logbuf, "test success: %d \n", temp->EventType);
+	switch (pInputRec->EventType)
+	{
+	case KEY_EVENT:
+		if(pInputRec->Event.KeyEvent.bKeyDown)
+		{
+			switch (pInputRec->Event.KeyEvent.wVirtualKeyCode)
+			{
+			case 0x50: /*VK_P*/
+				OnBnClickedButtonPause();
+				break;
+			case 0x4e: /*VK_N*/
+				break;
+			case 0x46: /*VK_F*/
+				OnWndFullScreen();
+				break;
+			case VK_RETURN:
+				break;
+			default:
+				break;
+			}
+		}
+		break;
+	case MOUSE_EVENT:
+		if(pInputRec->Event.MouseEvent.dwButtonState == RIGHTMOST_BUTTON_PRESSED)
+		{
+			sprintf_s(logbuf, "FROM_LEFT_1ST_BUTTON_PRESSED: %d pos: %d %d\n", 
+				pInputRec->EventType,
+				pInputRec->Event.MouseEvent.dwMousePosition.X,
+				pInputRec->Event.MouseEvent.dwMousePosition.Y);
+			if ((m_consoleWindowWidth > 0) &&
+				(pInputRec->Event.MouseEvent.dwMousePosition.X >= 0) &&
+				(m_consoleWindowWidth >= pInputRec->Event.MouseEvent.dwMousePosition.X))
+			{
+				double pos = (double)pInputRec->Event.MouseEvent.dwMousePosition.X/(double)m_consoleWindowWidth;
+				if(m_bIsPlaying)
+					ffplay_seek(pos);
+			}
+		}
+
+		break;
+	case WINDOW_BUFFER_SIZE_EVENT:
+		break;
+	case MENU_EVENT:
+		break;
+	case FOCUS_EVENT:
+		break;
+	default:
+		break;
+	}
 	DWORD len;
-  	WriteConsoleA(m_hOutputConsole, logbuf, strlen(logbuf), &len, NULL);
-	return abc;
+	//sprintf_s(logbuf, "ProcessConsoleInput event type : %d \n", pInputRec->EventType);
+  	WriteConsoleA(m_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
+	return 0;
 }
 DWORD CffplayerDlg::consoleInputMonitor(LPVOID pParam)
 {
-	CffplayerDlg *pConsoleMgr = (CffplayerDlg *)pParam;
-	if(pConsoleMgr == NULL) return -1;
+	CffplayerDlg *pThis = (CffplayerDlg *)pParam;
+	if(pThis == NULL) return -1;
 
 	DWORD   dwInputs;
-	INPUT_RECORD Input_Record[MAX_PATH];
+	INPUT_RECORD lpBuffer[MAX_PATH];
+	FlushConsoleInputBuffer(pThis->m_hInputConsole);
 
-	FlushConsoleInputBuffer(pConsoleMgr->m_hInputConsole);
-
-	while(pConsoleMgr->m_consoleMonitorProcessHandler)
+	while(pThis->m_consoleMonitorProcessHandler)
 	{
 		// If there are input events in buffer, this object is signaled
-		WaitForSingleObject(pConsoleMgr->m_hInputConsole, INFINITE);
+		WaitForSingleObject(pThis->m_hInputConsole, INFINITE);
+		GetNumberOfConsoleInputEvents(pThis->m_hInputConsole, &dwInputs);
+		ReadConsoleInput(pThis->m_hInputConsole, lpBuffer, min(dwInputs,MAX_PATH), &dwInputs);
 
-		GetNumberOfConsoleInputEvents(pConsoleMgr->m_hInputConsole, &dwInputs);
-
-		ReadConsoleInput(pConsoleMgr->m_hInputConsole, 
-		Input_Record,
-		min(dwInputs,MAX_PATH),
-		&dwInputs);
-
-		pConsoleMgr->ProcessConsoleInput(Input_Record,0);
+		pThis->ProcessConsoleInput(lpBuffer,0);
 	}
-
 	return 0;
 }

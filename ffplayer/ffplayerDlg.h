@@ -43,6 +43,7 @@ private:
 	static DWORD WINAPI playProcess(LPVOID pParam);
 	static DWORD WINAPI consoleInputMonitor(LPVOID pParam);
     DWORD ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs);
+    void initConsole();
 	void OnWndFullScreen();
 	void CreateBtnSkin();
 	void cleanupResource(bool isTerminaterPlayProcess);
@@ -50,6 +51,7 @@ private:
     HANDLE m_playProcessHandler;
     HANDLE m_consoleMonitorProcessHandler;
 	BOOL m_bIsFullScreen;
+    BOOL m_bIsPlaying;
 	CString m_strFileName;
 	CBrush m_brushBackground;
 	CBrush m_brushPlayarea;
@@ -65,4 +67,5 @@ private:
 	HANDLE m_hInputConsole;
 	HICON m_hIcon;
 	RECT m_rc;
+    int m_consoleWindowWidth;
 };
