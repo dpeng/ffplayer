@@ -202,7 +202,7 @@ static void av_log_encoder(void *ptr, int level, const char *fmt, va_list vargs)
 		return;
 	char logbuf[MAX_PATH];
 	vsnprintf(logbuf, sizeof(logbuf), fmt, vargs);
-	OutputDebugString((LPCWSTR)logbuf);
+	OutputDebugStringA(logbuf);
 }
 DWORD CffplayerDlg::playProcess(LPVOID pParam)
 {
@@ -264,12 +264,14 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		int	totalTime;
 		curTime = ffplay_get_stream_curtime();
 		totalTime = ffplay_get_stream_totaltime();
+		
 		/*
-		CString str = _T(" ");
-		str.Format("Total: %d, Current: %7.2f\n", totalTime, curTime);
-		OutputDebugString(str);
+		char logbuf[MAX_PATH];
+		sprintf(logbuf, "Total: %d, Current: %7.2f, pos: %d\n", totalTime, curTime, (int)(curTime * 1000 / totalTime));
+		OutputDebugStringA(logbuf);
 		*/
-		if(totalTime >= 1)
+		//isnan can judge the current time is invalide or not, it can happened when play start and seek
+		if((totalTime >= 1) && !isnan(curTime))
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
 	}
 	CDialogEx::OnTimer(nIDEvent);
@@ -294,8 +296,11 @@ BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
         if (rect.PtInRect(pt))
 			KillTimer(1);
 	}
-	if ( pMsg->message == WM_LBUTTONUP)
-			SetTimer(1, 40, NULL);
+	if (pMsg->message == WM_LBUTTONUP)
+	{
+		Sleep(500);// avoid the slider jump from the start and seek position
+		SetTimer(1, 40, NULL);
+	}			
 	return CDialogEx::PreTranslateMessage(pMsg);
 }
 
