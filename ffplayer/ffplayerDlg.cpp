@@ -278,7 +278,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 				
 		char logbuf[MAX_PATH];
 		memset(logbuf, 0, sizeof(logbuf));
-		sprintf_s(logbuf, "Total: %d, Current: %7.2f, pos: %d\n", totalTime, curTime, (int)(curTime * 1000 / totalTime));
+		sprintf_s(logbuf, "playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime*100 / totalTime), totalTime, curTime);
 		//OutputDebugStringA(logbuf);
 		DWORD len;
 	  	WriteConsoleA(m_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
@@ -485,6 +485,35 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				break;
 			case 0x46: /*VK_F*/
 				OnWndFullScreen();
+				break;
+			case 0x48: /*VK_H*/
+				DWORD len;
+				char logbuf[MAX_PATH*10];
+				sprintf_s(logbuf, 
+						   "\n****************************************Help*****************************************\n"
+				           "                                                                                   **\n"
+				           "o                   open file                                                      **\n"
+				           "space               play file                                                      **\n"
+				           "q                   quit                                                           **\n"
+				           "f                   toggle full screen                                             **\n"
+				           "p                   pause                                                          **\n"
+				           "right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
+				           "m doesnt impliment  toggle mute                                                    **\n"
+				           "9, 0 not impliment  decrease and increase volume respectively                      **\n"
+				           "s    not impliment  activate frame-step mode                                       **\n"
+				           "                                                                                   **\n"
+				           "****************************************Help*****************************************\n"
+				           );
+			  	WriteConsoleA(m_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
+				break;
+			case 0x4f:/*VK_O*/
+				OnBnClickedButtonOpenfile();
+				break;
+			case 0x51:/*VK_Q*/
+				OnClose();
+				break;
+			case VK_SPACE:
+				OnBnClickedButtonPlay();
 				break;
 			case VK_RETURN:
 				break;
