@@ -9,6 +9,9 @@
 #define new DEBUG_NEW
 #endif
 
+
+static HANDLE g_hOutputConsole;
+
 // CAboutDlg dialog used for App About
 
 class CAboutDlg : public CDialogEx
@@ -197,15 +200,29 @@ void CffplayerDlg::OnBnClickedButtonOpenfile()
 
 	m_strFileName = tempfilename;
 	tempfilename = _T("");
+	//automatic play after open file
+	OnBnClickedButtonPlay();
+}
+
+static void consoleLog(const char *fmt, ...)
+{
+    va_list vl;
+	char logbuf[1024*16];
+	memset(logbuf, 0, sizeof(logbuf));
+	DWORD len;
+	
+    va_start(vl, fmt);
+	vsprintf_s(logbuf, fmt, vl);
+	WriteConsoleA(g_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
+	
+    va_end(vl);
 }
 
 static void av_log_encoder(void *ptr, int level, const char *fmt, va_list vargs)
 {
 	if(level >= 32)
 		return;
-	char logbuf[MAX_PATH];
-	vsnprintf(logbuf, sizeof(logbuf), fmt, vargs);
-	OutputDebugStringA(logbuf);
+	consoleLog(fmt, vargs);
 }
 DWORD CffplayerDlg::playProcess(LPVOID pParam)
 {
@@ -247,8 +264,8 @@ void CffplayerDlg::OnClose()
 	FreeConsole();	
 	CloseHandle(m_consoleMonitorProcessHandler);
 	m_consoleMonitorProcessHandler = NULL;
-	CloseHandle(m_hOutputConsole);
-	m_hOutputConsole = NULL;
+	CloseHandle(g_hOutputConsole);
+	g_hOutputConsole = NULL;
 	CloseHandle(m_hInputConsole);
 	m_hInputConsole = NULL;
 	CDialogEx::OnClose();
@@ -266,7 +283,6 @@ void CffplayerDlg::OnBnClickedButtonPause()
 	ffplay_pause();
 }
 
-
 void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	if (nIDEvent == 1)
@@ -275,14 +291,8 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		int	totalTime;
 		curTime = ffplay_get_stream_curtime();
 		totalTime = ffplay_get_stream_totaltime();
-				
-		char logbuf[MAX_PATH];
-		memset(logbuf, 0, sizeof(logbuf));
-		sprintf_s(logbuf, "playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime*100 / totalTime), totalTime, curTime);
-		//OutputDebugStringA(logbuf);
-		DWORD len;
-	  	WriteConsoleA(m_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
 		
+		//consoleLog("playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime * 100 / totalTime), totalTime, curTime);
 		//isnan can judge the current time is invalid or not, it can happened when play start and seek
 		if((totalTime >= 1) && !isnan(curTime))
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
@@ -445,11 +455,11 @@ void CffplayerDlg::initConsole()
 {
 	AllocConsole();
 	m_consoleWindowWidth = 0;
-	m_hOutputConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	g_hOutputConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	m_hInputConsole  = GetStdHandle(STD_INPUT_HANDLE);
 	//SetConsoleMode(m_hInputConsole, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
 	SMALL_RECT rc = { 0, 0, 0, 0 };
-	COORD tmpCoord = GetLargestConsoleWindowSize(m_hOutputConsole);
+	COORD tmpCoord = GetLargestConsoleWindowSize(g_hOutputConsole);
 	if(tmpCoord.X >= 100)
 		tmpCoord.X = 100;
 	else if(tmpCoord.X - 1 >= 50)
@@ -457,8 +467,8 @@ void CffplayerDlg::initConsole()
 	rc.Right = tmpCoord.X - 1;
 	rc.Bottom = (tmpCoord.Y)*2/3;
 	tmpCoord.Y = tmpCoord.Y * 5;
-	SetConsoleScreenBufferSize(m_hOutputConsole, tmpCoord);
-	BOOL ret = SetConsoleWindowInfo(m_hOutputConsole, TRUE, &rc);
+	SetConsoleScreenBufferSize(g_hOutputConsole, tmpCoord);
+	BOOL ret = SetConsoleWindowInfo(g_hOutputConsole, TRUE, &rc);
 	if(ret == TRUE)
 		m_consoleWindowWidth = tmpCoord.X;
 	DWORD dw;
@@ -487,10 +497,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				OnWndFullScreen();
 				break;
 			case 0x48: /*VK_H*/
-				DWORD len;
-				char logbuf[MAX_PATH*10];
-				sprintf_s(logbuf, 
-						   "\n****************************************Help*****************************************\n"
+				consoleLog("\n****************************************Help*****************************************\n"
 				           "                                                                                   **\n"
 				           "o                   open file                                                      **\n"
 				           "space               play file                                                      **\n"
@@ -504,7 +511,6 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				           "                                                                                   **\n"
 				           "****************************************Help*****************************************\n"
 				           );
-			  	WriteConsoleA(m_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
 				break;
 			case 0x4f:/*VK_O*/
 				OnBnClickedButtonOpenfile();
@@ -551,7 +557,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 	}
 	DWORD len;
 	//sprintf_s(logbuf, "ProcessConsoleInput event type : %d \n", pInputRec->EventType);
-  	WriteConsoleA(m_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
+  	WriteConsoleA(g_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
 	return 0;
 }
 DWORD CffplayerDlg::consoleInputMonitor(LPVOID pParam)
