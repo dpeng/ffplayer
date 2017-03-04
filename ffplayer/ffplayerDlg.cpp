@@ -126,7 +126,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_bIsPlaying = FALSE;
 	CreateBtnSkin();
 	m_brushBackground.CreateSolidBrush(SYSTEM_BACKCOLOR);
-	m_brushPlayarea.CreateSolidBrush(RGB(50, 50, 50));
+	m_brushPlayarea.CreateSolidBrush(RGB(26, 26, 26));
 	initConsole();
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -320,6 +320,15 @@ BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
 		Sleep(500);// avoid the slider jump from the start and seek position
 		SetTimer(1, 40, NULL);
 	}			
+	if (pMsg->message == WM_LBUTTONDBLCLK)
+	{
+		CRect rect;
+		CPoint  pt;
+		GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rect);
+		GetCursorPos(&pt);
+		if (rect.PtInRect(pt))
+			OnWndFullScreen();
+	}
 	return CDialogEx::PreTranslateMessage(pMsg);
 }
 
