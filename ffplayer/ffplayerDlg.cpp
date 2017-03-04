@@ -201,24 +201,29 @@ void CffplayerDlg::OnBnClickedButtonOpenfile()
 	OnBnClickedButtonPlay();
 }
 
-static void consoleLog(const char *fmt, ...)
+static void pushLogsToConsole(const char *fmt, va_list vargs)
 {
-    va_list vl;
 	char logbuf[1024*16];
 	memset(logbuf, 0, sizeof(logbuf));
 	DWORD len;
 	
-    va_start(vl, fmt);
-	vsprintf_s(logbuf, fmt, vl);
+	vsprintf_s(logbuf, fmt, vargs);
 	WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), logbuf, (DWORD)strlen(logbuf), &len, NULL);	
-    va_end(vl);
+}
+
+
+static void consolePrint(const char *fmt, ...)
+{
+    va_list vargs;
+    va_start(vargs, fmt);
+    va_end(vargs);
+	pushLogsToConsole(fmt, vargs);
 }
 
 static void av_log_encoder(void *ptr, int level, const char *fmt, va_list vargs)
 {
-	if(level >= 32)
-		return;
-	consoleLog(fmt, vargs);
+	if(level > 32)    return;
+	pushLogsToConsole(fmt, vargs);
 }
 DWORD CffplayerDlg::playProcess(LPVOID pParam)
 {
@@ -288,7 +293,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		curTime = ffplay_get_stream_curtime();
 		totalTime = ffplay_get_stream_totaltime();
 		
-		consoleLog("playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime * 100 / totalTime), totalTime, curTime);
+		//consolePrint("playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime * 100 / totalTime), totalTime, curTime);
 		//isnan can judge the current time is invalid or not, it can happened when play start and seek
 		if((totalTime >= 1) && !isnan(curTime))
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
@@ -502,7 +507,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				OnWndFullScreen();
 				break;
 			case 0x48: /*VK_H*/
-				consoleLog("\n****************************************Help*****************************************\n"
+				consolePrint("\n****************************************Help*****************************************\n"
 				           "                                                                                   **\n"
 				           "o                   open file                                                      **\n"
 				           "space               play file                                                      **\n"
