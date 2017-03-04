@@ -9,9 +9,6 @@
 #define new DEBUG_NEW
 #endif
 
-
-static HANDLE g_hOutputConsole;
-
 // CAboutDlg dialog used for App About
 
 class CAboutDlg : public CDialogEx
@@ -213,8 +210,7 @@ static void consoleLog(const char *fmt, ...)
 	
     va_start(vl, fmt);
 	vsprintf_s(logbuf, fmt, vl);
-	WriteConsoleA(g_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
-	
+	WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), logbuf, (DWORD)strlen(logbuf), &len, NULL);	
     va_end(vl);
 }
 
@@ -264,8 +260,8 @@ void CffplayerDlg::OnClose()
 	FreeConsole();	
 	CloseHandle(m_consoleMonitorProcessHandler);
 	m_consoleMonitorProcessHandler = NULL;
-	CloseHandle(g_hOutputConsole);
-	g_hOutputConsole = NULL;
+	CloseHandle(m_hOutputConsole);
+	m_hOutputConsole = NULL;
 	CloseHandle(m_hInputConsole);
 	m_hInputConsole = NULL;
 	CDialogEx::OnClose();
@@ -292,7 +288,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		curTime = ffplay_get_stream_curtime();
 		totalTime = ffplay_get_stream_totaltime();
 		
-		//consoleLog("playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime * 100 / totalTime), totalTime, curTime);
+		consoleLog("playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime * 100 / totalTime), totalTime, curTime);
 		//isnan can judge the current time is invalid or not, it can happened when play start and seek
 		if((totalTime >= 1) && !isnan(curTime))
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
@@ -455,11 +451,11 @@ void CffplayerDlg::initConsole()
 {
 	AllocConsole();
 	m_consoleWindowWidth = 0;
-	g_hOutputConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	m_hOutputConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	m_hInputConsole  = GetStdHandle(STD_INPUT_HANDLE);
 	//SetConsoleMode(m_hInputConsole, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
 	SMALL_RECT rc = { 0, 0, 0, 0 };
-	COORD tmpCoord = GetLargestConsoleWindowSize(g_hOutputConsole);
+	COORD tmpCoord = GetLargestConsoleWindowSize(m_hOutputConsole);
 	if(tmpCoord.X >= 100)
 		tmpCoord.X = 100;
 	else if(tmpCoord.X - 1 >= 50)
@@ -467,8 +463,8 @@ void CffplayerDlg::initConsole()
 	rc.Right = tmpCoord.X - 1;
 	rc.Bottom = (tmpCoord.Y)*2/3;
 	tmpCoord.Y = tmpCoord.Y * 5;
-	SetConsoleScreenBufferSize(g_hOutputConsole, tmpCoord);
-	BOOL ret = SetConsoleWindowInfo(g_hOutputConsole, TRUE, &rc);
+	SetConsoleScreenBufferSize(m_hOutputConsole, tmpCoord);
+	BOOL ret = SetConsoleWindowInfo(m_hOutputConsole, TRUE, &rc);
 	if(ret == TRUE)
 		m_consoleWindowWidth = tmpCoord.X;
 	DWORD dw;
@@ -557,7 +553,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 	}
 	DWORD len;
 	//sprintf_s(logbuf, "ProcessConsoleInput event type : %d \n", pInputRec->EventType);
-  	WriteConsoleA(g_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
+  	WriteConsoleA(m_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
 	return 0;
 }
 DWORD CffplayerDlg::consoleInputMonitor(LPVOID pParam)

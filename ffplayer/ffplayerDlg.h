@@ -64,6 +64,7 @@ private:
 	CSkinButton m_btnPause;
 	CSkinButton m_btnStop;
 	HANDLE m_hInputConsole;
+    HANDLE m_hOutputConsole;
 	HICON m_hIcon;
 	RECT m_rc;
     int m_consoleWindowWidth;
