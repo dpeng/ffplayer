@@ -216,8 +216,8 @@ static void consolePrint(const char *fmt, ...)
 {
     va_list vargs;
     va_start(vargs, fmt);
-    va_end(vargs);
 	pushLogsToConsole(fmt, vargs);
+    va_end(vargs);
 }
 
 static void av_log_encoder(void *ptr, int level, const char *fmt, va_list vargs)
