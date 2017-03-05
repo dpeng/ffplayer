@@ -9,22 +9,16 @@
 #define new DEBUG_NEW
 #endif
 
-// CAboutDlg dialog used for App About
-
+/***************************about dialog*************start********/
 class CAboutDlg : public CDialogEx
 {
 public:
 	CAboutDlg();
-
-// Dialog Data
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_ABOUTBOX };
 #endif
-
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
-// Implementation
+	virtual void DoDataExchange(CDataExchange* pDX);
 protected:
 	DECLARE_MESSAGE_MAP()
 };
@@ -40,13 +34,9 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
+/***************************about dialog***************end******/
 
-
-// CffplayerDlg dialog
-
-
-
-CffplayerDlg::CffplayerDlg(CWnd* pParent /*=NULL*/)
+CffplayerDlg::CffplayerDlg(CWnd* pParent)
 	: CDialogEx(IDD_FFPLAYER_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -63,29 +53,22 @@ void CffplayerDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
-	ON_WM_SYSCOMMAND()
-	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
+	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDERPLAYPROGRESS, &CffplayerDlg::OnNMReleasedcaptureSliderplayprogress)
 	ON_BN_CLICKED(ID_BUTTON_OPENFILE, &CffplayerDlg::OnBnClickedButtonOpenfile)
 	ON_BN_CLICKED(ID_BUTTON_PLAY, &CffplayerDlg::OnBnClickedButtonPlay)
-	ON_WM_CLOSE()
 	ON_BN_CLICKED(ID_BUTTON_STOP, &CffplayerDlg::OnBnClickedButtonStop)
 	ON_BN_CLICKED(ID_BUTTON_PAUSE, &CffplayerDlg::OnBnClickedButtonPause)
-	ON_WM_TIMER()
-	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDERPLAYPROGRESS, &CffplayerDlg::OnNMReleasedcaptureSliderplayprogress)
+	ON_WM_QUERYDRAGICON()
+	ON_WM_SYSCOMMAND()
 	ON_WM_CTLCOLOR()
+	ON_WM_PAINT()
+	ON_WM_CLOSE()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
-
-
-// CffplayerDlg message handlers
 
 BOOL CffplayerDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-
-	// Add "About..." menu item to system menu.
-
-	// IDM_ABOUTBOX must be in the system command range.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
 	ASSERT(IDM_ABOUTBOX < 0xF000);
 
@@ -103,15 +86,11 @@ BOOL CffplayerDlg::OnInitDialog()
 		}
 	}
 
-	// Set the icon for this dialog.  The framework does this automatically
-	//  when the application's main window is not a dialog
-	SetIcon(m_hIcon, TRUE);			// Set big icon
-	SetIcon(m_hIcon, FALSE);		// Set small icon
+	SetIcon(m_hIcon, TRUE);
+	SetIcon(m_hIcon, FALSE);
 
 	ShowWindow(SW_SHOWNORMAL);
-
 	m_strFileName = _T("D:\\temp\\ShapeOfYou.mp4");
-	//OnBnClickedButtonPlay();
 	m_sliderPlay.SetRangeMin(0);
 	m_sliderPlay.SetRangeMax(1000);
 	m_sliderPlay.SetPos(0);
@@ -128,7 +107,8 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_brushBackground.CreateSolidBrush(SYSTEM_BACKCOLOR);
 	m_brushPlayarea.CreateSolidBrush(RGB(26, 26, 26));
 	initConsole();
-	return TRUE;  // return TRUE  unless you set the focus to a control
+	//_CrtDumpMemoryLeaks();
+	return TRUE;
 }
 
 void CffplayerDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -144,27 +124,19 @@ void CffplayerDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	}
 }
 
-// If you add a minimize button to your dialog, you will need the code below
-//  to draw the icon.  For MFC applications using the document/view model,
-//  this is automatically done for you by the framework.
-
 void CffplayerDlg::OnPaint()
 {
 	if (IsIconic())
 	{
-		CPaintDC dc(this); // device context for painting
-
+		CPaintDC dc(this);
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
-		// Center icon in client rectangle
 		int cxIcon = GetSystemMetrics(SM_CXICON);
 		int cyIcon = GetSystemMetrics(SM_CYICON);
 		CRect rect;
 		GetClientRect(&rect);
 		int x = (rect.Width() - cxIcon + 1) / 2;
 		int y = (rect.Height() - cyIcon + 1) / 2;
-
-		// Draw the icon
 		dc.DrawIcon(x, y, m_hIcon);
 	}
 	else
@@ -174,22 +146,15 @@ void CffplayerDlg::OnPaint()
 	this->UpdateWindow();
 }
 
-// The system calls this function to obtain the cursor to display while the user drags
-//  the minimized window.
 HCURSOR CffplayerDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
 void CffplayerDlg::OnBnClickedButtonOpenfile()
 {
 	CString tempfilename = _T("");
-	CFileDialog FileChooser(TRUE,
-		NULL,
-		NULL,
-		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+	CFileDialog FileChooser(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
 		_T("all files(*.*)|*.*|mp4 files(*.mp4)|*.mp4|mp3 files(*.mp3)|*.mp3||"));
 
 	if (FileChooser.DoModal() == IDOK)    tempfilename = FileChooser.GetPathName();
@@ -203,14 +168,13 @@ void CffplayerDlg::OnBnClickedButtonOpenfile()
 
 static void pushLogsToConsole(const char *fmt, va_list vargs)
 {
-	char logbuf[1024*16];
-	memset(logbuf, 0, sizeof(logbuf));
+	char logbuf[1024*8];
 	DWORD len;
+	memset(logbuf, 0, sizeof(logbuf));
 	
 	vsprintf_s(logbuf, fmt, vargs);
 	WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), logbuf, (DWORD)strlen(logbuf), &len, NULL);	
 }
-
 
 static void consolePrint(const char *fmt, ...)
 {
@@ -225,23 +189,24 @@ static void av_log_encoder(void *ptr, int level, const char *fmt, va_list vargs)
 	if(level > 32)    return;
 	pushLogsToConsole(fmt, vargs);
 }
+
 DWORD CffplayerDlg::playProcess(LPVOID pParam)
 {
 	CffplayerDlg* pThis = (CffplayerDlg*)pParam;
 	char filename[MAX_PATH] = {};
 	strcpy_s(filename, (LPCSTR)(CStringA)pThis->m_strFileName);
 	int ret = ffplay_init(filename, pThis->m_playHandler, pThis->m_screenWidth, pThis->m_screenHeight);
-	_CrtDumpMemoryLeaks();
 	//0 means return successful
 	if (ret == 0)		pThis->cleanupResource(FALSE);
 	return ret;
 }
 void CffplayerDlg::OnBnClickedButtonPlay()
 {
+	RECT rc = {0};
+	DWORD threadID;
 	//stop the playing before open an new play
 	OnBnClickedButtonStop();
 
-	RECT rc = {0};
 	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
 	m_screenWidth = rc.right - rc.left;
 	m_screenHeight = rc.bottom - rc.top;
@@ -254,10 +219,8 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	m_bIsPlaying = TRUE;
 	SetTimer(1, 40, NULL);
 	
-	DWORD dw;
-	m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &dw);
+	m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &threadID);
 }
-
 
 void CffplayerDlg::OnClose()
 {
@@ -272,12 +235,10 @@ void CffplayerDlg::OnClose()
 	CDialogEx::OnClose();
 }
 
-
 void CffplayerDlg::OnBnClickedButtonStop()
 {
 	cleanupResource(TRUE);
 }
-
 
 void CffplayerDlg::OnBnClickedButtonPause()
 {
@@ -301,12 +262,10 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 	CDialogEx::OnTimer(nIDEvent);
 }
 
-
 BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
 {
-	if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) 
-		return TRUE;
-	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_ESCAPE)
+	if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) return TRUE;
+	if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_ESCAPE)
 	{
 		OnWndFullScreen();
 		return TRUE;
@@ -317,8 +276,7 @@ BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
 		CPoint  pt;
         GetDlgItem(IDC_SLIDERPLAYPROGRESS)->GetWindowRect(&rect);		
         GetCursorPos(&pt);
-        if (rect.PtInRect(pt))
-			KillTimer(1);
+        if (rect.PtInRect(pt)) KillTimer(1);
 	}
 	if ((pMsg->message == WM_LBUTTONUP) && (TRUE == m_bIsPlaying))
 	{
@@ -331,12 +289,10 @@ BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
 		CPoint  pt;
 		GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rect);
 		GetCursorPos(&pt);
-		if (rect.PtInRect(pt))
-			OnWndFullScreen();
+		if (rect.PtInRect(pt)) OnWndFullScreen();
 	}
 	return CDialogEx::PreTranslateMessage(pMsg);
 }
-
 
 void CffplayerDlg::OnNMReleasedcaptureSliderplayprogress(NMHDR *pNMHDR, LRESULT *pResult)
 {
@@ -365,7 +321,7 @@ void CffplayerDlg::OnWndFullScreen()
 		GetWindowPlacement(&m_OldWndplacement);
 		ModifyStyle(WS_SIZEBOX, 0, 0);
 		CRect WindowRect, ClientRect;
-		RECT m_FullScreenRect;
+		RECT fullScreenRc;
 		GetWindowRect(&WindowRect);
 		WindowRect.left += 1;
 		WindowRect.right += 1;
@@ -375,15 +331,15 @@ void CffplayerDlg::OnWndFullScreen()
 		ClientToScreen(&ClientRect);
 		int x = GetSystemMetrics(SM_CXSCREEN);
 		int y = GetSystemMetrics(SM_CYSCREEN);
-		m_FullScreenRect.left = WindowRect.left - ClientRect.left;
-		m_FullScreenRect.top = WindowRect.top - ClientRect.top;
-		m_FullScreenRect.right = WindowRect.right - ClientRect.right + x;
-		m_FullScreenRect.bottom = WindowRect.bottom - ClientRect.bottom + y;
+		fullScreenRc.left = WindowRect.left - ClientRect.left;
+		fullScreenRc.top = WindowRect.top - ClientRect.top;
+		fullScreenRc.right = WindowRect.right - ClientRect.right + x;
+		fullScreenRc.bottom = WindowRect.bottom - ClientRect.bottom + y;
 		WINDOWPLACEMENT wndpl;
 		wndpl.length = sizeof(WINDOWPLACEMENT);
 		wndpl.flags = 0;
 		wndpl.showCmd = SW_SHOWNORMAL;
-		wndpl.rcNormalPosition = m_FullScreenRect;
+		wndpl.rcNormalPosition = fullScreenRc;
 		SetWindowPlacement(&wndpl);
 		RECT rc;
 		GetClientRect(&rc);
@@ -414,12 +370,9 @@ HBRUSH CffplayerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
 
-
 	pDC->SetBkMode(TRANSPARENT);
-	if( pWnd->GetDlgCtrlID() == IDC_STATIC_PLAY)    
-		return m_brushPlayarea;
+	if( pWnd->GetDlgCtrlID() == IDC_STATIC_PLAY) return m_brushPlayarea;
 	return m_brushBackground;
-	return hbr;
 }
 
 void CffplayerDlg::CreateBtnSkin()
@@ -444,7 +397,6 @@ void CffplayerDlg::CreateBtnSkin()
 	m_btnStop.SizeToContent();
 }
 
-
 void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 {   
 	KillTimer(1);
@@ -463,6 +415,7 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 
 void CffplayerDlg::initConsole()
 {
+	DWORD threadID;
 	AllocConsole();
 	m_consoleWindowWidth = 0;
 	m_hOutputConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -470,27 +423,20 @@ void CffplayerDlg::initConsole()
 	//SetConsoleMode(m_hInputConsole, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
 	SMALL_RECT rc = { 0, 0, 0, 0 };
 	COORD tmpCoord = GetLargestConsoleWindowSize(m_hOutputConsole);
-	if(tmpCoord.X >= 100)
-		tmpCoord.X = 100;
-	else if(tmpCoord.X - 1 >= 50)
-		tmpCoord.X = 50;
+	if(tmpCoord.X >= 100) tmpCoord.X = 100;
+	else if(tmpCoord.X - 1 >= 50) tmpCoord.X = 50;
 	rc.Right = tmpCoord.X - 1;
 	rc.Bottom = (tmpCoord.Y)*2/3;
 	tmpCoord.Y = tmpCoord.Y * 5;
 	SetConsoleScreenBufferSize(m_hOutputConsole, tmpCoord);
 	BOOL ret = SetConsoleWindowInfo(m_hOutputConsole, TRUE, &rc);
-	if(ret == TRUE)
-		m_consoleWindowWidth = tmpCoord.X;
-	DWORD dw;
-	m_consoleMonitorProcessHandler = CreateThread(NULL, 0, CffplayerDlg::consoleInputMonitor, this, 0, &dw);
-
+	if(ret == TRUE) m_consoleWindowWidth = tmpCoord.X;
+	m_consoleMonitorProcessHandler = CreateThread(NULL, 0, CffplayerDlg::consoleInputMonitor, this, 0, &threadID);
 }
 
 DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 {
 	if(pInputRec == NULL)	return 1;
-	char logbuf[MAX_PATH];
-	memset(logbuf, 0, sizeof(logbuf));
 	switch (pInputRec->EventType)
 	{
 	case KEY_EVENT:
@@ -541,17 +487,15 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 	case MOUSE_EVENT:
 		if(pInputRec->Event.MouseEvent.dwButtonState == RIGHTMOST_BUTTON_PRESSED)
 		{
-			sprintf_s(logbuf, "FROM_LEFT_1ST_BUTTON_PRESSED: %d pos: %d %d\n", 
+			consolePrint("FROM_LEFT_1ST_BUTTON_PRESSED: %d pos: %d %d\n", 
 				pInputRec->EventType,
 				pInputRec->Event.MouseEvent.dwMousePosition.X,
 				pInputRec->Event.MouseEvent.dwMousePosition.Y);
-			if ((m_consoleWindowWidth > 0) &&
-				(pInputRec->Event.MouseEvent.dwMousePosition.X >= 0) &&
+			if ((m_consoleWindowWidth > 0) && (pInputRec->Event.MouseEvent.dwMousePosition.X >= 0) &&
 				(m_consoleWindowWidth >= pInputRec->Event.MouseEvent.dwMousePosition.X))
 			{
 				double pos = (double)pInputRec->Event.MouseEvent.dwMousePosition.X/(double)m_consoleWindowWidth;
-				if(m_bIsPlaying)
-					ffplay_seek(pos);
+				if(m_bIsPlaying) ffplay_seek(pos);
 			}
 		}
 
@@ -565,9 +509,6 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 	default:
 		break;
 	}
-	DWORD len;
-	//sprintf_s(logbuf, "ProcessConsoleInput event type : %d \n", pInputRec->EventType);
-  	WriteConsoleA(m_hOutputConsole, logbuf, (DWORD)strlen(logbuf), &len, NULL);
 	return 0;
 }
 DWORD CffplayerDlg::consoleInputMonitor(LPVOID pParam)

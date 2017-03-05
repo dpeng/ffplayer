@@ -1,35 +1,26 @@
-
-// ffplayerDlg.h : header file
-//
-
 #pragma once
-
-
 extern "C"
 {
 #include "./ffplay/ffplay.h"
 }
-
-// CffplayerDlg dialog
 #include "afxcmn.h"
 #include "afxwin.h"
 #include "xskin/xskinbutton.h"
 class CffplayerDlg : public CDialogEx
 {
-// Construction
 public:
-	CffplayerDlg(CWnd* pParent = NULL);	// standard constructor
-
-// Dialog Data
+	CffplayerDlg(CWnd* pParent = NULL);
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_FFPLAYER_DIALOG };
 #endif
+private:
+	DECLARE_MESSAGE_MAP()
 	virtual void DoDataExchange(CDataExchange* pDX);
 	virtual BOOL OnInitDialog();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
-	DECLARE_MESSAGE_MAP()
 	afx_msg void OnBnClickedButtonOpenfile();
 	afx_msg void OnBnClickedButtonPlay();
 	afx_msg void OnClose();
@@ -38,8 +29,6 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnNMReleasedcaptureSliderplayprogress(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-private:
 	static DWORD WINAPI playProcess(LPVOID pParam);
 	static DWORD WINAPI consoleInputMonitor(LPVOID pParam);
     DWORD ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs);
