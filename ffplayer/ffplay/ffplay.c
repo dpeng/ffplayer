@@ -3770,6 +3770,21 @@ void ffplay_seek(double pos)/*pos indicate the precentage of whole file such as 
 		stream_seek(m_curstream, pos*(m_curstream->ic->duration), 0, 0);
 }
 
+void ffplay_toggle_display(void)
+{
+	if (NULL != m_curstream)
+	{
+		if (m_curstream->show_mode == SHOW_MODE_VIDEO && m_curstream->vfilter_idx < nb_vfilters - 1) {
+			if (++m_curstream->vfilter_idx >= nb_vfilters)
+				m_curstream->vfilter_idx = 0;
+		}
+		else {
+			m_curstream->vfilter_idx = 0;
+			toggle_audio_display(m_curstream);
+		}
+	}
+}
+
 
 /* Called from the main */
 int main(int argc, char **argv)

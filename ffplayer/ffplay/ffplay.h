@@ -9,5 +9,6 @@ void ffplay_av_log_set_callback(void *func);
 int ffplay_get_stream_totaltime(void);
 double ffplay_get_stream_curtime(void);
 void ffplay_seek(double pos);
+void ffplay_toggle_display(void);
 
 #endif

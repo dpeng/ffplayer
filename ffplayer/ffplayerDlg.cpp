@@ -455,15 +455,16 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 			case 0x48: /*VK_H*/
 				consolePrint("\n****************************************Help*****************************************\n"
 				           "                                                                                   **\n"
-				           "o                   open file                                                      **\n"
-				           "space               play file                                                      **\n"
-				           "q                   quit                                                           **\n"
-				           "f                   toggle full screen                                             **\n"
-				           "p                   pause                                                          **\n"
+				           "O                   open file                                                      **\n"
+				           "Space               play file                                                      **\n"
+				           "Q                   quit                                                           **\n"
+				           "F                   toggle full screen                                             **\n"
+				           "P                   pause                                                          **\n"
 				           "right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
-				           "m doesnt impliment  toggle mute                                                    **\n"
+				           "W                   cycle video filters or show modes                              **\n"
+				           "M doesnt impliment  toggle mute                                                    **\n"
 				           "9, 0 not impliment  decrease and increase volume respectively                      **\n"
-				           "s    not impliment  activate frame-step mode                                       **\n"
+				           "S    not impliment  activate frame-step mode                                       **\n"
 				           "                                                                                   **\n"
 				           "****************************************Help*****************************************\n"
 				           );
@@ -473,6 +474,9 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				break;
 			case 0x51:/*VK_Q*/
 				OnClose();
+				break;
+			case 0x57:/*VK_W*/
+				ffplay_toggle_display();
 				break;
 			case VK_SPACE:
 				OnBnClickedButtonPlay();
