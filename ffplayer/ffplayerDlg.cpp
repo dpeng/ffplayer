@@ -50,6 +50,7 @@ void CffplayerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, ID_BUTTON_PLAY, m_btnPlay);
 	DDX_Control(pDX, ID_BUTTON_PAUSE, m_btnPause);
 	DDX_Control(pDX, ID_BUTTON_STOP, m_btnStop);
+	DDX_Control(pDX, ID_BUTTON_CONSOLE, m_btnConsole);
 }
 
 BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
@@ -64,6 +65,7 @@ BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_CLOSE()
 	ON_WM_TIMER()
+	ON_BN_CLICKED(ID_BUTTON_CONSOLE, &CffplayerDlg::OnBnClickedButtonConsole)
 END_MESSAGE_MAP()
 
 BOOL CffplayerDlg::OnInitDialog()
@@ -106,7 +108,9 @@ BOOL CffplayerDlg::OnInitDialog()
 	CreateBtnSkin();
 	m_brushBackground.CreateSolidBrush(SYSTEM_BACKCOLOR);
 	m_brushPlayarea.CreateSolidBrush(RGB(26, 26, 26));
-	initConsole();
+	m_hOutputConsole = NULL;
+	m_hInputConsole = NULL;
+	m_bIsConsoleDisplay = FALSE;
 	//_CrtDumpMemoryLeaks();
 	return TRUE;
 }
@@ -225,13 +229,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 void CffplayerDlg::OnClose()
 {
 	cleanupResource(TRUE);
-	FreeConsole();	
-	CloseHandle(m_consoleMonitorProcessHandler);
-	m_consoleMonitorProcessHandler = NULL;
-	CloseHandle(m_hOutputConsole);
-	m_hOutputConsole = NULL;
-	CloseHandle(m_hInputConsole);
-	m_hInputConsole = NULL;
+	stopConsole();
 	CDialogEx::OnClose();
 }
 
@@ -254,7 +252,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		curTime = ffplay_get_stream_curtime();
 		totalTime = ffplay_get_stream_totaltime();
 		
-		//consolePrint("playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime * 100 / totalTime), totalTime, curTime);
+		consolePrint("playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime * 100 / totalTime), totalTime, curTime);
 		//isnan can judge the current time is invalid or not, it can happened when play start and seek
 		if((totalTime >= 1) && !isnan(curTime))
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
@@ -317,6 +315,8 @@ void CffplayerDlg::OnWndFullScreen()
 		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
 		pButton = (CButton *)GetDlgItem(ID_BUTTON_STOP);
 		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_CONSOLE);
+		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
 		m_sliderPlay.ModifyStyle(WS_VISIBLE, 0, 0);
 		GetWindowPlacement(&m_OldWndplacement);
 		ModifyStyle(WS_SIZEBOX, 0, 0);
@@ -354,6 +354,8 @@ void CffplayerDlg::OnWndFullScreen()
 		pButton = (CButton *)GetDlgItem(ID_BUTTON_PAUSE);
 		pButton->ModifyStyle(0, WS_VISIBLE, 0);
 		pButton = (CButton *)GetDlgItem(ID_BUTTON_STOP);
+		pButton->ModifyStyle(0, WS_VISIBLE, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_CONSOLE);
 		pButton->ModifyStyle(0, WS_VISIBLE, 0);
 		m_sliderPlay.ModifyStyle(0, WS_VISIBLE, 0);
 		SetWindowPlacement(&m_OldWndplacement);
@@ -395,6 +397,9 @@ void CffplayerDlg::CreateBtnSkin()
 	m_btnStop.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
 	m_btnStop.SetTextColor(SYSTEM_BTNCOLOR);
 	m_btnStop.SizeToContent();
+	m_btnConsole.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
+	m_btnConsole.SetTextColor(SYSTEM_BTNCOLOR);
+	m_btnConsole.SizeToContent();
 }
 
 void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
@@ -432,6 +437,17 @@ void CffplayerDlg::initConsole()
 	BOOL ret = SetConsoleWindowInfo(m_hOutputConsole, TRUE, &rc);
 	if(ret == TRUE) m_consoleWindowWidth = tmpCoord.X;
 	m_consoleMonitorProcessHandler = CreateThread(NULL, 0, CffplayerDlg::consoleInputMonitor, this, 0, &threadID);
+}
+
+void CffplayerDlg::stopConsole()
+{
+	FreeConsole();	
+	CloseHandle(m_consoleMonitorProcessHandler);
+	m_consoleMonitorProcessHandler = NULL;
+	CloseHandle(m_hOutputConsole);
+	m_hOutputConsole = NULL;
+	CloseHandle(m_hInputConsole);
+	m_hInputConsole = NULL;
 }
 
 DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
@@ -534,4 +550,19 @@ DWORD CffplayerDlg::consoleInputMonitor(LPVOID pParam)
 		pThis->ProcessConsoleInput(lpBuffer,0);
 	}
 	return 0;
+}
+
+
+void CffplayerDlg::OnBnClickedButtonConsole()
+{
+	// TODO: Add your control notification handler code here
+	m_bIsConsoleDisplay = !m_bIsConsoleDisplay;
+	if (m_bIsConsoleDisplay)
+	{
+		initConsole();
+	} 
+	else
+	{
+		stopConsole();
+	}
 }

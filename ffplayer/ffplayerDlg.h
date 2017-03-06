@@ -33,6 +33,7 @@ private:
 	static DWORD WINAPI consoleInputMonitor(LPVOID pParam);
     DWORD ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs);
     void initConsole();
+    void stopConsole();
 	void OnWndFullScreen();
 	void CreateBtnSkin();
 	void cleanupResource(bool isTerminaterPlayProcess);
@@ -41,6 +42,7 @@ private:
     HANDLE m_consoleMonitorProcessHandler;
 	BOOL m_bIsFullScreen;
     BOOL m_bIsPlaying;
+    BOOL m_bIsConsoleDisplay;
 	CString m_strFileName;
 	CBrush m_brushBackground;
 	CBrush m_brushPlayarea;
@@ -52,9 +54,12 @@ private:
 	CSkinButton m_btnPlay;
 	CSkinButton m_btnPause;
 	CSkinButton m_btnStop;
+	CSkinButton m_btnConsole;
 	HANDLE m_hInputConsole;
     HANDLE m_hOutputConsole;
 	HICON m_hIcon;
 	RECT m_rc;
     int m_consoleWindowWidth;
+public:
+	afx_msg void OnBnClickedButtonConsole();
 };
