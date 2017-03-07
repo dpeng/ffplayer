@@ -66,6 +66,8 @@ BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
 	ON_WM_CLOSE()
 	ON_WM_TIMER()
 	ON_BN_CLICKED(ID_BUTTON_CONSOLE, &CffplayerDlg::OnBnClickedButtonConsole)
+	ON_BN_CLICKED(ID_BUTTON_PLAYNEXT, &CffplayerDlg::OnBnClickedButtonPlaynext)
+	ON_BN_CLICKED(ID_BUTTON_PLAYPREVIOUS, &CffplayerDlg::OnBnClickedButtonPlayprevious)
 END_MESSAGE_MAP()
 
 BOOL CffplayerDlg::OnInitDialog()
@@ -277,10 +279,8 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 	{
 		consolePrint("current playing index: %d, fileName: %s\n", m_curPlayingIndex, m_fileNameList[m_curPlayingIndex]);
 		
-		if (m_curPlayingIndex < m_totalFileNameInList)
-			m_curPlayingIndex++;
-		else
-			m_curPlayingIndex = 0;
+		if (m_curPlayingIndex < m_totalFileNameInList) m_curPlayingIndex++;
+		else m_curPlayingIndex = 0;
 		OnBnClickedButtonPlay();
 		KillTimer(2);
 	}
@@ -488,7 +488,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 			switch (pInputRec->Event.KeyEvent.wVirtualKeyCode)
 			{
 			case 0x50: /*VK_P*/
-				OnBnClickedButtonPause();
+				OnBnClickedButtonPlay();
 				break;
 			case 0x4e: /*VK_N*/
 				break;
@@ -523,6 +523,15 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				break;
 			case VK_SPACE:
 				OnBnClickedButtonPlay();
+				break;
+			case VK_MEDIA_NEXT_TRACK:
+				OnBnClickedButtonPlaynext();
+				break;
+			case VK_MEDIA_PREV_TRACK:
+				OnBnClickedButtonPlayprevious();
+				break;
+			case VK_MEDIA_PLAY_PAUSE:
+				OnBnClickedButtonPause();
 				break;
 			case VK_RETURN:
 				break;
@@ -592,4 +601,21 @@ void CffplayerDlg::OnBnClickedButtonConsole()
 	{
 		stopConsole();
 	}
+}
+
+void CffplayerDlg::OnBnClickedButtonPlaynext()
+{
+	if (m_curPlayingIndex < m_totalFileNameInList) m_curPlayingIndex++;
+	else m_curPlayingIndex = 0;
+	OnBnClickedButtonPlay();
+}
+
+
+void CffplayerDlg::OnBnClickedButtonPlayprevious()
+{
+	if((m_curPlayingIndex - 1) > 0) m_curPlayingIndex--;
+	else m_curPlayingIndex = m_totalFileNameInList;
+	
+	OnBnClickedButtonPlay();
+
 }
