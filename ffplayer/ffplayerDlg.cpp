@@ -92,7 +92,9 @@ BOOL CffplayerDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);
 
 	ShowWindow(SW_SHOWNORMAL);
-	m_strFileName = _T("D:\\temp\\ShapeOfYou.mp4");
+	m_curPlayingIndex = 0;
+	m_totalFileNameInList = 0;
+	m_fileNameList[m_curPlayingIndex] = _T("D:\\temp\\ShapeOfYou.mp4");
 	m_sliderPlay.SetRangeMin(0);
 	m_sliderPlay.SetRangeMax(1000);
 	m_sliderPlay.SetPos(0);
@@ -157,15 +159,28 @@ HCURSOR CffplayerDlg::OnQueryDragIcon()
 
 void CffplayerDlg::OnBnClickedButtonOpenfile()
 {
-	CString tempfilename = _T("");
-	CFileDialog FileChooser(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+
+	CString FileName = _T("");
+	CFileDialog FileChooser(TRUE, 
+		NULL,
+		NULL, 
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_ALLOWMULTISELECT,
 		_T("all files(*.*)|*.*|mp4 files(*.mp4)|*.mp4|mp3 files(*.mp3)|*.mp3||"));
 
-	if (FileChooser.DoModal() == IDOK)    tempfilename = FileChooser.GetPathName();
-	else    return;
+	FileChooser.m_ofn.nMaxFile = MAX_PATH;
 
-	m_strFileName = tempfilename;
-	tempfilename = _T("");
+	if (IDOK == FileChooser.DoModal())
+	{
+		POSITION pos;
+		pos=FileChooser.GetStartPosition();
+		while (pos!=NULL)
+		{
+			FileName = FileChooser.GetNextPathName(pos);
+			if (m_totalFileNameInList < MAX_PATH) m_fileNameList[m_totalFileNameInList++] = FileName;
+			else MessageBox(_T("file name list too long, the max number is 260"), _T("confirm"), MB_ICONQUESTION | MB_YESNO);
+		}
+		m_totalFileNameInList--;
+	}
 	//automatic play after open file
 	OnBnClickedButtonPlay();
 }
@@ -198,10 +213,11 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 {
 	CffplayerDlg* pThis = (CffplayerDlg*)pParam;
 	char filename[MAX_PATH] = {};
-	strcpy_s(filename, (LPCSTR)(CStringA)pThis->m_strFileName);
+	strcpy_s(filename, (LPCSTR)(CStringA)pThis->m_fileNameList[pThis->m_curPlayingIndex]);
 	int ret = ffplay_init(filename, pThis->m_playHandler, pThis->m_screenWidth, pThis->m_screenHeight);
 	//0 means return successful
 	if (ret == 0)		pThis->cleanupResource(FALSE);
+	pThis->SetTimer(2, 100, NULL); //inform the timer that this file play comes to an end
 	return ret;
 }
 void CffplayerDlg::OnBnClickedButtonPlay()
@@ -242,7 +258,7 @@ void CffplayerDlg::OnBnClickedButtonPause()
 {
 	ffplay_pause();
 }
-
+int g_waitingTime = 0;
 void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	if (nIDEvent == 1)
@@ -252,10 +268,21 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		curTime = ffplay_get_stream_curtime();
 		totalTime = ffplay_get_stream_totaltime();
 		
-		consolePrint("playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime * 100 / totalTime), totalTime, curTime);
+		//consolePrint("playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime * 100 / totalTime), totalTime, curTime);
 		//isnan can judge the current time is invalid or not, it can happened when play start and seek
 		if((totalTime >= 1) && !isnan(curTime))
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
+	}
+	if (nIDEvent == 2)
+	{
+		consolePrint("current playing index: %d, fileName: %s\n", m_curPlayingIndex, m_fileNameList[m_curPlayingIndex]);
+		
+		if (m_curPlayingIndex < m_totalFileNameInList)
+			m_curPlayingIndex++;
+		else
+			m_curPlayingIndex = 0;
+		OnBnClickedButtonPlay();
+		KillTimer(2);
 	}
 	CDialogEx::OnTimer(nIDEvent);
 }

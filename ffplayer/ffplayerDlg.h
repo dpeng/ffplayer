@@ -6,6 +6,8 @@ extern "C"
 #include "afxcmn.h"
 #include "afxwin.h"
 #include "xskin/xskinbutton.h"
+
+#define SAFE_DELETE(x) {if ((x)!=NULL) {delete (x); (x)=NULL;}} 
 class CffplayerDlg : public CDialogEx
 {
 public:
@@ -43,7 +45,9 @@ private:
 	BOOL m_bIsFullScreen;
     BOOL m_bIsPlaying;
     BOOL m_bIsConsoleDisplay;
-	CString m_strFileName;
+	CString m_fileNameList[MAX_PATH];
+    int m_curPlayingIndex;
+    int m_totalFileNameInList;
 	CBrush m_brushBackground;
 	CBrush m_brushPlayarea;
 	void * m_playHandler;
