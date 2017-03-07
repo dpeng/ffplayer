@@ -48,13 +48,13 @@
     <ClInclude Include="ffplay\ffplay.h">
       <Filter>Source Files\ffplay</Filter>
     </ClInclude>
-    <ClInclude Include="xskin\sliderbase.h">
+    <ClInclude Include="..\xskin\sliderbase.h">
       <Filter>Source Files\xSkin</Filter>
     </ClInclude>
-    <ClInclude Include="xskin\titleBar.h">
+    <ClInclude Include="..\xskin\titleBar.h">
       <Filter>Source Files\xSkin</Filter>
     </ClInclude>
-    <ClInclude Include="xskin\xskinbutton.h">
+    <ClInclude Include="..\xskin\xskinbutton.h">
       <Filter>Source Files\xSkin</Filter>
     </ClInclude>
   </ItemGroup>
@@ -77,13 +77,13 @@
     <ClCompile Include="ffplay\dce_defs.c">
       <Filter>Source Files\ffplay</Filter>
     </ClCompile>
-    <ClCompile Include="xskin\sliderbase.cpp">
+    <ClCompile Include="..\xskin\sliderbase.cpp">
       <Filter>Source Files\xSkin</Filter>
     </ClCompile>
-    <ClCompile Include="xskin\titleBar.cpp">
+    <ClCompile Include="..\xskin\titleBar.cpp">
       <Filter>Source Files\xSkin</Filter>
     </ClCompile>
-    <ClCompile Include="xskin\xskinbutton.cpp">
+    <ClCompile Include="..\xskin\xskinbutton.cpp">
       <Filter>Source Files\xSkin</Filter>
     </ClCompile>
   </ItemGroup>

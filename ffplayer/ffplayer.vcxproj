@@ -95,7 +95,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(solutiondir)ffmpeg\include\;$(solutiondir)ffmpeg\include\SDL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(solutiondir)ffmpeg\include\;$(solutiondir)ffmpeg\include\SDL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -119,6 +119,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,7 +145,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(solutiondir)ffmpeg\include\;$(solutiondir)ffmpeg\include\SDL</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(solutiondir)ffmpeg\include\;$(solutiondir)ffmpeg\include\SDL;$(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -172,6 +173,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -195,6 +197,9 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\xskin\sliderbase.h" />
+    <ClInclude Include="..\xskin\titleBar.h" />
+    <ClInclude Include="..\xskin\xskinbutton.h" />
     <ClInclude Include="ffplayer.h" />
     <ClInclude Include="ffplayerDlg.h" />
     <ClInclude Include="ffplay\cmdutils.h" />
@@ -203,11 +208,11 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="xskin\sliderbase.h" />
-    <ClInclude Include="xskin\titleBar.h" />
-    <ClInclude Include="xskin\xskinbutton.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\xskin\sliderbase.cpp" />
+    <ClCompile Include="..\xskin\titleBar.cpp" />
+    <ClCompile Include="..\xskin\xskinbutton.cpp" />
     <ClCompile Include="ffplayer.cpp" />
     <ClCompile Include="ffplayerDlg.cpp" />
     <ClCompile Include="ffplay\cmdutils.c">
@@ -242,9 +247,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="xskin\sliderbase.cpp" />
-    <ClCompile Include="xskin\titleBar.cpp" />
-    <ClCompile Include="xskin\xskinbutton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ffplayer.rc" />
