@@ -117,6 +117,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_bIsConsoleDisplay = FALSE;
 	//_CrtDumpMemoryLeaks();
 	OnBnClickedButtonConsole();
+	ffplay_toggle_set_init_volume(10);
 	return TRUE;
 }
 
@@ -513,8 +514,8 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				           "P                   pause                                                          **\n"
 				           "right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
 				           "W                   cycle video filters or show modes                              **\n"
-				           "M doesnt impliment  toggle mute                                                    **\n"
-				           "9, 0 not impliment  decrease and increase volume respectively                      **\n"
+				           "M                   toggle mute                                                    **\n"
+				           "9, 0                decrease and increase volume respectively                      **\n"
 				           "S    not impliment  activate frame-step mode                                       **\n"
 				           "                                                                                   **\n"
 				           "****************************************Help*****************************************\n"
@@ -540,6 +541,19 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				break;
 			case VK_MEDIA_PLAY_PAUSE:
 				OnBnClickedButtonPause();
+				break;
+			case VK_VOLUME_UP:
+			case 0x30:/*  0  */
+				ffplay_toggle_update_volume(1, 0.75);
+				break;
+			case VK_VOLUME_DOWN:
+			case 0x39:/*  9  */
+				ffplay_toggle_update_volume(-1, 0.75);
+				break;
+			case VK_VOLUME_MUTE:
+			case 0x4d:/*  M  */
+				ffplay_toggle_mute();
+				consolePrint("current volume: %f\n", ffplay_toggle_get_volume());
 				break;
 			case VK_RETURN:
 				break;

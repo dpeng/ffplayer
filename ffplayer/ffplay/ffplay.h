@@ -10,5 +10,9 @@ int ffplay_get_stream_totaltime(void);
 double ffplay_get_stream_curtime(void);
 void ffplay_seek(double pos);
 void ffplay_toggle_display(void);
+void ffplay_toggle_update_volume(int sign, double step);
+double ffplay_toggle_get_volume(void);
+void ffplay_toggle_set_init_volume(int volume);
+void ffplay_toggle_mute(void);
 
 #endif

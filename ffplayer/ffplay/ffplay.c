@@ -3787,6 +3787,33 @@ void ffplay_toggle_display(void)
 	}
 }
 
+void ffplay_toggle_update_volume(int sign, double step)
+{
+	if (NULL != m_curstream)
+	{
+		update_volume(m_curstream, sign, step);
+        startup_volume = (int)((double)m_curstream->audio_volume/1.28);
+        av_log(NULL, AV_LOG_FATAL, "current volume: %d startup volume: %d\n", m_curstream->audio_volume, startup_volume);
+	}
+}
+
+double ffplay_toggle_get_volume(void)
+{
+	if (NULL != m_curstream) return m_curstream->audio_volume;
+    else return 0.0;
+        
+}
+void ffplay_toggle_set_init_volume(int volume)
+{
+    startup_volume = volume;
+}
+
+void ffplay_toggle_mute(void)
+
+{
+    if (NULL != m_curstream) toggle_mute(m_curstream);
+}
+
 
 /* Called from the main */
 int main(int argc, char **argv)
