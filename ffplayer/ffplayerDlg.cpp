@@ -96,7 +96,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	ShowWindow(SW_SHOWNORMAL);
 	m_curPlayingIndex = 0;
 	m_totalFileNameInList = 0;
-	m_fileNameList[m_curPlayingIndex] = _T("D:\\temp\\ShapeOfYou.mp4");
+	//m_fileNameList[m_curPlayingIndex] = _T("D:\\temp\\ShapeOfYou.mp4");
 	m_sliderPlay.SetRangeMin(0);
 	m_sliderPlay.SetRangeMax(1000);
 	m_sliderPlay.SetPos(0);
@@ -116,6 +116,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_hInputConsole = NULL;
 	m_bIsConsoleDisplay = FALSE;
 	//_CrtDumpMemoryLeaks();
+	OnBnClickedButtonConsole();
 	return TRUE;
 }
 
@@ -184,7 +185,7 @@ void CffplayerDlg::OnBnClickedButtonOpenfile()
 		m_totalFileNameInList--;
 	}
 	//automatic play after open file
-	OnBnClickedButtonPlay();
+	//OnBnClickedButtonPlay();
 }
 
 static void pushLogsToConsole(const char *fmt, va_list vargs)
@@ -218,12 +219,19 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 	strcpy_s(filename, (LPCSTR)(CStringA)pThis->m_fileNameList[pThis->m_curPlayingIndex]);
 	int ret = ffplay_init(filename, pThis->m_playHandler, pThis->m_screenWidth, pThis->m_screenHeight);
 	//0 means return successful
-	if (ret == 0)		pThis->cleanupResource(FALSE);
-	pThis->SetTimer(2, 100, NULL); //inform the timer that this file play comes to an end
+	if (ret == 0) {
+		pThis->cleanupResource(FALSE);
+		pThis->SetTimer(2, 100, NULL); //inform the timer that this file play comes to an end
+	}
+	else pThis->MessageBox(_T("playing error, continue?"), _T("confirm"), MB_ICONQUESTION | MB_YESNO);
 	return ret;
 }
 void CffplayerDlg::OnBnClickedButtonPlay()
 {
+	if (m_fileNameList[m_curPlayingIndex].GetLength() < 1)
+		return;
+	if (!PathFileExists(m_fileNameList[m_curPlayingIndex]))
+		return;
 	RECT rc = {0};
 	DWORD threadID;
 	//stop the playing before open an new play

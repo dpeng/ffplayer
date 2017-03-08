@@ -369,7 +369,7 @@ static AVPacket flush_pkt;
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static VideoState *m_curstream;
-int m_streamIndex[AVMEDIA_TYPE_NB];
+int m_streamIndex[AVMEDIA_TYPE_NB] = {-1, -1, -1, -1, -1};
 
 
 #if CONFIG_AVFILTER
@@ -3012,7 +3012,9 @@ static int read_thread(void *arg)
 
         event.type = FF_QUIT_EVENT;
         event.user.data1 = is;
+        event.user.data2 = ret;
         SDL_PushEvent(&event);
+        is->eof = 1;
     }
     SDL_DestroyMutex(wait_mutex);
     return ret;
@@ -3408,7 +3410,7 @@ static int event_loop(VideoState *cur_stream, void *hwnd)
             break;
         case SDL_QUIT:
         case FF_QUIT_EVENT:
-				ret = 0;
+				ret = event.user.data2;
             break;
         default:
             break;
