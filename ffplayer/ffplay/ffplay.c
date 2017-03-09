@@ -3012,9 +3012,9 @@ static int read_thread(void *arg)
 
         event.type = FF_QUIT_EVENT;
         event.user.data1 = is;
-        event.user.data2 = ret;
+		if (is->eof == 1){event.user.data2 = 0;}
+		else{event.user.data2 = ret; is->eof = 1;}
         SDL_PushEvent(&event);
-        is->eof = 1;
     }
     SDL_DestroyMutex(wait_mutex);
     return ret;
@@ -3725,9 +3725,9 @@ void ffplay_stop(void)
 {
 	if (NULL != m_curstream)
 	{
-		if(m_streamIndex[AVMEDIA_TYPE_VIDEO] >= 0)
+		if((m_streamIndex[AVMEDIA_TYPE_VIDEO] >= 0) && (NULL != m_curstream->ic))
 			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_VIDEO]]->codec);
-		if(m_streamIndex[AVMEDIA_TYPE_AUDIO] >= 0)
+		if((m_streamIndex[AVMEDIA_TYPE_AUDIO] >= 0) && (NULL != m_curstream->ic))
 			avcodec_close(m_curstream->ic->streams[m_streamIndex[AVMEDIA_TYPE_AUDIO]]->codec);
 		do_exit(m_curstream);
 		m_curstream = NULL;
