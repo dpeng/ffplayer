@@ -224,7 +224,7 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 		pThis->cleanupResource(FALSE);
 		pThis->SetTimer(2, 100, NULL); //inform the timer that this file play comes to an end
 	}
-	else pThis->MessageBox(_T("playing error, continue?"), _T("confirm"), MB_ICONQUESTION | MB_YESNO);
+	else pThis->MessageBox(_T("playing error, will pass play this file."), _T("confirm"), MB_ICONQUESTION | MB_OK);
 	return ret;
 }
 void CffplayerDlg::OnBnClickedButtonPlay()
