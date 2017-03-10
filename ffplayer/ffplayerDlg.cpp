@@ -498,7 +498,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 			switch (pInputRec->Event.KeyEvent.wVirtualKeyCode)
 			{
 			case 0x50: /*VK_P*/
-				OnBnClickedButtonPlay();
+				OnBnClickedButtonPause();
 				break;
 			case 0x4e: /*VK_N*/
 				break;
@@ -512,7 +512,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				           "Space               play file                                                      **\n"
 				           "Q                   quit                                                           **\n"
 				           "F                   toggle full screen                                             **\n"
-				           "P                   play file                                                      **\n"
+				           "P                   Pause                                                          **\n"
 				           "right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
 				           "W                   cycle video filters or show modes                              **\n"
 				           "M                   toggle mute                                                    **\n"
