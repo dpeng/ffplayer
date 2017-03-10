@@ -68,6 +68,7 @@ BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
 	ON_BN_CLICKED(ID_BUTTON_CONSOLE, &CffplayerDlg::OnBnClickedButtonConsole)
 	ON_BN_CLICKED(ID_BUTTON_PLAYNEXT, &CffplayerDlg::OnBnClickedButtonPlaynext)
 	ON_BN_CLICKED(ID_BUTTON_PLAYPREVIOUS, &CffplayerDlg::OnBnClickedButtonPlayprevious)
+	ON_BN_CLICKED(ID_BUTTON_PLAYTONEXTFRAME, &CffplayerDlg::OnBnClickedButtonPlaytonextframe)
 END_MESSAGE_MAP()
 
 BOOL CffplayerDlg::OnInitDialog()
@@ -511,12 +512,12 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				           "Space               play file                                                      **\n"
 				           "Q                   quit                                                           **\n"
 				           "F                   toggle full screen                                             **\n"
-				           "P                   pause                                                          **\n"
+				           "P                   play file                                                      **\n"
 				           "right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
 				           "W                   cycle video filters or show modes                              **\n"
 				           "M                   toggle mute                                                    **\n"
 				           "9, 0                decrease and increase volume respectively                      **\n"
-				           "S    not impliment  activate frame-step mode                                       **\n"
+				           "S                   activate frame-step mode                                       **\n"
 				           "                                                                                   **\n"
 				           "****************************************Help*****************************************\n"
 				           );
@@ -526,6 +527,9 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				break;
 			case 0x51:/*VK_Q*/
 				OnClose();
+				break;
+			case 0x53:/*VK_S*/
+				OnBnClickedButtonPlaytonextframe();
 				break;
 			case 0x57:/*VK_W*/
 				ffplay_toggle_display();
@@ -639,5 +643,9 @@ void CffplayerDlg::OnBnClickedButtonPlayprevious()
 	else m_curPlayingIndex = m_totalFileNameInList;
 	
 	OnBnClickedButtonPlay();
+}
 
+void CffplayerDlg::OnBnClickedButtonPlaytonextframe()
+{
+	ffplay_step_to_next_frame();
 }

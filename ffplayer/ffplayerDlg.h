@@ -68,4 +68,5 @@ public:
 	afx_msg void OnBnClickedButtonConsole();
 	afx_msg void OnBnClickedButtonPlaynext();
 	afx_msg void OnBnClickedButtonPlayprevious();
+	afx_msg void OnBnClickedButtonPlaytonextframe();
 };

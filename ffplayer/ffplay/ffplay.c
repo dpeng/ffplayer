@@ -3814,6 +3814,12 @@ void ffplay_toggle_mute(void)
     if (NULL != m_curstream) toggle_mute(m_curstream);
 }
 
+void ffplay_step_to_next_frame(void)
+
+{
+    if (NULL != m_curstream) step_to_next_frame(m_curstream);
+}
+
 
 /* Called from the main */
 int main(int argc, char **argv)
