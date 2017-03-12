@@ -357,6 +357,12 @@ void CffplayerDlg::OnWndFullScreen()
 		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
 		pButton = (CButton *)GetDlgItem(ID_BUTTON_CONSOLE);
 		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_PLAYNEXT);
+		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_PLAYPREVIOUS);
+		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_PLAYTONEXTFRAME);
+		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
 		m_sliderPlay.ModifyStyle(WS_VISIBLE, 0, 0);
 		GetWindowPlacement(&m_OldWndplacement);
 		ModifyStyle(WS_SIZEBOX, 0, 0);
@@ -396,6 +402,12 @@ void CffplayerDlg::OnWndFullScreen()
 		pButton = (CButton *)GetDlgItem(ID_BUTTON_STOP);
 		pButton->ModifyStyle(0, WS_VISIBLE, 0);
 		pButton = (CButton *)GetDlgItem(ID_BUTTON_CONSOLE);
+		pButton->ModifyStyle(0, WS_VISIBLE, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_PLAYNEXT);
+		pButton->ModifyStyle(0, WS_VISIBLE, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_PLAYPREVIOUS);
+		pButton->ModifyStyle(0, WS_VISIBLE, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_PLAYTONEXTFRAME);
 		pButton->ModifyStyle(0, WS_VISIBLE, 0);
 		m_sliderPlay.ModifyStyle(0, WS_VISIBLE, 0);
 		SetWindowPlacement(&m_OldWndplacement);
