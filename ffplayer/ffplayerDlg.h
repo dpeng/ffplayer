@@ -59,6 +59,9 @@ private:
 	CSkinButton m_btnPause;
 	CSkinButton m_btnStop;
 	CSkinButton m_btnConsole;
+	CSkinButton m_btnPlayNext;
+	CSkinButton m_btnPlayPreVious;
+	CSkinButton m_btnPlayFrame;
 	HANDLE m_hInputConsole;
     HANDLE m_hOutputConsole;
 	HICON m_hIcon;

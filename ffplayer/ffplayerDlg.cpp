@@ -51,6 +51,9 @@ void CffplayerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, ID_BUTTON_PAUSE, m_btnPause);
 	DDX_Control(pDX, ID_BUTTON_STOP, m_btnStop);
 	DDX_Control(pDX, ID_BUTTON_CONSOLE, m_btnConsole);
+	DDX_Control(pDX, ID_BUTTON_PLAYNEXT, m_btnPlayNext);
+	DDX_Control(pDX, ID_BUTTON_PLAYPREVIOUS, m_btnPlayPreVious);
+	DDX_Control(pDX, ID_BUTTON_PLAYTONEXTFRAME, m_btnPlayFrame);
 }
 
 BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
@@ -437,6 +440,15 @@ void CffplayerDlg::CreateBtnSkin()
 	m_btnConsole.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
 	m_btnConsole.SetTextColor(SYSTEM_BTNCOLOR);
 	m_btnConsole.SizeToContent();
+	m_btnPlayNext.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
+	m_btnPlayNext.SetTextColor(SYSTEM_BTNCOLOR);
+	m_btnPlayNext.SizeToContent();
+	m_btnPlayPreVious.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
+	m_btnPlayPreVious.SetTextColor(SYSTEM_BTNCOLOR);
+	m_btnPlayPreVious.SizeToContent();
+	m_btnPlayFrame.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
+	m_btnPlayFrame.SetTextColor(SYSTEM_BTNCOLOR);
+	m_btnPlayFrame.SizeToContent();
 }
 
 void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
