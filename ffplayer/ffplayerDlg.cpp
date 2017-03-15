@@ -545,6 +545,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				           "M                   toggle mute                                                    **\n"
 				           "9, 0                decrease and increase volume respectively                      **\n"
 				           "S                   activate frame-step mode                                       **\n"
+				           "Escape              Close the console window and active the Main window            **\n"
 				           "                                                                                   **\n"
 				           "****************************************Help*****************************************\n"
 				           );
@@ -587,6 +588,9 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				consolePrint("current volume: %f\n", ffplay_toggle_get_volume());
 				break;
 			case VK_RETURN:
+				break;
+			case VK_ESCAPE:
+				OnBnClickedButtonConsole();
 				break;
 			default:
 				break;
@@ -648,10 +652,12 @@ void CffplayerDlg::OnBnClickedButtonConsole()
 	m_bIsConsoleDisplay = !m_bIsConsoleDisplay;
 	if (m_bIsConsoleDisplay)
 	{
+	    ShowWindow(SW_HIDE);
 		initConsole();
 	} 
 	else
 	{
+		ShowWindow(SW_SHOWNORMAL);
 		stopConsole();
 	}
 }
