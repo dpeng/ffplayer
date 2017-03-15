@@ -120,7 +120,10 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_hInputConsole = NULL;
 	m_bIsConsoleDisplay = FALSE;
 	//_CrtDumpMemoryLeaks();
+	//only show the console screen default when in debug mode
+#ifdef _DEBUG
 	OnBnClickedButtonConsole();
+#endif
 	ffplay_toggle_set_init_volume(10);
 	return TRUE;
 }
