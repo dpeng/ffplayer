@@ -281,7 +281,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	if (nIDEvent == 1)
 	{
-		double curTime; 
+		double curTime;
 		int	totalTime;
 		curTime = ffplay_get_stream_curtime();
 		totalTime = ffplay_get_stream_totaltime();
@@ -299,6 +299,14 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		else m_curPlayingIndex = 0;
 		OnBnClickedButtonPlay();
 		KillTimer(2);
+	}
+	if (nIDEvent == 3)
+	{
+		double curTime;
+		int	totalTime;
+		curTime = ffplay_get_stream_curtime();
+		totalTime = ffplay_get_stream_totaltime();
+		if ((totalTime >= 1) && !isnan(curTime))  consolePrint("%d ", (int)curTime);
 	}
 	CDialogEx::OnTimer(nIDEvent);
 }
@@ -600,15 +608,14 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 	case MOUSE_EVENT:
 		if(pInputRec->Event.MouseEvent.dwButtonState == RIGHTMOST_BUTTON_PRESSED)
 		{
-			consolePrint("FROM_LEFT_1ST_BUTTON_PRESSED: %d pos: %d %d\n", 
-				pInputRec->EventType,
-				pInputRec->Event.MouseEvent.dwMousePosition.X,
-				pInputRec->Event.MouseEvent.dwMousePosition.Y);
 			if ((m_consoleWindowWidth > 0) && (pInputRec->Event.MouseEvent.dwMousePosition.X >= 0) &&
 				(m_consoleWindowWidth >= pInputRec->Event.MouseEvent.dwMousePosition.X))
 			{
 				double pos = (double)pInputRec->Event.MouseEvent.dwMousePosition.X/(double)m_consoleWindowWidth;
-				if(m_bIsPlaying) ffplay_seek(pos);
+				if(m_bIsPlaying){
+					ffplay_seek(pos);
+					consolePrint("\nseek to : %d%%\n", (int)(100*pos));
+					}
 			}
 		}
 
@@ -654,11 +661,13 @@ void CffplayerDlg::OnBnClickedButtonConsole()
 	{
 	    ShowWindow(SW_HIDE);
 		initConsole();
+		SetTimer(3, 1000, NULL);
 	} 
 	else
 	{
 		ShowWindow(SW_SHOWNORMAL);
 		stopConsole();
+		KillTimer(3);
 	}
 }
 
