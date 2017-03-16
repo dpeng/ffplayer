@@ -300,14 +300,6 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		OnBnClickedButtonPlay();
 		KillTimer(2);
 	}
-	if (nIDEvent == 3)
-	{
-		double curTime;
-		int	totalTime;
-		curTime = ffplay_get_stream_curtime();
-		totalTime = ffplay_get_stream_totaltime();
-		if ((totalTime >= 1) && !isnan(curTime))  consolePrint("%d ", (int)curTime);
-	}
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -536,6 +528,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				OnBnClickedButtonPause();
 				break;
 			case 0x4e: /*VK_N*/
+				OnBnClickedButtonPlaynext();
 				break;
 			case 0x46: /*VK_F*/
 				OnWndFullScreen();
@@ -547,16 +540,30 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				           "Space               play file                                                      **\n"
 				           "Q                   quit                                                           **\n"
 				           "F                   toggle full screen                                             **\n"
+				           "I                   Show Plaing information                                        **\n"
 				           "P                   Pause                                                          **\n"
 				           "right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
 				           "W                   cycle video filters or show modes                              **\n"
 				           "M                   toggle mute                                                    **\n"
+				           "N                   play next                                                      **\n"
 				           "9, 0                decrease and increase volume respectively                      **\n"
 				           "S                   activate frame-step mode                                       **\n"
 				           "Escape              Close the console window and active the Main window            **\n"
 				           "                                                                                   **\n"
 				           "****************************************Help*****************************************\n"
 				           );
+				break;
+			case 0x49:/*VK_I*/
+				double curTime;
+				int	totalTime;
+				curTime = ffplay_get_stream_curtime();
+				totalTime = ffplay_get_stream_totaltime();
+				if ((totalTime >= 1) && !isnan(curTime))  
+					consolePrint("current Time: %d, Total Time: %d, Playing percentage:%d%%\n", 
+					/*(char*)(LPCTSTR)m_fileNameList[m_curPlayingIndex],*/
+					(int)curTime,
+					totalTime,
+					int(100*curTime/totalTime));
 				break;
 			case 0x4f:/*VK_O*/
 				OnBnClickedButtonOpenfile();
@@ -661,13 +668,11 @@ void CffplayerDlg::OnBnClickedButtonConsole()
 	{
 	    ShowWindow(SW_HIDE);
 		initConsole();
-		SetTimer(3, 1000, NULL);
 	} 
 	else
 	{
 		ShowWindow(SW_SHOWNORMAL);
 		stopConsole();
-		KillTimer(3);
 	}
 }
 
