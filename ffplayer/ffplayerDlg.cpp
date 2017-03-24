@@ -97,7 +97,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);
 	SetIcon(m_hIcon, FALSE);
 
-	ShowWindow(SW_SHOWNORMAL);
+	ShowWindow(SW_SHOW);
 	m_curPlayingIndex = 0;
 	m_totalFileNameInList = 0;
 	//m_fileNameList[m_curPlayingIndex] = _T("D:\\temp\\ShapeOfYou.mp4");
@@ -670,7 +670,8 @@ void CffplayerDlg::OnBnClickedButtonConsole()
 	} 
 	else
 	{
-		ShowWindow(SW_SHOWNORMAL);
+		ShowWindow(SW_SHOW);
+		SetForegroundWindow();
 		stopConsole();
 	}
 }
