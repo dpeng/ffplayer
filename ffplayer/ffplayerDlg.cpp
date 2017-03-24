@@ -190,7 +190,6 @@ void CffplayerDlg::OnBnClickedButtonOpenfile()
 			if (m_totalFileNameInList < MAX_PATH) m_fileNameList[m_totalFileNameInList++] = FileName;
 			else MessageBox(_T("file name list too long, the max number is 260"), _T("confirm"), MB_ICONQUESTION | MB_YESNO);
 		}
-		m_totalFileNameInList--;
 	}
 	//automatic play after open file
 	//OnBnClickedButtonPlay();
