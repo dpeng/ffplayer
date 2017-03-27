@@ -44,7 +44,8 @@ private:
     HANDLE m_consoleMonitorProcessHandler;
 	BOOL m_bIsFullScreen;
     BOOL m_bIsPlaying;
-    BOOL m_bIsConsoleDisplay;
+	BOOL m_bIsConsoleDisplay;
+	int m_iIsDiaglogDisplay;
 	CString m_fileNameList[MAX_PATH];
     int m_curPlayingIndex;
     int m_totalFileNameInList;

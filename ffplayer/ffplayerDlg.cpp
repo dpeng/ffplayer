@@ -97,7 +97,6 @@ BOOL CffplayerDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);
 	SetIcon(m_hIcon, FALSE);
 
-	ShowWindow(SW_SHOW);
 	m_curPlayingIndex = 0;
 	m_totalFileNameInList = 0;
 	//m_fileNameList[m_curPlayingIndex] = _T("D:\\temp\\ShapeOfYou.mp4");
@@ -119,11 +118,10 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_hOutputConsole = NULL;
 	m_hInputConsole = NULL;
 	m_bIsConsoleDisplay = FALSE;
+	m_iIsDiaglogDisplay = 2;
 	//_CrtDumpMemoryLeaks();
 	//only show the console screen default when in debug mode
-#ifdef _DEBUG
 	OnBnClickedButtonConsole();
-#endif
 	ffplay_toggle_set_init_volume(10);
 	return TRUE;
 }
@@ -158,6 +156,11 @@ void CffplayerDlg::OnPaint()
 	}
 	else
 	{
+		if (m_iIsDiaglogDisplay > 0)
+		{
+			m_iIsDiaglogDisplay--;
+			ShowWindow(SW_HIDE);
+		}
 		CDialogEx::OnPaint();
 	}
 	this->UpdateWindow();
