@@ -310,7 +310,7 @@ BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
 	if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN) return TRUE;
 	if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_ESCAPE)
 	{
-		OnWndFullScreen();
+		OnBnClickedButtonConsole();
 		return TRUE;
 	}
 	if ( pMsg->message == WM_LBUTTONDOWN)
