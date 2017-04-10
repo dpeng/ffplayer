@@ -70,7 +70,6 @@ private:
 	RECT m_rc;
     int m_consoleWindowWidth;
 	progressbar *m_pProgressBar;
-	double m_curPlayingTime;
 public:
 	afx_msg void OnBnClickedButtonConsole();
 	afx_msg void OnBnClickedButtonPlaynext();

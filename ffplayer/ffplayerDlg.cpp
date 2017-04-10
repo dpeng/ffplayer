@@ -122,7 +122,6 @@ BOOL CffplayerDlg::OnInitDialog()
 	//_CrtDumpMemoryLeaks();
 	//only show the console screen default when in debug mode
 	m_pProgressBar = NULL;
-	m_curPlayingTime = 0.0;
 	OnBnClickedButtonConsole();
 	ffplay_toggle_set_init_volume(10);
 	return TRUE;
@@ -241,7 +240,13 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 void CffplayerDlg::OnBnClickedButtonPlay()
 {
 	if (m_fileNameList[m_curPlayingIndex].GetLength() < 1)
+	{
+		if (m_curPlayingIndex >= 1)
+		{
+			m_curPlayingIndex--;
+		}
 		return;
+	}
 	if (!PathFileExists(m_fileNameList[m_curPlayingIndex]))
 		return;
 	RECT rc = {0};
@@ -259,7 +264,6 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 
 	m_playHandler = GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd();
 	m_bIsPlaying = TRUE;
-	m_curPlayingTime = 0.0;
 	SetTimer(1, 40, NULL);
 	
 	m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &threadID);
@@ -298,16 +302,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
 			if (m_bIsConsoleDisplay)
 			{
-				while ((curTime - m_curPlayingTime) * 100 / totalTime > 2)
-				{
-					progressbar_inc(m_pProgressBar);
-					m_curPlayingTime += totalTime/100;
-				}
-				if ((curTime - m_curPlayingTime) * 100 / totalTime > 1)
-				{
-					progressbar_inc(m_pProgressBar);
-					m_curPlayingTime = curTime;
-				}
+				progressbar_update(m_pProgressBar, curTime  * 100 / totalTime);
 			}
 		}
 		
