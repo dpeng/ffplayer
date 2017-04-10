@@ -7,7 +7,7 @@
 * \copyright BSD 3-Clause
 *
 * progressbar -- a C class (by convention) for displaying progress
-* on the command line (to stderr).
+* on the command line (to stdout).
 */
 
 #include "termcap.h"  /* tgetent, tgetnum */
@@ -179,20 +179,20 @@ static void progressbar_draw(const progressbar *bar)
     bar_width += 1;
   } else {
     // Draw the label
-    fwrite(bar->label, 1, label_width, stderr);
-    fputc(' ', stderr);
+    fwrite(bar->label, 1, label_width, stdout);
+    fputc(' ', stdout);
   }
 
   // Draw the progressbar
-  fputc(bar->format.begin, stderr);
-  progressbar_write_char(stderr, bar->format.fill, bar_piece_current);
-  progressbar_write_char(stderr, ' ', bar_piece_count - bar_piece_current);
-  fputc(bar->format.end, stderr);
+  fputc(bar->format.begin, stdout);
+  progressbar_write_char(stdout, bar->format.fill, bar_piece_current);
+  progressbar_write_char(stdout, ' ', bar_piece_count - bar_piece_current);
+  fputc(bar->format.end, stdout);
 
   // Draw the ETA
-  fputc(' ', stderr);
-  fprintf(stderr, ETA_FORMAT, eta.hours, eta.minutes, eta.seconds);
-  fputc('\r', stderr);
+  fputc(' ', stdout);
+  fprintf(stdout, ETA_FORMAT, eta.hours, eta.minutes, eta.seconds);
+  fputc('\r', stdout);
 }
 
 /**
@@ -203,8 +203,8 @@ void progressbar_finish(progressbar *bar)
   // Make sure we fill the progressbar so things look complete.
   progressbar_draw(bar);
 
-  // Print a newline, so that future outputs to stderr look prettier
-  fprintf(stderr, "\n");
+  // Print a newline, so that future outputs to stdout look prettier
+  fprintf(stdout, "\n");
 
   // We've finished with this progressbar, so go ahead and free it.
   progressbar_free(bar);

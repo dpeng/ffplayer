@@ -199,6 +199,9 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\progressbar\progressbar.h" />
+    <ClInclude Include="..\progressbar\statusbar.h" />
+    <ClInclude Include="..\progressbar\termcap.h" />
     <ClInclude Include="..\xskin\sliderbase.h" />
     <ClInclude Include="..\xskin\titleBar.h" />
     <ClInclude Include="..\xskin\xskinbutton.h" />
@@ -212,6 +215,18 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\progressbar\progressbar.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\progressbar\statusbar.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\progressbar\termcap.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\xskin\sliderbase.cpp" />
     <ClCompile Include="..\xskin\titleBar.cpp" />
     <ClCompile Include="..\xskin\xskinbutton.cpp" />

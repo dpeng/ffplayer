@@ -7,7 +7,7 @@
 * \copyright BSD 3-Clause
 *
 * statusbar -- a C class (by convention) for displaying progress
-* on the command line (to stderr).
+* on the command line (to stdout).
 */
 #include "statusbar.h"
 
@@ -62,14 +62,14 @@ void statusbar_inc(statusbar *bar)
 
 void statusbar_draw(statusbar *bar)
 {
-  // Erase the last draw. If anything else has been printed to stderr,
+  // Erase the last draw. If anything else has been printed to stdout,
   // things are going to look mighty interesting...
   for(int i=0; i < bar->last_printed; i++) {
-    fprintf(stderr,"\b");
+    fprintf(stdout,"\b");
   }
 
   fprintf(
-        stderr,
+        stdout,
         "%s: %c%n",
         bar->label,
         bar->format[bar->format_index],
@@ -93,21 +93,21 @@ void statusbar_finish(statusbar *bar)
 
   // Erase the last draw
   for(int i=0; i < bar->last_printed; i++) {
-    fprintf(stderr,"\b");
+    fprintf(stdout,"\b");
   }
 
   // Calculate number of spaces for right-justified time to completion
-  fprintf(stderr,"%s: %3d:%02d:%02d%n",bar->label,h,m,s,&(bar->last_printed));
+  fprintf(stdout,"%s: %3d:%02d:%02d%n",bar->label,h,m,s,&(bar->last_printed));
   for(int i=0; i < bar->last_printed; i++) {
-    fprintf(stderr,"\b");
+    fprintf(stdout,"\b");
   }
 
   // Print right-justified
-  fprintf(stderr,"%s: ",bar->label);
+  fprintf(stdout,"%s: ",bar->label);
   for(int i=0; i < (80 - (bar->last_printed)); i++) {
-    fprintf(stderr," ");
+    fprintf(stdout," ");
   }
-  fprintf(stderr,"%3d:%02d:%02d\n",h,m,s);
+  fprintf(stdout,"%3d:%02d:%02d\n",h,m,s);
 
   // We've finished with this statusbar, so go ahead and free it.
   statusbar_free(bar);

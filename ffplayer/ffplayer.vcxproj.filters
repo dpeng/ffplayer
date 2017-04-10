@@ -19,6 +19,9 @@
     <Filter Include="Source Files\xSkin">
       <UniqueIdentifier>{753aa9a4-160b-4ea4-8b44-a665a83783bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\progressbar">
+      <UniqueIdentifier>{8b10dd2a-05b2-4495-b0af-22ed7e99113d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -57,6 +60,15 @@
     <ClInclude Include="..\xskin\xskinbutton.h">
       <Filter>Source Files\xSkin</Filter>
     </ClInclude>
+    <ClInclude Include="..\progressbar\progressbar.h">
+      <Filter>Source Files\progressbar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\progressbar\statusbar.h">
+      <Filter>Source Files\progressbar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\progressbar\termcap.h">
+      <Filter>Source Files\progressbar</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ffplayer.cpp">
@@ -85,6 +97,15 @@
     </ClCompile>
     <ClCompile Include="..\xskin\xskinbutton.cpp">
       <Filter>Source Files\xSkin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\progressbar\progressbar.c">
+      <Filter>Source Files\progressbar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\progressbar\statusbar.c">
+      <Filter>Source Files\progressbar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\progressbar\termcap.c">
+      <Filter>Source Files\progressbar</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

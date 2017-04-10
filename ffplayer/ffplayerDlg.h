@@ -6,6 +6,7 @@ extern "C"
 #include "afxcmn.h"
 #include "afxwin.h"
 #include "xskin/xskinbutton.h"
+#include "progressbar/progressbar.h"
 
 #define SAFE_DELETE(x) {if ((x)!=NULL) {delete (x); (x)=NULL;}} 
 class CffplayerDlg : public CDialogEx
@@ -68,6 +69,8 @@ private:
 	HICON m_hIcon;
 	RECT m_rc;
     int m_consoleWindowWidth;
+	progressbar *m_pProgressBar;
+	double m_curPlayingTime;
 public:
 	afx_msg void OnBnClickedButtonConsole();
 	afx_msg void OnBnClickedButtonPlaynext();

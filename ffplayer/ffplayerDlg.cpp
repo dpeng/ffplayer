@@ -121,6 +121,8 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_iIsDiaglogDisplay = 2;
 	//_CrtDumpMemoryLeaks();
 	//only show the console screen default when in debug mode
+	m_pProgressBar = NULL;
+	m_curPlayingTime = 0.0;
 	OnBnClickedButtonConsole();
 	ffplay_toggle_set_init_volume(10);
 	return TRUE;
@@ -257,6 +259,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 
 	m_playHandler = GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd();
 	m_bIsPlaying = TRUE;
+	m_curPlayingTime = 0.0;
 	SetTimer(1, 40, NULL);
 	
 	m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &threadID);
@@ -290,8 +293,24 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		
 		//consolePrint("playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime * 100 / totalTime), totalTime, curTime);
 		//isnan can judge the current time is invalid or not, it can happened when play start and seek
-		if((totalTime >= 1) && !isnan(curTime))
+		if ((totalTime >= 1) && !isnan(curTime))
+		{
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
+			if (m_bIsConsoleDisplay)
+			{
+				while ((curTime - m_curPlayingTime) * 100 / totalTime > 2)
+				{
+					progressbar_inc(m_pProgressBar);
+					m_curPlayingTime += totalTime/100;
+				}
+				if ((curTime - m_curPlayingTime) * 100 / totalTime > 1)
+				{
+					progressbar_inc(m_pProgressBar);
+					m_curPlayingTime = curTime;
+				}
+			}
+		}
+		
 	}
 	if (nIDEvent == 2)
 	{
@@ -488,6 +507,8 @@ void CffplayerDlg::initConsole()
 {
 	DWORD threadID;
 	AllocConsole();
+	//freopen("CONIN$", "r+t", stdin);
+	freopen("CONOUT$", "w+t", stdout);
 	m_consoleWindowWidth = 0;
 	m_hOutputConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	m_hInputConsole  = GetStdHandle(STD_INPUT_HANDLE);
@@ -502,6 +523,7 @@ void CffplayerDlg::initConsole()
 	SetConsoleScreenBufferSize(m_hOutputConsole, tmpCoord);
 	BOOL ret = SetConsoleWindowInfo(m_hOutputConsole, TRUE, &rc);
 	if(ret == TRUE) m_consoleWindowWidth = tmpCoord.X;
+	m_pProgressBar = progressbar_new("Smooth", 100);
 	m_consoleMonitorProcessHandler = CreateThread(NULL, 0, CffplayerDlg::consoleInputMonitor, this, 0, &threadID);
 }
 
@@ -514,11 +536,17 @@ void CffplayerDlg::stopConsole()
 	m_hOutputConsole = NULL;
 	CloseHandle(m_hInputConsole);
 	m_hInputConsole = NULL;
+	if (m_pProgressBar)
+	{
+		progressbar_finish(m_pProgressBar);
+		m_pProgressBar = NULL;
+	}
 }
 
 DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 {
 	if(pInputRec == NULL)	return 1;
+
 	switch (pInputRec->EventType)
 	{
 	case KEY_EVENT:
@@ -621,10 +649,11 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				(m_consoleWindowWidth >= pInputRec->Event.MouseEvent.dwMousePosition.X))
 			{
 				double pos = (double)pInputRec->Event.MouseEvent.dwMousePosition.X/(double)m_consoleWindowWidth;
-				if(m_bIsPlaying){
+				if(m_bIsPlaying)
+				{
 					ffplay_seek(pos);
 					consolePrint("\nseek to : %d%%\n", (int)(100*pos));
-					}
+				}
 			}
 		}
 
