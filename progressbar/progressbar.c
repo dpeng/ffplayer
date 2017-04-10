@@ -20,7 +20,7 @@ enum { DEFAULT_SCREEN_WIDTH = 80 };
 /// The smallest that the bar can ever be (not including borders)
 enum { MINIMUM_BAR_WIDTH = 10 };
 /// The format in which the estimated remaining time will be reported
-static const char *const ETA_FORMAT = "ETA:%2dh%02dm%02ds";
+static const char *const ETA_FORMAT = "TimeLeft:%2dh%02dm%02ds";
 /// The maximum number of characters that the ETA_FORMAT can ever yield
 enum { ETA_FORMAT_LENGTH  = 13 };
 /// Amount of screen width taken up by whitespace (i.e. whitespace between label/bar/ETA components)
@@ -51,12 +51,13 @@ progressbar *progressbar_new_with_format(const char *label, unsigned long max, c
   }
     
   new->max = max;
-  new->value = 0;
+  new->curPos = 0;
   new->start = time(NULL);
   assert(3 == strlen(format) && "format must be 3 characters in length");
   new->format.begin = format[0];
   new->format.fill = format[1];
   new->format.end = format[2];
+  new->timeLeft = 0;
 
   progressbar_update_label(new, label);
   progressbar_draw(new);
@@ -88,18 +89,10 @@ void progressbar_free(progressbar *bar)
 /**
 * Increment an existing progressbar by `value` steps.
 */
-void progressbar_update(progressbar *bar, unsigned long value)
+void progressbar_update(progressbar *bar, unsigned long pos)
 {
-  bar->value = value;
+  bar->curPos = pos;
   progressbar_draw(bar);
-}
-
-/**
-* Increment an existing progressbar by a single step.
-*/
-void progressbar_inc(progressbar *bar)
-{
-  progressbar_update(bar, bar->value+1);
 }
 
 static void progressbar_write_char(FILE *file, const int ch, const size_t times) {
@@ -139,8 +132,8 @@ static int progressbar_label_width(int screen_width, int label_length, int bar_w
 
 static int progressbar_remaining_seconds(const progressbar* bar) {
   double offset = difftime(time(NULL), bar->start);
-  if (bar->value > 0 && offset > 0) {
-    return (offset / (double) bar->value) * (bar->max - bar->value);
+  if (bar->curPos > 0 && offset > 0) {
+    return (offset / (double) bar->curPos) * (bar->max - bar->curPos);
   } else {
     return 0;
   }
@@ -163,15 +156,15 @@ static void progressbar_draw(const progressbar *bar)
   int bar_width = progressbar_bar_width(screen_width, label_length);
   int label_width = progressbar_label_width(screen_width, label_length, bar_width);
 
-  int progressbar_completed = (bar->value >= bar->max);
+  int progressbar_completed = (bar->curPos >= bar->max);
   int bar_piece_count = bar_width - BAR_BORDER_WIDTH;
   int bar_piece_current = (progressbar_completed)
                           ? bar_piece_count
-                          : bar_piece_count * ((double) bar->value / bar->max);
+                          : bar_piece_count * ((double) bar->curPos / bar->max);
 
   progressbar_time_components eta = (progressbar_completed)
 		                            ? progressbar_calc_time_components(difftime(time(NULL), bar->start))
-		                            : progressbar_calc_time_components(progressbar_remaining_seconds(bar));
+		                            : progressbar_calc_time_components(bar->timeLeft);
 
   if (label_width == 0) {
     // The label would usually have a trailing space, but in the case that we don't print

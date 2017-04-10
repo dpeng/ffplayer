@@ -30,7 +30,8 @@ typedef struct _progressbar_t
   /// maximum value
   unsigned long max;
   /// current value
-  unsigned long value;
+  unsigned long curPos;
+  unsigned long timeLeft; // in sec
 
   /// time progressbar was started
   time_t start;
@@ -74,11 +75,8 @@ progressbar *progressbar_new_with_format(const char *label, unsigned long max, c
 /// Free an existing progress bar. Don't call this directly; call *progressbar_finish* instead.
 void progressbar_free(progressbar *bar);
 
-/// Increment the given progressbar. Don't increment past the initialized # of steps, though.
-void progressbar_inc(progressbar *bar);
-
 /// Set the current status on the given progressbar.
-void progressbar_update(progressbar *bar, unsigned long value);
+void progressbar_update(progressbar *bar, unsigned long pos);
 
 /// Set the label of the progressbar. Note that no rendering is done. The label is simply set so that the next
 /// rendering will use the new label. To immediately see the new label, call progressbar_draw.

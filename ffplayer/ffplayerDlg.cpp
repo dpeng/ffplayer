@@ -232,7 +232,7 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 	//0 means return successful
 	if (ret == 0) {
 		pThis->cleanupResource(FALSE);
-		pThis->SetTimer(2, 100, NULL); //inform the timer that this file play comes to an end
+		pThis->SetTimer(2, 100, NULL); //inform the timer that this file play comes to an end		
 	}
 	else pThis->MessageBox(_T("playing error, will pass play this file."), _T("confirm"), MB_ICONQUESTION | MB_OK);
 	return ret;
@@ -266,6 +266,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	m_bIsPlaying = TRUE;
 	SetTimer(1, 40, NULL);
 	
+	m_pProgressBar = progressbar_new("Progress", 100);
 	m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &threadID);
 }
 
@@ -300,8 +301,9 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		if ((totalTime >= 1) && !isnan(curTime))
 		{
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
-			if (m_bIsConsoleDisplay)
+			if (m_bIsConsoleDisplay && m_pProgressBar)
 			{
+				m_pProgressBar->timeLeft = totalTime - curTime;
 				progressbar_update(m_pProgressBar, curTime  * 100 / totalTime);
 			}
 		}
@@ -492,6 +494,11 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 	m_playHandler = NULL;
 	m_bIsPlaying = FALSE;
 	m_sliderPlay.SetPos(0);
+	if (m_pProgressBar)
+	{
+		progressbar_finish(m_pProgressBar);
+		m_pProgressBar = NULL;
+	}
 
 	//this is for redraw play area
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
@@ -518,7 +525,6 @@ void CffplayerDlg::initConsole()
 	SetConsoleScreenBufferSize(m_hOutputConsole, tmpCoord);
 	BOOL ret = SetConsoleWindowInfo(m_hOutputConsole, TRUE, &rc);
 	if(ret == TRUE) m_consoleWindowWidth = tmpCoord.X;
-	m_pProgressBar = progressbar_new("Smooth", 100);
 	m_consoleMonitorProcessHandler = CreateThread(NULL, 0, CffplayerDlg::consoleInputMonitor, this, 0, &threadID);
 }
 
@@ -531,11 +537,6 @@ void CffplayerDlg::stopConsole()
 	m_hOutputConsole = NULL;
 	CloseHandle(m_hInputConsole);
 	m_hInputConsole = NULL;
-	if (m_pProgressBar)
-	{
-		progressbar_finish(m_pProgressBar);
-		m_pProgressBar = NULL;
-	}
 }
 
 DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
