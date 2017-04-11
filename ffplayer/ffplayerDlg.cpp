@@ -291,6 +291,8 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	if (nIDEvent == 1)
 	{
+		static int countforSec = 0;
+		countforSec++;
 		double curTime;
 		int	totalTime;
 		curTime = ffplay_get_stream_curtime();
@@ -301,10 +303,11 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		if ((totalTime >= 1) && !isnan(curTime))
 		{
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
-			if (m_bIsConsoleDisplay && m_pProgressBar)
+			if (m_bIsConsoleDisplay && m_pProgressBar && (countforSec >= 25))
 			{
 				m_pProgressBar->timeLeft = totalTime - curTime;
 				progressbar_update(m_pProgressBar, curTime  * 100 / totalTime);
+				countforSec = 0;
 			}
 		}
 		
