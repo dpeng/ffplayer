@@ -64,6 +64,7 @@ private:
 	CSkinButton m_btnPlayNext;
 	CSkinButton m_btnPlayPreVious;
 	CSkinButton m_btnPlayFrame;
+	CSkinButton m_btnToggleDisplay;
 	HANDLE m_hInputConsole;
     HANDLE m_hOutputConsole;
 	HICON m_hIcon;
@@ -75,4 +76,5 @@ public:
 	afx_msg void OnBnClickedButtonPlaynext();
 	afx_msg void OnBnClickedButtonPlayprevious();
 	afx_msg void OnBnClickedButtonPlaytonextframe();
+	afx_msg void OnBnClickedButtonToggledisplay();
 };

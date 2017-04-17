@@ -54,6 +54,7 @@ void CffplayerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, ID_BUTTON_PLAYNEXT, m_btnPlayNext);
 	DDX_Control(pDX, ID_BUTTON_PLAYPREVIOUS, m_btnPlayPreVious);
 	DDX_Control(pDX, ID_BUTTON_PLAYTONEXTFRAME, m_btnPlayFrame);
+	DDX_Control(pDX, ID_BUTTON_TOGGLEDISPLAY, m_btnToggleDisplay);
 }
 
 BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
@@ -72,6 +73,7 @@ BEGIN_MESSAGE_MAP(CffplayerDlg, CDialogEx)
 	ON_BN_CLICKED(ID_BUTTON_PLAYNEXT, &CffplayerDlg::OnBnClickedButtonPlaynext)
 	ON_BN_CLICKED(ID_BUTTON_PLAYPREVIOUS, &CffplayerDlg::OnBnClickedButtonPlayprevious)
 	ON_BN_CLICKED(ID_BUTTON_PLAYTONEXTFRAME, &CffplayerDlg::OnBnClickedButtonPlaytonextframe)
+	ON_BN_CLICKED(ID_BUTTON_TOGGLEDISPLAY, &CffplayerDlg::OnBnClickedButtonToggledisplay)
 END_MESSAGE_MAP()
 
 BOOL CffplayerDlg::OnInitDialog()
@@ -387,6 +389,8 @@ void CffplayerDlg::OnWndFullScreen()
 		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
 		pButton = (CButton *)GetDlgItem(ID_BUTTON_PLAYTONEXTFRAME);
 		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_TOGGLEDISPLAY);
+		pButton->ModifyStyle(WS_VISIBLE, 0, 0);
 		m_sliderPlay.ModifyStyle(WS_VISIBLE, 0, 0);
 		GetWindowPlacement(&m_OldWndplacement);
 		ModifyStyle(WS_SIZEBOX, 0, 0);
@@ -432,6 +436,8 @@ void CffplayerDlg::OnWndFullScreen()
 		pButton = (CButton *)GetDlgItem(ID_BUTTON_PLAYPREVIOUS);
 		pButton->ModifyStyle(0, WS_VISIBLE, 0);
 		pButton = (CButton *)GetDlgItem(ID_BUTTON_PLAYTONEXTFRAME);
+		pButton->ModifyStyle(0, WS_VISIBLE, 0);
+		pButton = (CButton *)GetDlgItem(ID_BUTTON_TOGGLEDISPLAY);
 		pButton->ModifyStyle(0, WS_VISIBLE, 0);
 		m_sliderPlay.ModifyStyle(0, WS_VISIBLE, 0);
 		SetWindowPlacement(&m_OldWndplacement);
@@ -485,6 +491,9 @@ void CffplayerDlg::CreateBtnSkin()
 	m_btnPlayFrame.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
 	m_btnPlayFrame.SetTextColor(SYSTEM_BTNCOLOR);
 	m_btnPlayFrame.SizeToContent();
+	m_btnToggleDisplay.SetSkin(IDB_COMONBTNNORMAL, IDB_COMONBTNDOWN, IDB_COMONBTNOVER, 0, 0, 0, 0, 0, 0);
+	m_btnToggleDisplay.SetTextColor(SYSTEM_BTNCOLOR);
+	m_btnToggleDisplay.SizeToContent();
 }
 
 void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
@@ -726,4 +735,11 @@ void CffplayerDlg::OnBnClickedButtonPlayprevious()
 void CffplayerDlg::OnBnClickedButtonPlaytonextframe()
 {
 	ffplay_step_to_next_frame();
+}
+
+
+void CffplayerDlg::OnBnClickedButtonToggledisplay()
+{
+	// TODO: Add your control notification handler code here
+	ffplay_toggle_display();
 }
