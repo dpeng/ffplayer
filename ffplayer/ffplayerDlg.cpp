@@ -107,7 +107,6 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_sliderPlay.SetPos(0);
 	m_sliderPlay.SetLineSize(1);
 	m_sliderPlay.SetPageSize(5);
-	m_playHandler = NULL;
 	m_playProcessHandler = NULL;
 	m_consoleMonitorProcessHandler = NULL;
     m_screenWidth = 0;
@@ -228,9 +227,7 @@ static void av_log_encoder(void *ptr, int level, const char *fmt, va_list vargs)
 DWORD CffplayerDlg::playProcess(LPVOID pParam)
 {
 	CffplayerDlg* pThis = (CffplayerDlg*)pParam;
-	char filename[MAX_PATH] = {};
-	strcpy_s(filename, (LPCSTR)(CStringA)pThis->m_fileNameList[pThis->m_curPlayingIndex]);
-	int ret = ffplay_init(filename, pThis->m_playHandler, pThis->m_screenWidth, pThis->m_screenHeight);
+	int ret = ffplay_play(pThis->GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd());
 	//0 means return successful
 	if (ret == 0) {
 		pThis->cleanupResource(FALSE);
@@ -253,6 +250,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 		return;
 	RECT rc = {0};
 	DWORD threadID;
+    char filename[MAX_PATH] = {};
 	//stop the playing before open an new play
 	OnBnClickedButtonStop();
 
@@ -261,15 +259,17 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	m_screenHeight = rc.bottom - rc.top;
 	ffplay_av_log_set_callback(av_log_encoder);
 
-	//need show the play area again because when we close the SDL, it will hide the play window
-	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
-
-	m_playHandler = GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd();
-	m_bIsPlaying = TRUE;
-	SetTimer(1, 40, NULL);
-	
-	m_pProgressBar = progressbar_new("Progress", 100);
-	m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &threadID);
+	strcpy_s(filename, (LPCSTR)(CStringA)m_fileNameList[m_curPlayingIndex]);
+	int ret = ffplay_init(filename, m_screenWidth, m_screenHeight);
+	if (ret == 0) 
+	{
+		//need show the play area again because when we close the SDL, it will hide the play window
+		GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
+		m_bIsPlaying = TRUE;
+		SetTimer(1, 40, NULL);		
+		m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &threadID);
+	}
+	else MessageBox(_T("playing error, will pass play this file."), _T("confirm"), MB_ICONQUESTION | MB_OK);
 }
 
 void CffplayerDlg::OnClose()
@@ -305,10 +305,14 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		if ((totalTime >= 1) && !isnan(curTime))
 		{
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
-			if (m_bIsConsoleDisplay && m_pProgressBar && (countforSec >= 25))
+			if (NULL == m_pProgressBar)
+			{
+				m_pProgressBar = progressbar_new("Progress", 100);
+			} 
+			else if (m_bIsConsoleDisplay && (countforSec >= 25))
 			{
 				m_pProgressBar->timeLeft = totalTime - curTime;
-				progressbar_update(m_pProgressBar, curTime  * 100 / totalTime);
+				progressbar_update(m_pProgressBar, curTime * 100 / totalTime);
 				countforSec = 0;
 			}
 		}
@@ -503,7 +507,6 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 	ffplay_stop();
 	CloseHandle(m_playProcessHandler);
 	m_playProcessHandler = NULL;
-	m_playHandler = NULL;
 	m_bIsPlaying = FALSE;
 	m_sliderPlay.SetPos(0);
 	if (m_pProgressBar)

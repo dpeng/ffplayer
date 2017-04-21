@@ -3637,7 +3637,7 @@ static int lockmgr(void **mtx, enum AVLockOp op)
    }
    return 1;
 }
-int ffplay_init(char *filename, void* hwnd, int width, int height)
+int ffplay_init(char *filename, int width, int height)
 {
 
 	int flags;
@@ -3716,10 +3716,16 @@ int ffplay_init(char *filename, void* hwnd, int width, int height)
     screen_width  = is->width  = width;
     screen_height = is->height = height;
 	m_curstream = is;
-	ret = event_loop(is, hwnd);
 	return ret;
-	/* never returns */
 }
+int ffplay_play(void* hwnd)
+{
+    int ret = 0;
+	ret = event_loop(m_curstream, hwnd);
+	/* never returns while play*/
+	return ret;
+}
+
 
 void ffplay_stop(void)
 {

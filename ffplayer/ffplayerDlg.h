@@ -52,7 +52,6 @@ private:
     int m_totalFileNameInList;
 	CBrush m_brushBackground;
 	CBrush m_brushPlayarea;
-	void * m_playHandler;
 	int m_screenWidth;
 	int m_screenHeight;
 	CSliderCtrl m_sliderPlay;
