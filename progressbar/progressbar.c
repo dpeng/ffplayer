@@ -9,6 +9,9 @@
 * progressbar -- a C class (by convention) for displaying progress
 * on the command line (to stdout).
 */
+#pragma warning (disable : 4244)
+#pragma warning (disable : 4267)
+#pragma warning (disable : 4996)
 
 #include "termcap.h"  /* tgetent, tgetnum */
 #include <assert.h>

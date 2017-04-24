@@ -18,6 +18,9 @@ the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.  */
 
 /* Emacs config.h may rename various library functions such as malloc.  */
+
+#pragma warning (disable : 4013)
+#pragma warning (disable : 4244)
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif

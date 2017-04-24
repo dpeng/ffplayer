@@ -9,6 +9,9 @@
 * statusbar -- a C class (by convention) for displaying progress
 * on the command line (to stdout).
 */
+#pragma warning (disable : 4244)
+#pragma warning (disable : 4267)
+#pragma warning (disable : 4996)
 #include "statusbar.h"
 
 statusbar *statusbar_new_with_format(const char *label, const char *format)

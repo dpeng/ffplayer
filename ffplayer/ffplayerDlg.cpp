@@ -255,8 +255,8 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 			} 
 			else if (m_bIsConsoleDisplay && (countforSec >= 25))
 			{
-				m_pProgressBar->timeLeft = totalTime - curTime;
-				progressbar_update(m_pProgressBar, curTime * 100 / totalTime);
+				m_pProgressBar->timeLeft = (unsigned long)(totalTime - curTime);
+				progressbar_update(m_pProgressBar, (unsigned long)(curTime * 100 / totalTime));
 				countforSec = 0;
 			}
 		}
@@ -463,13 +463,13 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 }
-
 void CffplayerDlg::initConsole()
 {
-	DWORD threadID;
+	DWORD threadID; 
 	AllocConsole();
+	FILE *consoleFile;
 	//freopen("CONIN$", "r+t", stdin);
-	freopen("CONOUT$", "w+t", stdout);
+	freopen_s(&consoleFile, "CONOUT$", "w+t", stdout);
 	m_consoleWindowWidth = 0;
 	m_hOutputConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	m_hInputConsole  = GetStdHandle(STD_INPUT_HANDLE);
