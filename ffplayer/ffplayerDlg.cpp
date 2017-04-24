@@ -9,33 +9,6 @@
 #define new DEBUG_NEW
 #endif
 
-/***************************about dialog*************start********/
-class CAboutDlg : public CDialogEx
-{
-public:
-	CAboutDlg();
-#ifdef AFX_DESIGN_TIME
-	enum { IDD = IDD_ABOUTBOX };
-#endif
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
-protected:
-	DECLARE_MESSAGE_MAP()
-};
-
-CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
-{
-}
-
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
-	CDialogEx::DoDataExchange(pDX);
-}
-
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
-END_MESSAGE_MAP()
-/***************************about dialog***************end******/
-
 CffplayerDlg::CffplayerDlg(CWnd* pParent)
 	: CDialogEx(IDD_FFPLAYER_DIALOG, pParent)
 {
@@ -79,22 +52,6 @@ END_MESSAGE_MAP()
 BOOL CffplayerDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
-	ASSERT(IDM_ABOUTBOX < 0xF000);
-
-	CMenu* pSysMenu = GetSystemMenu(FALSE);
-	if (pSysMenu != NULL)
-	{
-		BOOL bNameValid;
-		CString strAboutMenu;
-		bNameValid = strAboutMenu.LoadString(IDS_ABOUTBOX);
-		ASSERT(bNameValid);
-		if (!strAboutMenu.IsEmpty())
-		{
-			pSysMenu->AppendMenu(MF_SEPARATOR);
-			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
-		}
-	}
 
 	SetIcon(m_hIcon, TRUE);
 	SetIcon(m_hIcon, FALSE);
@@ -126,19 +83,6 @@ BOOL CffplayerDlg::OnInitDialog()
 	OnBnClickedButtonConsole();
 	ffplay_toggle_set_init_volume(10);
 	return TRUE;
-}
-
-void CffplayerDlg::OnSysCommand(UINT nID, LPARAM lParam)
-{
-	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
-	{
-		CAboutDlg dlgAbout;
-		dlgAbout.DoModal();
-	}
-	else
-	{
-		CDialogEx::OnSysCommand(nID, lParam);
-	}
 }
 
 void CffplayerDlg::OnPaint()
