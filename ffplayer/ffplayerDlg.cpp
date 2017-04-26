@@ -186,7 +186,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	{
 		if (m_curPlayingIndex >= 1)
 		{
-			m_curPlayingIndex--;
+			m_curPlayingIndex++;
 		}
 		return;
 	}
@@ -665,7 +665,7 @@ void CffplayerDlg::OnBnClickedButtonConsole()
 
 void CffplayerDlg::OnBnClickedButtonPlaynext()
 {
-	if (m_curPlayingIndex < m_totalFileNameInList) m_curPlayingIndex++;
+	if ((m_curPlayingIndex +1) < m_totalFileNameInList) m_curPlayingIndex++;
 	else m_curPlayingIndex = 0;
 	OnBnClickedButtonPlay();
 }
