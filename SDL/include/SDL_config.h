@@ -19,157 +19,37 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef _SDL_config_windows_h
-#define _SDL_config_windows_h
+#ifndef _SDL_config_h
+#define _SDL_config_h
 
 #include "SDL_platform.h"
 
-#ifdef _WIN64
-# define SIZEOF_VOIDP 8
+/**
+ *  \file SDL_config.h
+ */
+
+/* Add any platform that doesn't build using the configure system. */
+#ifdef USING_PREMAKE_CONFIG_H
+#include "SDL_config_premake.h"
+#elif defined(__WIN32__)
+#include "SDL_config_windows.h"
+#elif defined(__WINRT__)
+#include "SDL_config_winrt.h"
+#elif defined(__MACOSX__)
+#include "SDL_config_macosx.h"
+#elif defined(__IPHONEOS__)
+#include "SDL_config_iphoneos.h"
+#elif defined(__ANDROID__)
+#include "SDL_config_android.h"
+#elif defined(__PSP__)
+#include "SDL_config_psp.h"
 #else
-# define SIZEOF_VOIDP 4
+/* This is a minimal configuration just to get SDL running on new platforms */
+#include "SDL_config_minimal.h"
+#endif /* platform config */
+
+#ifdef USING_GENERATED_CONFIG_H
+#error Wrong SDL_config.h, check your include path?
 #endif
 
-#define HAVE_DDRAW_H 1
-#define HAVE_DINPUT_H 1
-#define HAVE_DSOUND_H 1
-#define HAVE_DXGI_H 1
-#define HAVE_XINPUT_H 1
-
-/* Useful headers */
-#define HAVE_STDIO_H 1
-#define STDC_HEADERS 1
-#define HAVE_STRING_H 1
-#define HAVE_CTYPE_H 1
-#define HAVE_MATH_H 1
-#define HAVE_SIGNAL_H 1
-
-/* C library functions */
-#define HAVE_LIBC
-#define HAVE_MALLOC 1
-#define HAVE_CALLOC 1
-#define HAVE_REALLOC 1
-#define HAVE_FREE 1
-#define HAVE_ALLOCA 1
-#define HAVE_QSORT 1
-#define HAVE_ABS 1
-#define HAVE_MEMSET 1
-#define HAVE_MEMCPY 1
-#define HAVE_MEMMOVE 1
-#define HAVE_MEMCMP 1
-#define HAVE_STRLEN 1
-#define HAVE__STRREV 1
-#define HAVE__STRUPR 1
-#define HAVE__STRLWR 1
-#define HAVE_STRCHR 1
-#define HAVE_STRRCHR 1
-#define HAVE_STRSTR 1
-#define HAVE__LTOA 1
-#define HAVE__ULTOA 1
-#define HAVE_STRTOL 1
-#define HAVE_STRTOUL 1
-#define HAVE_STRTOD 1
-#define HAVE_ATOI 1
-#define HAVE_ATOF 1
-#define HAVE_STRCMP 1
-#define HAVE_STRNCMP 1
-#define HAVE__STRICMP 1
-#define HAVE__STRNICMP 1
-#define HAVE_ATAN 1
-#define HAVE_ATAN2 1
-#define HAVE_ACOS  1
-#define HAVE_ASIN  1
-#define HAVE_CEIL 1
-#define HAVE_COS 1
-#define HAVE_COSF 1
-#define HAVE_FABS 1
-#define HAVE_FLOOR 1
-#define HAVE_LOG 1
-#define HAVE_POW 1
-#define HAVE_SIN 1
-#define HAVE_SINF 1
-#define HAVE_SQRT 1
-#define HAVE_SQRTF 1
-#define HAVE_TAN 1
-#define HAVE_TANF 1
-#if _MSC_VER >= 1800
-#define HAVE_STRTOLL 1
-#define HAVE_VSSCANF 1
-#define HAVE_COPYSIGN 1
-#define HAVE_SCALBN 1
-#define HAVE_SYS_TYPES_H 1
-#define HAVE_STDINT_H 1
-#define HAVE_STRDUP 1
-#define HAVE_ITOA 1
-#define HAVE__I64TOA 1
-#define HAVE__UI64TOA 1
-#define HAVE_SSCANF 1
-#define HAVE_SNPRINTF 1
-#define HAVE_VSNPRINTF 1
-#endif
-
-/* Enable various audio drivers */
-#define SDL_AUDIO_DRIVER_DSOUND 1
-#define SDL_AUDIO_DRIVER_XAUDIO2    1
-#define SDL_AUDIO_DRIVER_WINMM  1
-#define SDL_AUDIO_DRIVER_DISK   1
-#define SDL_AUDIO_DRIVER_DUMMY  1
-
-/* Enable various input drivers */
-#define SDL_JOYSTICK_DINPUT 1
-#define SDL_JOYSTICK_XINPUT 1
-#define SDL_HAPTIC_DINPUT   1
-#define SDL_HAPTIC_XINPUT   1
-
-/* Enable various shared object loading systems */
-#define SDL_LOADSO_WINDOWS  1
-
-/* Enable various threading systems */
-#define SDL_THREAD_WINDOWS  1
-
-/* Enable various timer systems */
-#define SDL_TIMER_WINDOWS   1
-
-/* Enable various video drivers */
-#define SDL_VIDEO_DRIVER_DUMMY  1
-#define SDL_VIDEO_DRIVER_WINDOWS    1
-
-#ifndef SDL_VIDEO_RENDER_D3D
-#define SDL_VIDEO_RENDER_D3D    1
-#endif
-#ifndef SDL_VIDEO_RENDER_D3D11
-#define SDL_VIDEO_RENDER_D3D11	0
-#endif
-
-/* Enable OpenGL support */
-#ifndef SDL_VIDEO_OPENGL
-#define SDL_VIDEO_OPENGL    1
-#endif
-#ifndef SDL_VIDEO_OPENGL_WGL
-#define SDL_VIDEO_OPENGL_WGL    1
-#endif
-#ifndef SDL_VIDEO_RENDER_OGL
-#define SDL_VIDEO_RENDER_OGL    1
-#endif
-#ifndef SDL_VIDEO_RENDER_OGL_ES2
-#define SDL_VIDEO_RENDER_OGL_ES2    1
-#endif
-#ifndef SDL_VIDEO_OPENGL_ES2
-#define SDL_VIDEO_OPENGL_ES2    1
-#endif
-#ifndef SDL_VIDEO_OPENGL_EGL
-#define SDL_VIDEO_OPENGL_EGL    1
-#endif
-
-/* Enable system power support */
-#define SDL_POWER_WINDOWS 1
-
-/* Enable filesystem support */
-#define SDL_FILESYSTEM_WINDOWS  1
-
-/* Enable assembly routines (Win64 doesn't have inline asm) */
-#ifndef _WIN64
-#define SDL_ASSEMBLY_ROUTINES   1
-#endif
-
-#endif /* _SDL_config_windows_h */
+#endif /* _SDL_config_h */
