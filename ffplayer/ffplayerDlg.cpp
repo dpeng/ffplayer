@@ -194,7 +194,6 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 		return;
 	RECT rc = {0};
 	DWORD threadID;
-    char filename[MAX_PATH] = {};
 	//stop the playing before open an new play
 	OnBnClickedButtonStop();
 
@@ -203,8 +202,9 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	m_screenHeight = rc.bottom - rc.top;
 	ffplay_av_log_set_callback(av_log_encoder);
 
-	strcpy_s(filename, (LPCSTR)(CStringA)m_fileNameList[m_curPlayingIndex]);
-	int ret = ffplay_init(filename, m_screenWidth, m_screenHeight);
+	int ret = ffplay_init((char*)(LPCSTR)(CStringA)m_fileNameList[m_curPlayingIndex], 
+		m_screenWidth, 
+		m_screenHeight);
 	if (ret == 0) 
 	{
 		//need show the play area again because when we close the SDL, it will hide the play window
