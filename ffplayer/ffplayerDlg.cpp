@@ -58,7 +58,6 @@ BOOL CffplayerDlg::OnInitDialog()
 
 	m_curPlayingIndex = 0;
 	m_totalFileNameInList = 0;
-	//m_fileNameList[m_curPlayingIndex] = _T("D:\\temp\\ShapeOfYou.mp4");
 	m_sliderPlay.SetRangeMin(0);
 	m_sliderPlay.SetRangeMax(1000);
 	m_sliderPlay.SetPos(0);
@@ -82,6 +81,14 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_pProgressBar = NULL;
 	OnBnClickedButtonConsole();
 	ffplay_toggle_set_init_volume(10);
+	for (int i = 1; i<__argc; i++)
+	{
+		m_fileNameList[m_totalFileNameInList].Format(_T("%s"), __targv[i]);
+		m_totalFileNameInList++;
+	}
+	if (m_totalFileNameInList > 0)
+		OnBnClickedButtonPlay();
+
 	return TRUE;
 }
 

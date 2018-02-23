@@ -394,7 +394,8 @@ void parse_options(void *optctx, int argc, char **argv, const OptionDef *options
     int optindex, handleoptions = 1, ret;
 
     /* perform system-dependent conversions for arguments list */
-    prepare_app_arguments(&argc, &argv);
+    /*using the given parameter, not using auto parse
+	prepare_app_arguments(&argc, &argv);*/
 
     /* parse options */
     optindex = 1;
