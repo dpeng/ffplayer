@@ -148,7 +148,7 @@ void CffplayerDlg::OnBnClickedButtonOpenfile()
 		}
 	}
 	//automatic play after open file
-	//OnBnClickedButtonPlay();
+	OnBnClickedButtonPlay();
 }
 
 static void pushLogsToConsole(const char *fmt, va_list vargs)
@@ -529,7 +529,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				consolePrint("\n****************************************Help*****************************************\n"
 				           "                                                                                   **\n"
 				           "O                   open file                                                      **\n"
-				           "Space               play file                                                      **\n"
+				           "Space               play or pause current play                                     **\n"
 				           "Q                   quit                                                           **\n"
 				           "F                   toggle full screen                                             **\n"
 				           "I                   Show Plaing information                                        **\n"
@@ -570,7 +570,10 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				ffplay_toggle_display();
 				break;
 			case VK_SPACE:
-				OnBnClickedButtonPlay();
+				if (m_bIsPlaying)//如果已经在播放就暂停播放
+					OnBnClickedButtonPause();
+				else
+					OnBnClickedButtonPlay();
 				break;
 			case VK_MEDIA_NEXT_TRACK:
 				OnBnClickedButtonPlaynext();
