@@ -148,7 +148,8 @@ void CffplayerDlg::OnBnClickedButtonOpenfile()
 		}
 	}
 	//automatic play after open file
-	OnBnClickedButtonPlay();
+	if (!m_bIsPlaying)
+		OnBnClickedButtonPlay();
 }
 
 static void pushLogsToConsole(const char *fmt, va_list vargs)
