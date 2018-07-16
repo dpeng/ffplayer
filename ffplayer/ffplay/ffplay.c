@@ -3233,6 +3233,7 @@ static void toggle_audio_display(VideoState *is)
         is->force_refresh = 1;
         is->show_mode = next;
     }
+	show_mode = is->show_mode;
 }
 
 static void refresh_loop_wait_event(VideoState *is, SDL_Event *event, void *hwnd) {
