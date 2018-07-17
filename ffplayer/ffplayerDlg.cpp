@@ -539,7 +539,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				           "Q                   quit                                                           **\n"
 				           "F                   toggle full screen                                             **\n"
 				           "I                   Show Plaing information                                        **\n"
-				           "P                   Pause                                                          **\n"
+				           "P                   play previous                                                          **\n"
 				           "right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
 				           "W                   cycle video filters or show modes                              **\n"
 				           "M                   toggle mute                                                    **\n"
