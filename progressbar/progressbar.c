@@ -23,7 +23,7 @@ enum { DEFAULT_SCREEN_WIDTH = 80 };
 /// The smallest that the bar can ever be (not including borders)
 enum { MINIMUM_BAR_WIDTH = 10 };
 /// The format in which the estimated remaining time will be reported
-static const char *const ETA_FORMAT = "TimeLeft:%2dh%02dm%02ds";
+static const char *const ETA_FORMAT = "TimeLeft %02d:%02d:%02d";
 /// The maximum number of characters that the ETA_FORMAT can ever yield
 enum { ETA_FORMAT_LENGTH  = 13 };
 /// Amount of screen width taken up by whitespace (i.e. whitespace between label/bar/ETA components)

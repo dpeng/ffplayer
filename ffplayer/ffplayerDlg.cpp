@@ -253,7 +253,14 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
 			if (NULL == m_pProgressBar)
 			{
-				m_pProgressBar = progressbar_new("Progress", 100);
+				static char buf[20];
+				int seconds = totalTime;
+				int hours = seconds / 3600;
+				seconds -= hours * 3600;
+				int minutes = seconds / 60;
+				seconds -= minutes * 60;
+				sprintf(buf, "TotalTime %02d:%02d:%02d", hours, minutes, seconds);
+				m_pProgressBar = progressbar_new(buf, 100);
 			} 
 			else if (m_bIsConsoleDisplay && (countforSec >= 25))
 			{
@@ -474,7 +481,7 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 	//this is for redraw play area
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
-	consolePrint("\n======================================I'm not split line======================================\n\n");
+	consolePrint("\n---------------------------------------I'm not split line---------------------------------------\n\n");
 }
 void CffplayerDlg::initConsole()
 {
@@ -532,23 +539,23 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				OnWndFullScreen();
 				break;
 			case 0x48: /*VK_H*/
-				consolePrint("\n****************************************Help*****************************************\n"
-				           "                                                                                   **\n"
-				           "O                   open file                                                      **\n"
-				           "Space               play or pause current play                                     **\n"
-				           "Q                   quit                                                           **\n"
-				           "F                   toggle full screen                                             **\n"
-				           "I                   Show Plaing information                                        **\n"
-				           "P                   play previous                                                          **\n"
-				           "right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
-				           "W                   cycle video filters or show modes                              **\n"
-				           "M                   toggle mute                                                    **\n"
-				           "N                   play next                                                      **\n"
-				           "9, 0                decrease and increase volume respectively                      **\n"
-				           "S                   activate frame-step mode                                       **\n"
-				           "Escape              Close the console window and active the Main window            **\n"
-				           "                                                                                   **\n"
-				           "****************************************Help*****************************************\n"
+				consolePrint("\n**************************************************Help*****************************************\n"
+				           "******                                                                                       **\n"
+				           "******    O                   open file                                                      **\n"
+				           "******    Space               play or pause current play                                     **\n"
+				           "******    Q                   quit                                                           **\n"
+				           "******    F                   toggle full screen                                             **\n"
+				           "******    I                   Show Plaing information                                        **\n"
+				           "******    P                   play previous                                                  **\n"
+				           "******    right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
+				           "******    W                   cycle video filters or show modes                              **\n"
+				           "******    M                   toggle mute                                                    **\n"
+				           "******    N                   play next                                                      **\n"
+				           "******    9, 0                decrease and increase volume respectively                      **\n"
+				           "******    S                   activate frame-step mode                                       **\n"
+				           "******    Escape              Close the console window and active the Main window            **\n"
+				           "******                                                                                       **\n"
+				           "************************************************Help*******************************************\n"
 				           );
 				break;
 			case 0x49:/*VK_I*/
