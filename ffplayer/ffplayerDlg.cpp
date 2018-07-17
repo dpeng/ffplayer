@@ -496,10 +496,10 @@ void CffplayerDlg::initConsole()
 	//SetConsoleMode(m_hInputConsole, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
 	SMALL_RECT rc = { 0, 0, 0, 0 };
 	COORD tmpCoord = GetLargestConsoleWindowSize(m_hOutputConsole);
-	if(tmpCoord.X >= 100) tmpCoord.X = 100;
+	if(tmpCoord.X >= 100) tmpCoord.X = tmpCoord.X*0.618;
 	else if(tmpCoord.X - 1 >= 50) tmpCoord.X = 50;
-	rc.Right = tmpCoord.X - 1;
-	rc.Bottom = (tmpCoord.Y)*2/3;
+	rc.Right = tmpCoord.X;
+	rc.Bottom = tmpCoord.Y;
 	tmpCoord.Y = tmpCoord.Y * 5;
 	SetConsoleScreenBufferSize(m_hOutputConsole, tmpCoord);
 	BOOL ret = SetConsoleWindowInfo(m_hOutputConsole, TRUE, &rc);
