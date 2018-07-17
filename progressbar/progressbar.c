@@ -23,7 +23,7 @@ enum { DEFAULT_SCREEN_WIDTH = 80 };
 /// The smallest that the bar can ever be (not including borders)
 enum { MINIMUM_BAR_WIDTH = 10 };
 /// The format in which the estimated remaining time will be reported
-static const char *const ETA_FORMAT = "TimeLeft %02d:%02d:%02d";
+static const char *const ETA_FORMAT = "%02d:%02d";
 /// The maximum number of characters that the ETA_FORMAT can ever yield
 enum { ETA_FORMAT_LENGTH  = 13 };
 /// Amount of screen width taken up by whitespace (i.e. whitespace between label/bar/ETA components)
@@ -60,7 +60,7 @@ progressbar *progressbar_new_with_format(const char *label, unsigned long max, c
   new->format.begin = format[0];
   new->format.fill = format[1];
   new->format.end = format[2];
-  new->timeLeft = 0;
+  new->currentTime = 0;
 
   progressbar_update_label(new, label);
   progressbar_draw(new);
@@ -167,7 +167,17 @@ static void progressbar_draw(const progressbar *bar)
 
   progressbar_time_components eta = (progressbar_completed)
 		                            ? progressbar_calc_time_components(difftime(time(NULL), bar->start))
-		                            : progressbar_calc_time_components(bar->timeLeft);
+		                            : progressbar_calc_time_components(bar->currentTime);
+
+  // Draw the ETA
+  fprintf(stdout, ETA_FORMAT, eta.minutes, eta.seconds);
+
+  // Draw the progressbar
+  fputc(bar->format.begin, stdout);
+  progressbar_write_char(stdout, bar->format.fill, bar_piece_current);
+  progressbar_write_char(stdout, ' ', bar_piece_count - bar_piece_current);
+  fputc(bar->format.end, stdout);
+  fputc(' ', stdout);
 
   if (label_width == 0) {
     // The label would usually have a trailing space, but in the case that we don't print
@@ -176,20 +186,10 @@ static void progressbar_draw(const progressbar *bar)
   } else {
     // Draw the label
     fwrite(bar->label, 1, label_width, stdout);
-    fputc(' ', stdout);
+	fputc('\r', stdout);
   }
 
-  // Draw the progressbar
-  fputc(bar->format.begin, stdout);
-  progressbar_write_char(stdout, bar->format.fill, bar_piece_current);
-  progressbar_write_char(stdout, ' ', bar_piece_count - bar_piece_current);
-  fputc(bar->format.end, stdout);
-
-  // Draw the ETA
-  fputc(' ', stdout);
-  fprintf(stdout, ETA_FORMAT, eta.hours, eta.minutes, eta.seconds);
-  fputc('\r', stdout);
-}
+  }
 
 /**
 * Finish a progressbar, indicating 100% completion, and free it.

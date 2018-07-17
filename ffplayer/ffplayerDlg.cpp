@@ -259,12 +259,12 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 				seconds -= hours * 3600;
 				int minutes = seconds / 60;
 				seconds -= minutes * 60;
-				sprintf(buf, "TotalTime %02d:%02d:%02d", hours, minutes, seconds);
+				sprintf(buf, "%02d:%02d", minutes, seconds);
 				m_pProgressBar = progressbar_new(buf, 100);
 			} 
 			else if (m_bIsConsoleDisplay && (countforSec >= 25))
 			{
-				m_pProgressBar->timeLeft = (unsigned long)(totalTime - curTime);
+				m_pProgressBar->currentTime = (unsigned long)curTime;
 				progressbar_update(m_pProgressBar, (unsigned long)(curTime * 100 / totalTime));
 				countforSec = 0;
 			}

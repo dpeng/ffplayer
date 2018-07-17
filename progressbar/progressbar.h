@@ -31,7 +31,7 @@ typedef struct _progressbar_t
   unsigned long max;
   /// current value
   unsigned long curPos;
-  unsigned long timeLeft; // in sec
+  unsigned long currentTime; // in sec
 
   /// time progressbar was started
   time_t start;
