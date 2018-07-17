@@ -197,7 +197,7 @@ static void progressbar_draw(const progressbar *bar)
 void progressbar_finish(progressbar *bar)
 {
   // Make sure we fill the progressbar so things look complete.
-  progressbar_draw(bar);
+  //progressbar_draw(bar);
 
   // Print a newline, so that future outputs to stdout look prettier
   fprintf(stdout, "\n");

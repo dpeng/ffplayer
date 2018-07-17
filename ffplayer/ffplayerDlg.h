@@ -45,6 +45,7 @@ private:
 	BOOL m_bIsFullScreen;
     BOOL m_bIsPlaying;
 	BOOL m_bIsConsoleDisplay;
+	BOOL m_bIsPlayPrevious;
 	int m_iIsDiaglogDisplay;
 	CString m_fileNameList[MAX_PATH];
     int m_curPlayingIndex;

@@ -68,6 +68,7 @@ BOOL CffplayerDlg::OnInitDialog()
     m_screenWidth = 0;
     m_screenHeight = 0;
 	m_bIsFullScreen = false;
+	m_bIsPlayPrevious = FALSE;
 	m_bIsPlaying = FALSE;
 	CreateBtnSkin();
 	m_brushBackground.CreateSolidBrush(SYSTEM_BACKCOLOR);
@@ -190,16 +191,9 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 }
 void CffplayerDlg::OnBnClickedButtonPlay()
 {
-	if (m_fileNameList[m_curPlayingIndex].GetLength() < 1)
-	{
-		if (m_curPlayingIndex >= 1)
-		{
-			m_curPlayingIndex++;
-		}
-		return;
-	}
-	if (!PathFileExists(m_fileNameList[m_curPlayingIndex]))
-		return;
+	if (m_fileNameList[m_curPlayingIndex].GetLength() < 1)  return;
+
+	if (!PathFileExists(m_fileNameList[m_curPlayingIndex]))  return;
 	RECT rc = {0};
 	DWORD threadID;
 	//stop the playing before open an new play
@@ -217,9 +211,9 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	{
 		//need show the play area again because when we close the SDL, it will hide the play window
 		GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
-		m_bIsPlaying = TRUE;
-		SetTimer(1, 40, NULL);		
+		m_bIsPlaying = TRUE;	
 		m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &threadID);
+		SetTimer(1, 40, NULL);	// show the process	
 	}
 	else MessageBox(_T("playing error, will pass play this file."), _T("confirm"), MB_ICONQUESTION | MB_OK);
 }
@@ -271,14 +265,24 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		
 	}
 	if (nIDEvent == 2)
-	{
-		consolePrint("current playing index: %d, fileName: %s\n", m_curPlayingIndex, m_fileNameList[m_curPlayingIndex]);
-		
-		if (m_curPlayingIndex < m_totalFileNameInList) m_curPlayingIndex++;
-		else m_curPlayingIndex = 0;
+	{		
+		if (!m_bIsPlayPrevious)
+		{
+			if ((m_curPlayingIndex + 1) < m_totalFileNameInList) m_curPlayingIndex++;
+			else m_curPlayingIndex = 0;
+		}
+		else
+		{
+			if (m_curPlayingIndex > 0) m_curPlayingIndex--;
+			else m_curPlayingIndex = m_totalFileNameInList - 1;
+			m_bIsPlayPrevious = FALSE;
+		}
+		//consolePrint("current playing index: %d, fileName: %s", m_curPlayingIndex, (char*)(LPCTSTR)m_fileNameList[m_curPlayingIndex]);
+
 		OnBnClickedButtonPlay();
 		KillTimer(2);
 	}
+
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -470,6 +474,7 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 	//this is for redraw play area
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
+	consolePrint("\n======================================I'm not split line======================================\n\n");
 }
 void CffplayerDlg::initConsole()
 {
@@ -518,7 +523,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 			switch (pInputRec->Event.KeyEvent.wVirtualKeyCode)
 			{
 			case 0x50: /*VK_P*/
-				OnBnClickedButtonPause();
+				OnBnClickedButtonPlayprevious();
 				break;
 			case 0x4e: /*VK_N*/
 				OnBnClickedButtonPlaynext();
@@ -676,18 +681,14 @@ void CffplayerDlg::OnBnClickedButtonConsole()
 
 void CffplayerDlg::OnBnClickedButtonPlaynext()
 {
-	if ((m_curPlayingIndex +1) < m_totalFileNameInList) m_curPlayingIndex++;
-	else m_curPlayingIndex = 0;
-	OnBnClickedButtonPlay();
+	SetTimer(2, 100, NULL); // update playing index
 }
 
 
 void CffplayerDlg::OnBnClickedButtonPlayprevious()
 {
-	if((m_curPlayingIndex - 1) > 0) m_curPlayingIndex--;
-	else m_curPlayingIndex = m_totalFileNameInList;
-	
-	OnBnClickedButtonPlay();
+	m_bIsPlayPrevious = TRUE;
+	SetTimer(2, 100, NULL); // update playing index
 }
 
 void CffplayerDlg::OnBnClickedButtonPlaytonextframe()
