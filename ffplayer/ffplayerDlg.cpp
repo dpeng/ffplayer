@@ -504,6 +504,13 @@ void CffplayerDlg::initConsole()
 	SetConsoleScreenBufferSize(m_hOutputConsole, tmpCoord);
 	BOOL ret = SetConsoleWindowInfo(m_hOutputConsole, TRUE, &rc);
 	if(ret == TRUE) m_consoleWindowWidth = tmpCoord.X;
+	HMODULE hKernel32 = ::LoadLibrary(_T("kernel32.dll"));
+	typedef BOOL(_stdcall * SetConsoleIconFunc)(HICON);
+	SetConsoleIconFunc setConsoleIcon
+		= (SetConsoleIconFunc)::GetProcAddress(hKernel32, "SetConsoleIcon");
+	if (setConsoleIcon != NULL)
+		setConsoleIcon(m_hIcon);
+	::FreeLibrary(hKernel32);
 	m_consoleMonitorProcessHandler = CreateThread(NULL, 0, CffplayerDlg::consoleInputMonitor, this, 0, &threadID);
 }
 
