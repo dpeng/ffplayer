@@ -246,7 +246,6 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		curTime = ffplay_get_stream_curtime();
 		totalTime = ffplay_get_stream_totaltime();
 		
-		//consolePrint("playing: %.2f%% Total Time: %d Current Time: %.2f\n", (curTime * 100 / totalTime), totalTime, curTime);
 		//isnan can judge the current time is invalid or not, it can happened when play start and seek
 		if ((totalTime >= 1) && !isnan(curTime))
 		{
@@ -259,7 +258,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 				seconds -= hours * 3600;
 				int minutes = seconds / 60;
 				seconds -= minutes * 60;
-				sprintf(buf, "%02d:%02d", minutes, seconds);
+				sprintf_s(buf, "%02d:%02d", minutes, seconds);
 				m_pProgressBar = progressbar_new(buf, 100);
 			} 
 			else if (m_bIsConsoleDisplay && (countforSec >= 25))
@@ -284,7 +283,6 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 			else m_curPlayingIndex = m_totalFileNameInList - 1;
 			m_bIsPlayPrevious = FALSE;
 		}
-		//consolePrint("current playing index: %d, fileName: %s", m_curPlayingIndex, (char*)(LPCTSTR)m_fileNameList[m_curPlayingIndex]);
 
 		OnBnClickedButtonPlay();
 		KillTimer(2);
@@ -496,14 +494,14 @@ void CffplayerDlg::initConsole()
 	//SetConsoleMode(m_hInputConsole, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
 	SMALL_RECT rc = { 0, 0, 0, 0 };
 	COORD tmpCoord = GetLargestConsoleWindowSize(m_hOutputConsole);
-	if(tmpCoord.X >= 100) tmpCoord.X = tmpCoord.X*0.618;
+	if(tmpCoord.X >= 100) tmpCoord.X = (SHORT)(tmpCoord.X*0.618);
 	else if(tmpCoord.X - 1 >= 50) tmpCoord.X = 50;
 	rc.Right = tmpCoord.X;
 	rc.Bottom = tmpCoord.Y;
 	tmpCoord.Y = tmpCoord.Y * 5;
 	SetConsoleScreenBufferSize(m_hOutputConsole, tmpCoord);
-	BOOL ret = SetConsoleWindowInfo(m_hOutputConsole, TRUE, &rc);
-	if(ret == TRUE) m_consoleWindowWidth = tmpCoord.X;
+	SetConsoleWindowInfo(m_hOutputConsole, TRUE, &rc);
+	m_consoleWindowWidth = tmpCoord.X;
 	HMODULE hKernel32 = ::LoadLibrary(_T("kernel32.dll"));
 	typedef BOOL(_stdcall * SetConsoleIconFunc)(HICON);
 	SetConsoleIconFunc setConsoleIcon
@@ -552,7 +550,8 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				           "******    Space               play or pause current play                                     **\n"
 				           "******    Q                   quit                                                           **\n"
 				           "******    F                   toggle full screen                                             **\n"
-				           "******    I                   Show Plaing information                                        **\n"
+				           "******    I                   Show Playing information                                       **\n"
+				           "******    L                   Show Play List                                                 **\n"
 				           "******    P                   play previous                                                  **\n"
 				           "******    right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
 				           "******    W                   cycle video filters or show modes                              **\n"
@@ -572,10 +571,13 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				totalTime = ffplay_get_stream_totaltime();
 				if ((totalTime >= 1) && !isnan(curTime))  
 					consolePrint("current Time: %d, Total Time: %d, Playing percentage:%d%%\n", 
-					/*(char*)(LPCTSTR)m_fileNameList[m_curPlayingIndex],*/
 					(int)curTime,
 					totalTime,
 					int(100*curTime/totalTime));
+				break;
+			case 0x4c:/*VK_L*/
+				for(int i = 0 ; i < m_totalFileNameInList; i++)
+					consolePrint("%03d: %s\n", i, (LPCSTR)(CStringA)m_fileNameList[i]);
 				break;
 			case 0x4f:/*VK_O*/
 				OnBnClickedButtonOpenfile();
