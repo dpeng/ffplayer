@@ -213,7 +213,8 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 		GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 		m_bIsPlaying = TRUE;	
 		m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &threadID);
-		SetTimer(1, 40, NULL);	// show the process	
+		SetTimer(1, 40, NULL);	// for sliderbar usage	
+		SetTimer(3, 1000, NULL); // for console progress bar useage
 	}
 	else MessageBox(_T("playing error, will pass play this file."), _T("confirm"), MB_ICONQUESTION | MB_OK);
 }
@@ -234,13 +235,11 @@ void CffplayerDlg::OnBnClickedButtonPause()
 {
 	ffplay_pause();
 }
-int g_waitingTime = 0;
+
 void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	if (nIDEvent == 1)
+	if ((nIDEvent == 1) && !m_bIsConsoleDisplay)
 	{
-		static int countforSec = 0;
-		countforSec++;
 		double curTime;
 		int	totalTime;
 		curTime = ffplay_get_stream_curtime();
@@ -250,23 +249,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		if ((totalTime >= 1) && !isnan(curTime))
 		{
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
-			if (NULL == m_pProgressBar)
-			{
-				static char buf[20];
-				int seconds = totalTime;
-				int hours = seconds / 3600;
-				seconds -= hours * 3600;
-				int minutes = seconds / 60;
-				seconds -= minutes * 60;
-				sprintf_s(buf, "%02d:%02d", minutes, seconds);
-				m_pProgressBar = progressbar_new(buf, 100);
-			} 
-			else if (m_bIsConsoleDisplay && (countforSec >= 25))
-			{
-				m_pProgressBar->currentTime = (unsigned long)curTime;
-				progressbar_update(m_pProgressBar, (unsigned long)(curTime * 100 / totalTime));
-				countforSec = 0;
-			}
+
 		}
 		
 	}
@@ -286,6 +269,33 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 
 		OnBnClickedButtonPlay();
 		KillTimer(2);
+	}
+	if ((nIDEvent == 3) && m_bIsConsoleDisplay)
+	{
+		double curTime;
+		int	totalTime;
+		curTime = ffplay_get_stream_curtime();
+		totalTime = ffplay_get_stream_totaltime();
+
+		if ((totalTime >= 1) && !isnan(curTime))
+		{
+			if (NULL == m_pProgressBar)
+			{
+				static char buf[20];
+				int seconds = totalTime;
+				int hours = seconds / 3600;
+				seconds -= hours * 3600;
+				int minutes = seconds / 60;
+				seconds -= minutes * 60;
+				sprintf_s(buf, "%02d:%02d", minutes, seconds);
+				m_pProgressBar = progressbar_new(buf, 100);
+			}
+			else
+			{
+				m_pProgressBar->currentTime = (unsigned long)curTime;
+				progressbar_update(m_pProgressBar, (unsigned long)(curTime * 100 / totalTime));
+			}
+		}
 	}
 
 	CDialogEx::OnTimer(nIDEvent);
@@ -310,7 +320,7 @@ BOOL CffplayerDlg::PreTranslateMessage(MSG* pMsg)
 	if ((pMsg->message == WM_LBUTTONUP) && (TRUE == m_bIsPlaying))
 	{
 		Sleep(500);// avoid the slider jump from the start and seek position
-		SetTimer(1, 40, NULL);
+		SetTimer(1, 40, NULL); // for silder bar useage
 	}			
 	if (pMsg->message == WM_LBUTTONDBLCLK)
 	{
@@ -464,6 +474,7 @@ void CffplayerDlg::CreateBtnSkin()
 void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 {   
 	KillTimer(1);
+	KillTimer(3);
 	if (isTerminaterPlayProcess)    TerminateThread(m_playProcessHandler, 0);
 	ffplay_stop();
 	CloseHandle(m_playProcessHandler);
