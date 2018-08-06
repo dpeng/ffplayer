@@ -32,6 +32,7 @@ typedef struct _progressbar_t
   /// current value
   unsigned long curPos;
   unsigned long currentTime; // in sec
+  unsigned long leftTime; // in sec
 
   /// time progressbar was started
   time_t start;

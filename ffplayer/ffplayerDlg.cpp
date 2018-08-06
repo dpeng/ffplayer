@@ -293,6 +293,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 			else
 			{
 				m_pProgressBar->currentTime = (unsigned long)curTime;
+				m_pProgressBar->leftTime = (unsigned long)(totalTime - curTime);
 				progressbar_update(m_pProgressBar, (unsigned long)(curTime * 100 / totalTime));
 			}
 		}

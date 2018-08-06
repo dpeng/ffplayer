@@ -61,6 +61,7 @@ progressbar *progressbar_new_with_format(const char *label, unsigned long max, c
   new->format.fill = format[1];
   new->format.end = format[2];
   new->currentTime = 0;
+  new->leftTime = 0;
 
   progressbar_update_label(new, label);
   progressbar_draw(new);
@@ -169,6 +170,10 @@ static void progressbar_draw(const progressbar *bar)
 		                            ? progressbar_calc_time_components(difftime(time(NULL), bar->start))
 		                            : progressbar_calc_time_components(bar->currentTime);
 
+  progressbar_time_components etd = (progressbar_completed)
+	  ? progressbar_calc_time_components(difftime(time(NULL), bar->start))
+	  : progressbar_calc_time_components(bar->leftTime);
+
   // Draw the ETA
   fprintf(stdout, ETA_FORMAT, eta.minutes, eta.seconds);
 
@@ -179,6 +184,7 @@ static void progressbar_draw(const progressbar *bar)
   fputc(bar->format.end, stdout);
   fputc(' ', stdout);
 
+  /*remove the lable by dpeng
   if (label_width == 0) {
     // The label would usually have a trailing space, but in the case that we don't print
     // a label, the bar can use that space instead.
@@ -187,8 +193,11 @@ static void progressbar_draw(const progressbar *bar)
     // Draw the label
     fwrite(bar->label, 1, label_width, stdout);
 	fputc('\r', stdout);
-  }
+  }*/
 
+  // Draw the ETD
+  fprintf(stdout, ETA_FORMAT, etd.minutes, etd.seconds);
+  fputc('\r', stdout);
   }
 
 /**
