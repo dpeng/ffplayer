@@ -328,7 +328,7 @@ static const char* wanted_stream_spec[AVMEDIA_TYPE_NB] = {0};
 static int seek_by_bytes = -1;
 static int display_disable;
 static int borderless;
-static int startup_volume = 100;
+static int startup_volume = 25;
 static int show_status = 1;
 static int av_sync_type = AV_SYNC_AUDIO_MASTER;
 static int64_t start_time = AV_NOPTS_VALUE;
@@ -3119,12 +3119,10 @@ static VideoState *stream_open(const char *filename, AVInputFormat *iformat)
     init_clock(&is->audclk, &is->audioq.serial);
     init_clock(&is->extclk, &is->extclk.serial);
     is->audio_clock_serial = -1;
-    if (startup_volume < 0)
-        av_log(NULL, AV_LOG_WARNING, "-volume=%d < 0, setting to 0\n", startup_volume);
-    if (startup_volume > 100)
-        av_log(NULL, AV_LOG_WARNING, "-volume=%d > 100, setting to 100\n", startup_volume);
-    startup_volume = av_clip(startup_volume, 0, 100);
-    startup_volume = av_clip(SDL_MIX_MAXVOLUME * startup_volume / 100, 0, SDL_MIX_MAXVOLUME);
+    startup_volume = av_clip(startup_volume, 0, SDL_MIX_MAXVOLUME);
+	// if there has a list to play, the volume will increase step by step
+    // startup_volume = av_clip(SDL_MIX_MAXVOLUME * startup_volume / 100, 0, SDL_MIX_MAXVOLUME);
+	av_log(NULL, AV_LOG_INFO, "  current volume : %d, volume range: 0 ~ 100\n", startup_volume);
     is->audio_volume = startup_volume;
     is->muted = 0;
     is->av_sync_type = av_sync_type;
@@ -3864,8 +3862,9 @@ void ffplay_toggle_update_volume(int sign, double step)
 	if (NULL != m_curstream)
 	{
 		update_volume(m_curstream, sign, step);
-        startup_volume = (int)((double)m_curstream->audio_volume/1.28);
-        av_log(NULL, AV_LOG_FATAL, "current volume: %d startup volume: %d\n", m_curstream->audio_volume, startup_volume);
+		av_log(NULL, AV_LOG_FATAL, "volume change from %d to %d\n", startup_volume, m_curstream->audio_volume);
+		startup_volume = m_curstream->audio_volume;
+		startup_volume = av_clip(startup_volume, 0, SDL_MIX_MAXVOLUME);
 	}
 }
 

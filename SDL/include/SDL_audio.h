@@ -459,7 +459,7 @@ extern DECLSPEC int SDLCALL SDL_BuildAudioCVT(SDL_AudioCVT * cvt,
  */
 extern DECLSPEC int SDLCALL SDL_ConvertAudio(SDL_AudioCVT * cvt);
 
-#define SDL_MIX_MAXVOLUME 128
+#define SDL_MIX_MAXVOLUME 100
 /**
  *  This takes two audio buffers of the playing audio format and mixes
  *  them, performing addition, volume adjustment, and overflow clipping.

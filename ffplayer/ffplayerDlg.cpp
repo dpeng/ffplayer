@@ -81,7 +81,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	//only show the console screen default when in debug mode
 	m_pProgressBar = NULL;
 	OnBnClickedButtonConsole();
-	ffplay_toggle_set_init_volume(10);
+	ffplay_toggle_set_init_volume(25);
 	for (int i = 1; i<__argc; i++)
 	{
 		m_fileNameList[m_totalFileNameInList].Format(_T("%s"), __targv[i]);
@@ -629,7 +629,6 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 			case VK_VOLUME_MUTE:
 			case 0x4d:/*  M  */
 				ffplay_toggle_mute();
-				consolePrint("current volume: %f\n", ffplay_toggle_get_volume());
 				break;
 			case VK_RETURN:
 				break;
