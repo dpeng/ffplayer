@@ -526,12 +526,15 @@ void CffplayerDlg::initConsole()
 
 void CffplayerDlg::stopConsole()
 {
+	/*windows 10 freeconsole failed, so hide it before free*/
+	HWND HandleConsoleWindow = GetConsoleWindow();
+	::ShowWindow(HandleConsoleWindow, SW_HIDE);
 	FreeConsole();	
 	CloseHandle(m_consoleMonitorProcessHandler);
 	m_consoleMonitorProcessHandler = NULL;
-	CloseHandle(m_hOutputConsole);
+	//CloseHandle(m_hOutputConsole);
 	m_hOutputConsole = NULL;
-	CloseHandle(m_hInputConsole);
+	//CloseHandle(m_hInputConsole);
 	m_hInputConsole = NULL;
 }
 
