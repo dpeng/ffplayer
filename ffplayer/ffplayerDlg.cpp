@@ -129,13 +129,15 @@ void CffplayerDlg::OnBnClickedButtonOpenfile()
 {
 
 	CString FileName = _T("");
+	char fileNameBuffer[4096] = _T("");
 	CFileDialog FileChooser(TRUE, 
 		NULL,
 		NULL, 
 		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_ALLOWMULTISELECT,
 		_T("all files(*.*)|*.*|mp4 files(*.mp4)|*.mp4|mp3 files(*.mp3)|*.mp3||"));
 
-	FileChooser.m_ofn.nMaxFile = MAX_PATH;
+	FileChooser.m_ofn.lpstrFile = fileNameBuffer;
+	FileChooser.m_ofn.nMaxFile = 4096;
 
 	if (IDOK == FileChooser.DoModal())
 	{
@@ -145,7 +147,7 @@ void CffplayerDlg::OnBnClickedButtonOpenfile()
 		{
 			FileName = FileChooser.GetNextPathName(pos);
 			if (m_totalFileNameInList < MAX_PATH) m_fileNameList[m_totalFileNameInList++] = FileName;
-			else MessageBox(_T("file name list too long, the max number is 260"), _T("confirm"), MB_ICONQUESTION | MB_YESNO);
+			else { MessageBox(_T("File name list is only suport up to 260, the exceed ones will be cut off!"), _T("Warning..."), MB_ICONQUESTION); break; }
 		}
 	}
 	//automatic play after open file
