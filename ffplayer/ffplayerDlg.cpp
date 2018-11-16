@@ -654,8 +654,19 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				double pos = (double)pInputRec->Event.MouseEvent.dwMousePosition.X/(double)m_consoleWindowWidth;
 				if(m_bIsPlaying)
 				{
+					int ns, hh, mm, ss;
+					int tns, thh, tmm, tss;
+					tns = (int)(ffplay_get_meida_duration() / 1000000LL);
+					thh = tns / 3600;
+					tmm = (tns % 3600) / 60;
+					tss = (tns % 60);
+					ns = (int)(pos * tns);
+					hh = ns / 3600;
+					mm = (ns % 3600) / 60;
+					ss = (ns % 60);
+					consolePrint("Seek to %2.0f%% (%02d:%02d:%02d) of total duration (%02d:%02d:%02d)                    \n", 
+						pos * 100, hh, mm, ss, thh, tmm, tss);
 					ffplay_seek(pos);
-					consolePrint("\nseek to : %d%%\n", (int)(100*pos));
 				}
 			}
 		}

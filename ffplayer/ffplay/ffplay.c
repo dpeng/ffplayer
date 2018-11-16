@@ -3148,7 +3148,6 @@ static VideoState *stream_open(const char *filename, AVInputFormat *iformat)
     startup_volume = av_clip(startup_volume, 0, SDL_MIX_MAXVOLUME);
 	// if there has a list to play, the volume will increase step by step
     // startup_volume = av_clip(SDL_MIX_MAXVOLUME * startup_volume / 100, 0, SDL_MIX_MAXVOLUME);
-	av_log(NULL, AV_LOG_INFO, "  current volume : %d, volume range: 0 ~ 100\n", startup_volume);
     is->audio_volume = startup_volume;
     is->muted = 0;
     is->av_sync_type = av_sync_type;
@@ -3864,6 +3863,11 @@ double ffplay_get_stream_curtime(void)
 		return get_master_clock(m_curstream);
 }
 
+int64_t ffplay_get_meida_duration(void)
+{
+	if (m_curstream) return m_curstream->ic->duration;
+	else return 0;
+}
 void ffplay_seek(double pos)/*pos indicate the precentage of whole file such as 45%*/
 {	
 	if ((NULL != m_curstream) && (m_curstream->ic))
