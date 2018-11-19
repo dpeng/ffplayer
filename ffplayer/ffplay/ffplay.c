@@ -2891,7 +2891,9 @@ static int read_thread(void *arg)
     is->realtime = is_realtime(ic);
 
     if (show_status)
-        av_dump_format(ic, 0, is->filename, 0);
+        av_dump_format(ic, 0, is->filename, 0); 
+	av_log(NULL, AV_LOG_INFO, "startup volume is %d, and the range is 0 ~ 100\n",startup_volume);
+	
 
     for (i = 0; i < ic->nb_streams; i++) {
         AVStream *st = ic->streams[i];
@@ -3894,7 +3896,8 @@ void ffplay_toggle_update_volume(int sign, double step)
 	if (NULL != m_curstream)
 	{
 		update_volume(m_curstream, sign, step);
-		av_log(NULL, AV_LOG_FATAL, "volume change from %d to %d\n", startup_volume, m_curstream->audio_volume);
+		av_log(NULL, AV_LOG_INFO, "volume change from %d to %d                                            \n",
+			startup_volume, m_curstream->audio_volume);
 		startup_volume = m_curstream->audio_volume;
 		startup_volume = av_clip(startup_volume, 0, SDL_MIX_MAXVOLUME);
 	}
