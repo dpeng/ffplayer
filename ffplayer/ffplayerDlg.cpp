@@ -524,6 +524,7 @@ void CffplayerDlg::initConsole()
 		setConsoleIcon(m_hIcon);
 	::FreeLibrary(hKernel32);
 	m_consoleMonitorProcessHandler = CreateThread(NULL, 0, CffplayerDlg::consoleInputMonitor, this, 0, &threadID);
+	printHelpInfomation(); // print help informtaion while startup
 }
 
 void CffplayerDlg::stopConsole()
@@ -561,25 +562,7 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				OnWndFullScreen();
 				break;
 			case 0x48: /*VK_H*/
-				consolePrint("\n**************************************************Help*****************************************\n"
-				           "******                                                                                       **\n"
-				           "******    O                   open file                                                      **\n"
-				           "******    Space               play or pause current play                                     **\n"
-				           "******    Q                   quit                                                           **\n"
-				           "******    F                   toggle full screen                                             **\n"
-				           "******    I                   Show Playing information                                       **\n"
-				           "******    L                   Show Play List                                                 **\n"
-				           "******    P                   play previous                                                  **\n"
-				           "******    right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
-				           "******    W                   cycle video filters or show modes                              **\n"
-				           "******    M                   toggle mute                                                    **\n"
-				           "******    N                   play next                                                      **\n"
-				           "******    9, 0                decrease and increase volume respectively                      **\n"
-				           "******    S                   activate frame-step mode                                       **\n"
-				           "******    Escape              Close the console window and active the Main window            **\n"
-				           "******                                                                                       **\n"
-				           "************************************************Help*******************************************\n"
-				           );
+				printHelpInfomation();
 				break;
 			case 0x49:/*VK_I*/
 				double curTime;
@@ -747,4 +730,27 @@ void CffplayerDlg::OnBnClickedButtonToggledisplay()
 {
 	// TODO: Add your control notification handler code here
 	ffplay_toggle_display();
+}
+
+void CffplayerDlg::printHelpInfomation()
+{
+	consolePrint("\n**************************************************Help*****************************************\n"
+		"******                                                                                       **\n"
+		"******    O                   open file                                                      **\n"
+		"******    Space               play or pause current play                                     **\n"
+		"******    Q                   quit                                                           **\n"
+		"******    F                   toggle full screen                                             **\n"
+		"******    I                   Show Playing information                                       **\n"
+		"******    L                   Show Play List                                                 **\n"
+		"******    P                   play previous                                                  **\n"
+		"******    right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
+		"******    W                   cycle video filters or show modes                              **\n"
+		"******    M                   toggle mute                                                    **\n"
+		"******    N                   play next                                                      **\n"
+		"******    9, 0                decrease and increase volume respectively                      **\n"
+		"******    S                   activate frame-step mode                                       **\n"
+		"******    Escape              Close the console window and active the Main window            **\n"
+		"******                                                                                       **\n"
+		"************************************************Help*******************************************\n"
+	);
 }

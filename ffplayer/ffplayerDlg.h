@@ -36,6 +36,7 @@ private:
     DWORD ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs);
     void initConsole();
     void stopConsole();
+	void printHelpInfomation();
 	void OnWndFullScreen();
 	void CreateBtnSkin();
 	void cleanupResource(bool isTerminaterPlayProcess);
