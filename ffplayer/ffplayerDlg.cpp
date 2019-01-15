@@ -505,7 +505,11 @@ void CffplayerDlg::initConsole()
 	m_consoleWindowWidth = 0;
 	m_hOutputConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	m_hInputConsole  = GetStdHandle(STD_INPUT_HANDLE);
-	//SetConsoleMode(m_hInputConsole, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT);
+	DWORD dwPreviousMode = 0;
+	GetConsoleMode(m_hInputConsole, &dwPreviousMode);
+	DWORD dwNewMode = dwPreviousMode | ENABLE_MOUSE_INPUT | ENABLE_PROCESSED_INPUT | ENABLE_WINDOW_INPUT;
+	dwNewMode &= ~ENABLE_QUICK_EDIT_MODE;
+	SetConsoleMode(m_hInputConsole, dwNewMode);
 	SMALL_RECT rc = { 0, 0, 0, 0 };
 	COORD tmpCoord = GetLargestConsoleWindowSize(m_hOutputConsole);
 	if(tmpCoord.X >= 100) tmpCoord.X = (SHORT)(tmpCoord.X*0.618);
@@ -734,23 +738,24 @@ void CffplayerDlg::OnBnClickedButtonToggledisplay()
 
 void CffplayerDlg::printHelpInfomation()
 {
-	consolePrint("\n**************************************************Help*****************************************\n"
-		"******                                                                                       **\n"
-		"******    O                   open file                                                      **\n"
-		"******    Space               play or pause current play                                     **\n"
-		"******    Q                   quit                                                           **\n"
-		"******    F                   toggle full screen                                             **\n"
-		"******    I                   Show Playing information                                       **\n"
-		"******    L                   Show Play List                                                 **\n"
-		"******    P                   play previous                                                  **\n"
-		"******    right mouse click   seek to percentage in file corresponding to fraction of width  **\n"
-		"******    W                   cycle video filters or show modes                              **\n"
-		"******    M                   toggle mute                                                    **\n"
-		"******    N                   play next                                                      **\n"
-		"******    9, 0                decrease and increase volume respectively                      **\n"
-		"******    S                   activate frame-step mode                                       **\n"
-		"******    Escape              Close the console window and active the Main window            **\n"
-		"******                                                                                       **\n"
-		"************************************************Help*******************************************\n"
+	consolePrint("\n        "
+		"*******************************************************************************************\n        "
+		"**                                                                                       **\n        "
+		"**    O                   open file                                                      **\n        "
+		"**    Space               play or pause current play                                     **\n        "
+		"**    Q                   quit                                                           **\n        "
+		"**    F                   toggle full screen                                             **\n        "
+		"**    I                   Show Playing information                                       **\n        "
+		"**    L                   Show Play List                                                 **\n        "
+		"**    P                   play previous                                                  **\n        "
+		"**    right mouse click   seek to percentage in file corresponding to fraction of width  **\n        "
+		"**    W                   cycle video filters or show modes                              **\n        "
+		"**    M                   toggle mute                                                    **\n        "
+		"**    N                   play next                                                      **\n        "
+		"**    9, 0                decrease and increase volume respectively                      **\n        "
+		"**    S                   activate frame-step mode                                       **\n        "
+		"**    Escape              Close the console window and active the Main window            **\n        "
+		"**                                                                                       **\n        "
+		"*******************************************************************************************\n"
 	);
 }
