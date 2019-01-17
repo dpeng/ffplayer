@@ -184,10 +184,7 @@ DWORD CffplayerDlg::playProcess(LPVOID pParam)
 	CffplayerDlg* pThis = (CffplayerDlg*)pParam;
 	int ret = ffplay_play(pThis->GetDlgItem(IDC_STATIC_PLAY)->GetSafeHwnd());
 	//0 means return successful
-	if (ret == 0) {
-		pThis->cleanupResource(FALSE);
-		pThis->SetTimer(2, 100, NULL); //inform the timer that this file play comes to an end		
-	}
+	if (ret == 0)  pThis->SetTimer(2, 100, NULL); //inform the timer that this file play comes to an end		
 	else pThis->MessageBox(_T("playing error, will pass play this file."), _T("confirm"), MB_ICONQUESTION | MB_OK);
 	return ret;
 }
@@ -198,8 +195,6 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	if (!PathFileExists(m_fileNameList[m_curPlayingIndex]))  return;
 	RECT rc = {0};
 	DWORD threadID;
-	//stop the playing before open an new play
-	OnBnClickedButtonStop();
 
 	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
 	m_screenWidth = rc.right - rc.left;
@@ -223,7 +218,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 
 void CffplayerDlg::OnClose()
 {
-	cleanupResource(TRUE);
+	OnBnClickedButtonStop();
 	stopConsole();
 	CDialogEx::OnClose();
 }
@@ -256,7 +251,8 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		
 	}
 	if (nIDEvent == 2)
-	{		
+	{
+		OnBnClickedButtonStop();
 		if (!m_bIsPlayPrevious)
 		{
 			if ((m_curPlayingIndex + 1) < m_totalFileNameInList) m_curPlayingIndex++;
@@ -268,7 +264,6 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 			else m_curPlayingIndex = m_totalFileNameInList - 1;
 			m_bIsPlayPrevious = FALSE;
 		}
-
 		OnBnClickedButtonPlay();
 		KillTimer(2);
 	}
@@ -493,7 +488,7 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 	//this is for redraw play area
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
-	consolePrint("\n---------------------------------------I'm not split line---------------------------------------\n\n");
+	consolePrint("\n    ---------------------------------------I'm not split line---------------------------------------\n\n");
 }
 void CffplayerDlg::initConsole()
 {
