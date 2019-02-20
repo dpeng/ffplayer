@@ -39,7 +39,7 @@ typedef struct {
   int seconds;
 } progressbar_time_components;
 
-static void progressbar_draw(const progressbar *bar);
+static void progressbar_draw(const progressbar *bar, char* otherinfo);
 
 /**
 * Create a new progress bar with the specified label, max number of steps, and format string.
@@ -64,7 +64,7 @@ progressbar *progressbar_new_with_format(const char *label, unsigned long max, c
   new->leftTime = 0;
 
   progressbar_update_label(new, label);
-  progressbar_draw(new);
+  progressbar_draw(new, NULL);
 
   return new;
 }
@@ -93,10 +93,10 @@ void progressbar_free(progressbar *bar)
 /**
 * Increment an existing progressbar by `value` steps.
 */
-void progressbar_update(progressbar *bar, unsigned long pos)
+void progressbar_update(progressbar *bar, unsigned long pos, char* otherinfo)
 {
   bar->curPos = pos;
-  progressbar_draw(bar);
+  progressbar_draw(bar, otherinfo);
 }
 
 static void progressbar_write_char(FILE *file, const int ch, const size_t times) {
@@ -153,7 +153,7 @@ static progressbar_time_components progressbar_calc_time_components(int seconds)
   return components;
 }
 
-static void progressbar_draw(const progressbar *bar)
+static void progressbar_draw(const progressbar *bar, char* otherinfo)
 {
   int screen_width = get_screen_width();
   int label_length = strlen(bar->label);
@@ -197,6 +197,7 @@ static void progressbar_draw(const progressbar *bar)
 
   // Draw the ETD
   fprintf(stdout, ETA_FORMAT, etd.minutes, etd.seconds);
+  if (otherinfo) { fprintf(stdout, " | "); fprintf(stdout, otherinfo); }
   fputc('\r', stdout);
   }
 

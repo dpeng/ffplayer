@@ -22,6 +22,9 @@
     <Filter Include="Source Files\progressbar">
       <UniqueIdentifier>{8b10dd2a-05b2-4495-b0af-22ed7e99113d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\lyrics">
+      <UniqueIdentifier>{3645cf78-3ddf-4950-9e6c-db1236d80f75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -69,6 +72,24 @@
     <ClInclude Include="..\progressbar\termcap.h">
       <Filter>Source Files\progressbar</Filter>
     </ClInclude>
+    <ClInclude Include="..\Lyrics\Common.h">
+      <Filter>Source Files\lyrics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lyrics\CVariant.h">
+      <Filter>Source Files\lyrics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lyrics\InternetCommon.h">
+      <Filter>Source Files\lyrics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lyrics\Lyric.h">
+      <Filter>Source Files\lyrics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lyrics\LyricDownloadCommon.h">
+      <Filter>Source Files\lyrics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lyrics\Time.h">
+      <Filter>Source Files\lyrics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ffplayer.cpp">
@@ -106,6 +127,21 @@
     </ClCompile>
     <ClCompile Include="..\progressbar\termcap.c">
       <Filter>Source Files\progressbar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lyrics\Common.cpp">
+      <Filter>Source Files\lyrics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lyrics\CVariant.cpp">
+      <Filter>Source Files\lyrics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lyrics\InternetCommon.cpp">
+      <Filter>Source Files\lyrics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lyrics\Lyric.cpp">
+      <Filter>Source Files\lyrics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lyrics\LyricDownloadCommon.cpp">
+      <Filter>Source Files\lyrics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -7,6 +7,7 @@ extern "C"
 #include "afxwin.h"
 #include "xskin/xskinbutton.h"
 #include "progressbar/progressbar.h"
+#include "Lyrics/Lyric.h"
 
 #define SAFE_DELETE(x) {if ((x)!=NULL) {delete (x); (x)=NULL;}} 
 class CffplayerDlg : public CDialogEx
@@ -40,6 +41,7 @@ private:
 	void OnWndFullScreen();
 	void CreateBtnSkin();
 	void cleanupResource(bool isTerminaterPlayProcess);
+	int prepareLyrics(wstring filename);
 	WINDOWPLACEMENT m_OldWndplacement;
     HANDLE m_playProcessHandler;
     HANDLE m_consoleMonitorProcessHandler;
@@ -71,6 +73,8 @@ private:
 	RECT m_rc;
     int m_consoleWindowWidth;
 	progressbar *m_pProgressBar;
+	MediaInfo m_mediaInfo;
+	CLyrics m_lyrics;
 public:
 	afx_msg void OnBnClickedButtonConsole();
 	afx_msg void OnBnClickedButtonPlaynext();

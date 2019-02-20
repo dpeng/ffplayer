@@ -77,7 +77,7 @@ progressbar *progressbar_new_with_format(const char *label, unsigned long max, c
 void progressbar_free(progressbar *bar);
 
 /// Set the current status on the given progressbar.
-void progressbar_update(progressbar *bar, unsigned long pos);
+void progressbar_update(progressbar *bar, unsigned long pos, char* otherinfo);
 
 /// Set the label of the progressbar. Note that no rendering is done. The label is simply set so that the next
 /// rendering will use the new label. To immediately see the new label, call progressbar_draw.

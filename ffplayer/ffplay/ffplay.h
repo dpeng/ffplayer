@@ -2,6 +2,15 @@
 #define FFMPEG_PLAY_PLAYER_H
 
 #include <inttypes.h>
+
+typedef struct MediaInfo {
+	int64_t duration;
+	char *artist;
+	char *title;
+	char *album;
+	char *genre;
+}MediaInfo;
+
 int ffplay_init(char* filename, int width, int height);
 int ffplay_play(void* hwnd);
 void ffplay_stop(void);
@@ -17,4 +26,5 @@ void ffplay_toggle_set_init_volume(int volume);
 void ffplay_toggle_mute(void);
 void ffplay_step_to_next_frame(void);
 int64_t ffplay_get_meida_duration(void);
+void ffplay_get_media_info(MediaInfo *mediainfo);
 #endif
