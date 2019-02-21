@@ -75,6 +75,7 @@ private:
 	progressbar *m_pProgressBar;
 	MediaInfo m_mediaInfo;
 	CLyrics m_lyrics;
+	wstring m_lyricsDir;
 public:
 	afx_msg void OnBnClickedButtonConsole();
 	afx_msg void OnBnClickedButtonPlaynext();

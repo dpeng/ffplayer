@@ -86,9 +86,19 @@ BOOL CffplayerDlg::OnInitDialog()
 	//only show the console screen default when in debug mode
 	m_pProgressBar = NULL;
 	memset(&m_mediaInfo, 0, sizeof (m_mediaInfo));
-	if (!PathIsDirectory(L"./lyricCache/"))
+	wchar_t filename[MAX_PATH];
+	wchar_t lyricsDir[MAX_PATH];
+	wchar_t szDrive[_MAX_DRIVE];
+	wchar_t szDir[_MAX_DIR];
+	wchar_t szFname[_MAX_FNAME];
+	wchar_t szExt[_MAX_EXT];
+	GetModuleFileName(NULL, filename, MAX_PATH);
+	_wsplitpath_s(filename, szDrive, szDir, szFname, szExt);
+	wsprintf(lyricsDir, L"%s\\lyricCache\\", szDir);
+	m_lyricsDir = lyricsDir;
+	if (!PathIsDirectory(m_lyricsDir.c_str()))
 	{
-		::CreateDirectory(L"./lyricCache/", 0);
+		::CreateDirectory(m_lyricsDir.c_str(), 0);
 	}
 	OnBnClickedButtonConsole();
 	ffplay_toggle_set_init_volume(25);
@@ -220,7 +230,6 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 		GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 		m_bIsPlaying = TRUE;	
 		m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &threadID);
-		//Sleep(40);
 		prepareLyrics(m_fileNameList[m_curPlayingIndex].GetBuffer(0));
 		SetTimer(1, 40, NULL);	// for sliderbar usage	
 		SetTimer(3, 1000, NULL); // for console progress bar useage
@@ -515,10 +524,6 @@ bool SaveLyric(const wchar_t * path, const wstring& lyric_wcs, CodeType code_typ
 	return char_cannot_convert;
 }
 
-/*
-
-
-*/
 int CffplayerDlg::prepareLyrics(wstring filename)
 {
 	wchar_t szDrive[_MAX_DRIVE]; 
@@ -527,7 +532,7 @@ int CffplayerDlg::prepareLyrics(wstring filename)
 	wchar_t szExt[_MAX_EXT];
 	wchar_t lyricfn[_MAX_FNAME];
 	_wsplitpath_s(filename.c_str(), szDrive, szDir, szFname, szExt);
-	wsprintf(lyricfn, L"./lyricCache/%s.lrc", szFname);
+	wsprintf(lyricfn, L"%s%s.lrc", m_lyricsDir.c_str(), szFname);
 	if (!CCommon::FileExist(lyricfn))
 	{
 		wstring keyword;
