@@ -3872,29 +3872,24 @@ int64_t ffplay_get_meida_duration(void)
 	else return 0;
 }
 
-void ffplay_get_media_info(MediaInfo *mediainfo)
+int ffplay_get_media_info(MediaInfo *mediainfo)
 {
-	if(m_curstream)
-		if(m_curstream->ic)
-	if (m_curstream->ic->metadata) {
-		AVDictionaryEntry* tag = NULL;
-		tag = av_dict_get(m_curstream->ic->metadata, "artist", NULL, 0);
-		if (tag) {
-			mediainfo->artist = (char*)tag->value;
+	if (m_curstream->ic) {
+		if (m_curstream->ic->metadata) {
+			AVDictionaryEntry* tag = NULL;
+			tag = av_dict_get(m_curstream->ic->metadata, "artist", NULL, 0);
+			if (tag) mediainfo->artist = (char*)tag->value;
+			tag = av_dict_get(m_curstream->ic->metadata, "title", NULL, 0);
+			if (tag) mediainfo->title = (char*)tag->value;
+			tag = av_dict_get(m_curstream->ic->metadata, "album", NULL, 0);
+			if (tag) mediainfo->album = (char*)tag->value;
+			tag = av_dict_get(m_curstream->ic->metadata, "genre", NULL, 0);
+			if (tag) mediainfo->genre = (char*)tag->value;
+			return 1;
 		}
-		tag = av_dict_get(m_curstream->ic->metadata, "title", NULL, 0);
-		if (tag) {
-			mediainfo->title = (char*)tag->value;
-		}
-		tag = av_dict_get(m_curstream->ic->metadata, "album", NULL, 0);
-		if (tag) {
-			mediainfo->album = (char*)tag->value;
-		}
-		tag = av_dict_get(m_curstream->ic->metadata, "genre", NULL, 0);
-		if (tag) {
-			mediainfo->genre = (char*)tag->value;
-		}
+		return -1;
 	}
+	return -1;
 }
 void ffplay_seek(double pos)/*pos indicate the precentage of whole file such as 45%*/
 {	

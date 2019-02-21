@@ -86,6 +86,10 @@ BOOL CffplayerDlg::OnInitDialog()
 	//only show the console screen default when in debug mode
 	m_pProgressBar = NULL;
 	memset(&m_mediaInfo, 0, sizeof (m_mediaInfo));
+	if (!PathIsDirectory(L"./lyricCache/"))
+	{
+		::CreateDirectory(L"./lyricCache/", 0);
+	}
 	OnBnClickedButtonConsole();
 	ffplay_toggle_set_init_volume(25);
 	for (int i = 1; i<__argc; i++)
@@ -216,7 +220,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 		GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 		m_bIsPlaying = TRUE;	
 		m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &threadID);
-		Sleep(400);
+		//Sleep(40);
 		prepareLyrics(m_fileNameList[m_curPlayingIndex].GetBuffer(0));
 		SetTimer(1, 40, NULL);	// for sliderbar usage	
 		SetTimer(3, 1000, NULL); // for console progress bar useage
@@ -302,8 +306,6 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 				m_pProgressBar->currentTime = (unsigned long)curTime;
 				m_pProgressBar->leftTime = (unsigned long)(totalTime - curTime);
 				progressbar_update(m_pProgressBar, (unsigned long)(curTime * 100 / totalTime), (char*)lyric_str.c_str());
-				//consolePrint("%s", lyric_str.c_str());
-
 			}
 		}
 	}
@@ -515,53 +517,61 @@ bool SaveLyric(const wchar_t * path, const wstring& lyric_wcs, CodeType code_typ
 
 /*
 
+
 */
 int CffplayerDlg::prepareLyrics(wstring filename)
 {
-
-	//CWinApp app(L"lyricsDemo");
-	//app.InitApplication();
-	//AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0);
-	ffplay_get_media_info(&m_mediaInfo);
 	wchar_t szDrive[_MAX_DRIVE]; 
 	wchar_t szDir[_MAX_DIR];     
 	wchar_t szFname[_MAX_FNAME]; 
-	wchar_t szExt[_MAX_EXT];     
+	wchar_t szExt[_MAX_EXT];
+	wchar_t lyricfn[_MAX_FNAME];
 	_wsplitpath_s(filename.c_str(), szDrive, szDir, szFname, szExt);
-	wstring info = szFname;
-	//sprintf_s(info, "%s %s", m_mediaInfo.artist, m_mediaInfo.title);
-	wstring keyword = CInternetCommon::URLEncode(info);
-	wchar_t buff[1024];
-	swprintf_s(buff, L"http://music.163.com/api/search/get/?s=%s&limit=%d&type=1&offset=0", keyword.c_str(), 30);
-	wstring url = buff;
-	wstring str_url, result;
-	vector<CInternetCommon::ItemInfo> down_list;
-	//search lyrics in 163
-	CInternetCommon::HttpPost(url, result);
+	wsprintf(lyricfn, L"./lyricCache/%s.lrc", szFname);
+	if (!CCommon::FileExist(lyricfn))
+	{
+		wstring keyword;
+		wchar_t buff[1024];
+		wstring title;
+		wstring artist;
+		wstring album;
+		int trytime = 0;
+		while ((trytime++ < 10) && (1 != ffplay_get_media_info(&m_mediaInfo))) Sleep(10);
+		if (m_mediaInfo.title) title = CCommon::StrToUnicode(m_mediaInfo.title, CodeType::ANSI);
+		if (m_mediaInfo.artist) artist = CCommon::StrToUnicode(m_mediaInfo.artist, CodeType::ANSI);
+		if (m_mediaInfo.album) album = CCommon::StrToUnicode(m_mediaInfo.album, CodeType::ANSI);
+		if ((strlen(m_mediaInfo.title) < 1) && (strlen(m_mediaInfo.artist) < 1))  
+			keyword = szFname;
+		else 
+			keyword = artist + L' ' + title;
+		wstring keyword_url = CInternetCommon::URLEncode(keyword);
+		swprintf_s(buff, L"http://music.163.com/api/search/get/?s=%s&limit=%d&type=1&offset=0", keyword_url.c_str(), 30);
+		wstring url = buff;
+		wstring str_url, result;
+		vector<CInternetCommon::ItemInfo> down_list;
+		//search lyrics in 163
+		CInternetCommon::HttpPost(url, result);
 
-	//store the search reslut to vector
-	CInternetCommon::DisposeSearchResult(down_list, result, 30);
+		//store the search reslut to vector
+		CInternetCommon::DisposeSearchResult(down_list, result, 30);
 
-	//try to get best match 
-	wstring title;
-	wstring artist;
-	wstring album;
-	if(m_mediaInfo.title) title = CCommon::StrToUnicode(m_mediaInfo.title, CodeType::ANSI);
-	if(m_mediaInfo.artist) artist = CCommon::StrToUnicode(m_mediaInfo.artist, CodeType::ANSI);
-	if(m_mediaInfo.album) album = CCommon::StrToUnicode(m_mediaInfo.album, CodeType::ANSI);
-	int best_matched = CInternetCommon::SelectMatchedItem(down_list, title, artist, album, szFname, true);
+		//try to get best match 
+		int best_matched = CInternetCommon::SelectMatchedItem(down_list, title, artist, album, szFname, true);
 
-	//Download lyrics
-	wstring lyric_str;
-	CLyricDownloadCommon::DownloadLyric(down_list[best_matched].id, lyric_str, false);
+		//Download lyrics
+		wstring lyric_str;
+		CLyricDownloadCommon::DownloadLyric(down_list[best_matched].id, lyric_str, false);
 
-	//process the lyrics text
-	CLyricDownloadCommon::DisposeLryic(lyric_str);
+		//process the lyrics text
+		CLyricDownloadCommon::DisposeLryic(lyric_str);
 
-	//add tag before lyrics
-	CLyricDownloadCommon::AddLyricTag(lyric_str, down_list[best_matched].id, down_list[best_matched].title, down_list[best_matched].artist, down_list[best_matched].album);
-	SaveLyric(L"testlyric.lrc", lyric_str, CodeType::UTF8);
-	CLyrics lyrics{ L"testlyric.lrc" };	
+		//add tag before lyrics
+		CLyricDownloadCommon::AddLyricTag(lyric_str, down_list[best_matched].id, down_list[best_matched].title, down_list[best_matched].artist, down_list[best_matched].album);
+
+		//save lyric
+		SaveLyric(lyricfn, lyric_str, CodeType::UTF8);
+	}
+	CLyrics lyrics{ lyricfn };
 	m_lyrics = lyrics;
 	return 0;
 }

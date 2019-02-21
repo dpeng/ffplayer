@@ -26,5 +26,5 @@ void ffplay_toggle_set_init_volume(int volume);
 void ffplay_toggle_mute(void);
 void ffplay_step_to_next_frame(void);
 int64_t ffplay_get_meida_duration(void);
-void ffplay_get_media_info(MediaInfo *mediainfo);
+int ffplay_get_media_info(MediaInfo *mediainfo);
 #endif
