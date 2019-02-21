@@ -297,7 +297,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 			}
 			else
 			{
-				wstring current_lyric{ m_lyrics.GetLyric(Time(curTime*1000+999), 0).text };
+				wstring current_lyric{ m_lyrics.GetLyric(Time((int)curTime*1000+999), 0).text };
 				string lyric_str = CCommon::UnicodeToStr(current_lyric, CodeType::ANSI, false);
 				m_pProgressBar->currentTime = (unsigned long)curTime;
 				m_pProgressBar->leftTime = (unsigned long)(totalTime - curTime);

@@ -236,7 +236,7 @@ inline bool CCommon::StringNormalize(T & str)
 {
 	if (str.empty()) return false;
 
-	int size = str.size();	//字符串的长度
+	int size = (int)str.size();	//字符串的长度
 	if (size < 0) return false;
 	int index1 = 0 ;		//字符串中第1个不是空格或控制字符的位置
 	int index2 = size - 1;	//字符串中最后一个不是空格或控制字符的位置

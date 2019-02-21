@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "InternetCommon.h"
-
+#pragma warning (disable : 4101)
+#pragma warning (disable : 4267)
 CInternetCommon::CInternetCommon()
 {
 }

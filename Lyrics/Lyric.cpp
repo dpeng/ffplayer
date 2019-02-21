@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Lyric.h"
 
+#pragma warning (disable : 4267)
 
 CLyrics::CLyrics(const wstring& file_name) : m_file{ file_name }
 {

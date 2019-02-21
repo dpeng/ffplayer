@@ -72,9 +72,11 @@ progressbar *progressbar_new_with_format(const char *label, unsigned long max, c
 /**
 * Create a new progress bar with the specified label and max number of steps.
 */
+int previoiusOtherInfoLen;
 progressbar *progressbar_new(const char *label, unsigned long max)
 {
-  return progressbar_new_with_format(label, max, "|=|");
+    previoiusOtherInfoLen = 0;
+    return progressbar_new_with_format(label, max, "|=|");
 }
 
 void progressbar_update_label(progressbar *bar, const char *label)
@@ -197,7 +199,13 @@ static void progressbar_draw(const progressbar *bar, char* otherinfo)
 
   // Draw the ETD
   fprintf(stdout, ETA_FORMAT, etd.minutes, etd.seconds);
-  if (otherinfo) { fprintf(stdout, " | "); fprintf(stdout, otherinfo); }
+  if (otherinfo) { 
+	  fprintf(stdout, " | "); 
+	  fprintf(stdout, otherinfo); 
+	  if(strlen(otherinfo) < previoiusOtherInfoLen)
+		progressbar_write_char(stdout, ' ', previoiusOtherInfoLen - strlen(otherinfo));
+	  previoiusOtherInfoLen = strlen(otherinfo);
+  }
   fputc('\r', stdout);
   }
 
