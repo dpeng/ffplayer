@@ -266,6 +266,10 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		//isnan can judge the current time is invalid or not, it can happened when play start and seek
 		if ((totalTime >= 1) && !isnan(curTime))
 		{
+			wstring current_lyric{ m_lyrics.GetLyric(Time((int)curTime * 1000 + 999), 0).text };
+			wchar_t infoToDisplay[_MAX_FNAME];
+			wsprintf(infoToDisplay, L"ffplay: %s", current_lyric.c_str());
+			AfxGetMainWnd()->SetWindowText(infoToDisplay);
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
 
 		}
@@ -511,6 +515,7 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 	//this is for redraw play area
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
+	AfxGetMainWnd()->SetWindowText(L"ffplay");
 	consolePrint("\n    ---------------------------------------I'm not split line---------------------------------------\n\n");
 }
 
@@ -829,7 +834,6 @@ void CffplayerDlg::printHelpInfomation()
 		"**    O                   open file                                                      **\n        "
 		"**    Space               play or pause current play                                     **\n        "
 		"**    Q                   quit                                                           **\n        "
-		"**    F                   toggle full screen                                             **\n        "
 		"**    I                   Show Playing information                                       **\n        "
 		"**    L                   Show Play List                                                 **\n        "
 		"**    P                   play previous                                                  **\n        "
@@ -838,7 +842,6 @@ void CffplayerDlg::printHelpInfomation()
 		"**    M                   toggle mute                                                    **\n        "
 		"**    N                   play next                                                      **\n        "
 		"**    9, 0                decrease and increase volume respectively                      **\n        "
-		"**    S                   activate frame-step mode                                       **\n        "
 		"**    Escape              Close the console window and active the Main window            **\n        "
 		"**                                                                                       **\n        "
 		"*******************************************************************************************\n"
