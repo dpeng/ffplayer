@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Common.h"
+#include <io.h>
 
 #pragma warning (disable : 4267)
 #pragma warning (disable : 4244)
@@ -441,7 +442,7 @@ int CCommon::DeleteAFile(HWND hwnd, _tstring file)
 {
 	file.push_back(_T('\0'));	//pFrom必须以两个\0结尾
 	//LPCTSTR strTitle = CCommon::LoadText(IDS_DELETE);	//文件删除进度对话框标题
-	LPCTSTR strTitle = L"dpengtmptmp";	//文件删除进度对话框标题
+	LPCTSTR strTitle = file.c_str();
 	SHFILEOPSTRUCT FileOp{};	//定义SHFILEOPSTRUCT结构对象
 	FileOp.hwnd = hwnd;
 	FileOp.wFunc = FO_DELETE;	//执行文件删除操作;
@@ -475,7 +476,7 @@ int CCommon::CopyAFile(HWND hwnd, _tstring file_from, _tstring file_to)
 	FileOp.fFlags = FOF_ALLOWUNDO;
 	FileOp.hNameMappings = NULL;
 	//FileOp.lpszProgressTitle = LoadText(IDS_COPY);
-	FileOp.lpszProgressTitle = L"dpengtmptmp";
+	FileOp.lpszProgressTitle = file_from.c_str();
 	return SHFileOperation(&FileOp);
 }
 
@@ -502,7 +503,7 @@ int CCommon::MoveAFile(HWND hwnd, _tstring file_from, _tstring file_to)
 	FileOp.fFlags = FOF_ALLOWUNDO;
 	FileOp.hNameMappings = NULL;
 	//FileOp.lpszProgressTitle = LoadText(IDS_MOVE);
-	FileOp.lpszProgressTitle = L"dpengtmptmp";
+	FileOp.lpszProgressTitle = file_from.c_str();
 	return SHFileOperation(&FileOp);
 }
 

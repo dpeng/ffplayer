@@ -567,6 +567,7 @@ int CffplayerDlg::prepareLyrics(wstring filename)
 
 		//try to get best match 
 		int best_matched = CInternetCommon::SelectMatchedItem(down_list, title, artist, album, szFname, true);
+		if (best_matched < 0) best_matched = 0;
 
 		//Download lyrics
 		wstring lyric_str;
