@@ -2,6 +2,7 @@
 #include "Lyric.h"
 
 #pragma warning (disable : 4267)
+#pragma warning (disable : 4018)
 
 CLyrics::CLyrics(const wstring& file_name) : m_file{ file_name }
 {

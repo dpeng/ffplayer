@@ -100,6 +100,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	{
 		::CreateDirectory(m_lyricsDir.c_str(), 0);
 	}
+	memset(&m_lyrics, 0, sizeof(m_lyrics));
 	OnBnClickedButtonConsole();
 	ffplay_toggle_set_init_volume(25);
 	for (int i = 1; i<__argc; i++)
@@ -268,7 +269,7 @@ void CffplayerDlg::OnTimer(UINT_PTR nIDEvent)
 		{
 			wstring current_lyric{ m_lyrics.GetLyric(Time((int)curTime * 1000 + 999), 0).text };
 			wchar_t infoToDisplay[_MAX_FNAME];
-			wsprintf(infoToDisplay, L"ffplay: %s", current_lyric.c_str());
+			wsprintf(infoToDisplay, L"ffplay | %s", current_lyric.c_str());
 			AfxGetMainWnd()->SetWindowText(infoToDisplay);
 			m_sliderPlay.SetPos((int)(curTime*1000/totalTime));
 
@@ -512,6 +513,7 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 		m_pProgressBar = NULL;
 	}
 
+	memset(&m_lyrics, 0, sizeof(m_lyrics));
 	//this is for redraw play area
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
@@ -545,25 +547,26 @@ int CffplayerDlg::prepareLyrics(wstring filename)
 		wstring title;
 		wstring artist;
 		wstring album;
+		size_t titleLen = 0, artistLen = 0;
 		int trytime = 0;
 		while ((trytime++ < 10) && (1 != ffplay_get_media_info(&m_mediaInfo))) Sleep(10);
-		if (m_mediaInfo.title) title = CCommon::StrToUnicode(m_mediaInfo.title, CodeType::ANSI);
-		if (m_mediaInfo.artist) artist = CCommon::StrToUnicode(m_mediaInfo.artist, CodeType::ANSI);
-		if (m_mediaInfo.album) album = CCommon::StrToUnicode(m_mediaInfo.album, CodeType::ANSI);
-		if ((strlen(m_mediaInfo.title) < 1) && (strlen(m_mediaInfo.artist) < 1))  
-			keyword = szFname;
-		else 
-			keyword = artist + L' ' + title;
+		if (m_mediaInfo.title) { title = CCommon::StrToUnicode(m_mediaInfo.title, CodeType::ANSI); titleLen = strlen(m_mediaInfo.title); }
+		if (m_mediaInfo.artist) { artist = CCommon::StrToUnicode(m_mediaInfo.artist, CodeType::ANSI); artistLen = strlen(m_mediaInfo.artist); }
+		if (m_mediaInfo.album) { album = CCommon::StrToUnicode(m_mediaInfo.album, CodeType::ANSI); }
+		if ((titleLen < 1) && (artistLen < 1)) keyword = szFname;
+		else  keyword = artist + L' ' + title;
 		wstring keyword_url = CInternetCommon::URLEncode(keyword);
 		swprintf_s(buff, L"http://music.163.com/api/search/get/?s=%s&limit=%d&type=1&offset=0", keyword_url.c_str(), 30);
 		wstring url = buff;
 		wstring str_url, result;
 		vector<CInternetCommon::ItemInfo> down_list;
 		//search lyrics in 163
-		CInternetCommon::HttpPost(url, result);
+		int ret = CInternetCommon::HttpPost(url, result);
+		if (0 != ret)  return -1;
 
 		//store the search reslut to vector
 		CInternetCommon::DisposeSearchResult(down_list, result, 30);
+		if (down_list.empty())  return -1;
 
 		//try to get best match 
 		int best_matched = CInternetCommon::SelectMatchedItem(down_list, title, artist, album, szFname, true);
@@ -572,9 +575,10 @@ int CffplayerDlg::prepareLyrics(wstring filename)
 		//Download lyrics
 		wstring lyric_str;
 		CLyricDownloadCommon::DownloadLyric(down_list[best_matched].id, lyric_str, false);
+		if (lyric_str.empty()) return -1;
 
 		//process the lyrics text
-		CLyricDownloadCommon::DisposeLryic(lyric_str);
+		if (!CLyricDownloadCommon::DisposeLryic(lyric_str)) return -1;
 
 		//add tag before lyrics
 		CLyricDownloadCommon::AddLyricTag(lyric_str, down_list[best_matched].id, down_list[best_matched].title, down_list[best_matched].artist, down_list[best_matched].album);
