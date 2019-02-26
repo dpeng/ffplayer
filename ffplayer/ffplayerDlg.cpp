@@ -668,18 +668,22 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				int	totalTime;
 				curTime = ffplay_get_stream_curtime();
 				totalTime = ffplay_get_stream_totaltime();
-				if ((totalTime >= 1) && !isnan(curTime))  
-					consolePrint("current Time: %d, Total Time: %d, Playing percentage:%d                    \n", 
+				if ((totalTime >= 1) && !isnan(curTime))
+				{
+					progressbar_clear(m_pProgressBar);
+					consolePrint("current Time: %d, Total Time: %d, Playing percentage:%d\n", 
 					(int)curTime,
 					totalTime,
 					int(100*curTime/totalTime));
+
+				}
 				break;
 			case 0x4c:/*VK_L*/
 				for(int i = 0 ; i < m_totalFileNameInList; i++)
 					if (i == m_curPlayingIndex)
-						consolePrint("%03d: %s---current-playing---\n", i, (LPCSTR)(CStringA)m_fileNameList[i]);
+						consolePrint("%03d: %s---current-playing---\n", i, (char*)CCommon::UnicodeToStr(m_fileNameList[i].GetBuffer(0), CodeType::ANSI, false).c_str());
 					else
-						consolePrint("%03d: %s\n", i, (LPCSTR)(CStringA)m_fileNameList[i]);
+						consolePrint("%03d: %s\n", i, (char*)CCommon::UnicodeToStr(m_fileNameList[i].GetBuffer(0), CodeType::ANSI, false).c_str());
 				break;
 			case 0x4f:/*VK_O*/
 				OnBnClickedButtonOpenfile();
@@ -710,10 +714,12 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 				break;
 			case VK_VOLUME_UP:
 			case 0x30:/*  0  */
+				progressbar_clear(m_pProgressBar);
 				ffplay_toggle_update_volume(1, 0.75);
 				break;
 			case VK_VOLUME_DOWN:
 			case 0x39:/*  9  */
+				progressbar_clear(m_pProgressBar);
 				ffplay_toggle_update_volume(-1, 0.75);
 				break;
 			case VK_VOLUME_MUTE:
@@ -749,7 +755,8 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 					hh = ns / 3600;
 					mm = (ns % 3600) / 60;
 					ss = (ns % 60);
-					consolePrint("Seek to %2.0f%% (%02d:%02d:%02d) of total duration (%02d:%02d:%02d)                        \n", 
+					progressbar_clear(m_pProgressBar);
+					consolePrint("Seek to %2.0f%% (%02d:%02d:%02d) of total duration (%02d:%02d:%02d)\n", 
 						pos * 100, hh, mm, ss, thh, tmm, tss);
 					ffplay_seek(pos);
 				}

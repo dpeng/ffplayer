@@ -39,7 +39,7 @@ typedef struct {
   int seconds;
 } progressbar_time_components;
 
-static void progressbar_draw(const progressbar *bar, char* otherinfo);
+static void progressbar_draw(progressbar *bar, char* otherinfo);
 
 /**
 * Create a new progress bar with the specified label, max number of steps, and format string.
@@ -55,6 +55,7 @@ progressbar *progressbar_new_with_format(const char *label, unsigned long max, c
     
   new->max = max;
   new->curPos = 0;
+  new->otherInfoLen = 0;
   new->start = time(NULL);
   assert(3 == strlen(format) && "format must be 3 characters in length");
   new->format.begin = format[0];
@@ -72,10 +73,8 @@ progressbar *progressbar_new_with_format(const char *label, unsigned long max, c
 /**
 * Create a new progress bar with the specified label and max number of steps.
 */
-int previoiusOtherInfoLen;
 progressbar *progressbar_new(const char *label, unsigned long max)
 {
-    previoiusOtherInfoLen = 0;
     return progressbar_new_with_format(label, max, "|=|");
 }
 
@@ -106,6 +105,12 @@ static void progressbar_write_char(FILE *file, const int ch, const size_t times)
   for (i = 0; i < times; ++i) {
     fputc(ch, file);
   }
+}
+
+void progressbar_clear(progressbar * bar)
+{
+	if(bar) progressbar_write_char(stdout, ' ', bar->max);
+	fputc('\r', stdout);
 }
 
 static int progressbar_max(int x, int y) {
@@ -155,7 +160,7 @@ static progressbar_time_components progressbar_calc_time_components(int seconds)
   return components;
 }
 
-static void progressbar_draw(const progressbar *bar, char* otherinfo)
+static void progressbar_draw(progressbar *bar, char* otherinfo)
 {
   int screen_width = get_screen_width();
   int label_length = strlen(bar->label);
@@ -202,9 +207,9 @@ static void progressbar_draw(const progressbar *bar, char* otherinfo)
   if (otherinfo) { 
 	  fprintf(stdout, " | "); 
 	  fprintf(stdout, otherinfo); 
-	  if(strlen(otherinfo) < previoiusOtherInfoLen)
-		progressbar_write_char(stdout, ' ', previoiusOtherInfoLen - strlen(otherinfo));
-	  previoiusOtherInfoLen = strlen(otherinfo);
+	  if(strlen(otherinfo) < bar->otherInfoLen)
+		progressbar_write_char(stdout, ' ', bar->otherInfoLen - strlen(otherinfo));
+	  bar->otherInfoLen = strlen(otherinfo);
   }
   fputc('\r', stdout);
   }

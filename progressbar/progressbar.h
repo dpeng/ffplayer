@@ -33,6 +33,7 @@ typedef struct _progressbar_t
   unsigned long curPos;
   unsigned long currentTime; // in sec
   unsigned long leftTime; // in sec
+  unsigned long otherInfoLen;
 
   /// time progressbar was started
   time_t start;
@@ -78,6 +79,9 @@ void progressbar_free(progressbar *bar);
 
 /// Set the current status on the given progressbar.
 void progressbar_update(progressbar *bar, unsigned long pos, char* otherinfo);
+
+// clean current line for other information print
+void progressbar_clear(progressbar *bar);
 
 /// Set the label of the progressbar. Note that no rendering is done. The label is simply set so that the next
 /// rendering will use the new label. To immediately see the new label, call progressbar_draw.

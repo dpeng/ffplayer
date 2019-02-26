@@ -3917,7 +3917,7 @@ void ffplay_toggle_update_volume(int sign, double step)
 	if (NULL != m_curstream)
 	{
 		update_volume(m_curstream, sign, step);
-		av_log(NULL, AV_LOG_INFO, "volume change from %d to %d                                            \n",
+		av_log(NULL, AV_LOG_INFO, "volume change from %d to %d\n",
 			startup_volume, m_curstream->audio_volume);
 		startup_volume = m_curstream->audio_volume;
 		startup_volume = av_clip(startup_volume, 0, SDL_MIX_MAXVOLUME);
