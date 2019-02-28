@@ -675,10 +675,10 @@ DWORD CffplayerDlg::ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs)
 					(int)curTime,
 					totalTime,
 					int(100*curTime/totalTime));
-
 				}
 				break;
 			case 0x4c:/*VK_L*/
+				progressbar_clear(m_pProgressBar);
 				for(int i = 0 ; i < m_totalFileNameInList; i++)
 					if (i == m_curPlayingIndex)
 						consolePrint("%03d: %s---current-playing---\n", i, (char*)CCommon::UnicodeToStr(m_fileNameList[i].GetBuffer(0), CodeType::ANSI, false).c_str());
