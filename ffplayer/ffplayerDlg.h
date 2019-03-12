@@ -34,6 +34,7 @@ private:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	static DWORD WINAPI playProcess(LPVOID pParam);
 	static DWORD WINAPI consoleInputMonitor(LPVOID pParam);
+	static DWORD WINAPI searchAndDownloadLyrics(LPVOID pParam);
     DWORD ProcessConsoleInput(INPUT_RECORD* pInputRec,DWORD dwInputs);
     void initConsole();
     void stopConsole();
@@ -41,10 +42,10 @@ private:
 	void OnWndFullScreen();
 	void CreateBtnSkin();
 	void cleanupResource(bool isTerminaterPlayProcess);
-	int prepareLyrics(wstring filename);
 	WINDOWPLACEMENT m_OldWndplacement;
     HANDLE m_playProcessHandler;
     HANDLE m_consoleMonitorProcessHandler;
+	HANDLE m_lyricsProcessHandler;
 	BOOL m_bIsFullScreen;
     BOOL m_bIsPlaying;
 	BOOL m_bIsConsoleDisplay;

@@ -70,6 +70,7 @@ BOOL CffplayerDlg::OnInitDialog()
 	m_sliderPlay.SetPageSize(5);
 	m_playProcessHandler = NULL;
 	m_consoleMonitorProcessHandler = NULL;
+	m_lyricsProcessHandler = NULL;
     m_screenWidth = 0;
     m_screenHeight = 0;
 	m_bIsFullScreen = false;
@@ -231,7 +232,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 		GetDlgItem(IDC_STATIC_PLAY)->ShowWindow(SW_SHOWNORMAL);
 		m_bIsPlaying = TRUE;	
 		m_playProcessHandler = CreateThread(NULL, 0, CffplayerDlg::playProcess, this, 0, &threadID);
-		prepareLyrics(m_fileNameList[m_curPlayingIndex].GetBuffer(0));
+		m_lyricsProcessHandler = CreateThread(NULL, 0, CffplayerDlg::searchAndDownloadLyrics, this, 0, &threadID);;
 		SetTimer(1, 40, NULL);	// for sliderbar usage	
 		SetTimer(3, 1000, NULL); // for console progress bar useage
 	}
@@ -505,6 +506,9 @@ void CffplayerDlg::cleanupResource(bool isTerminaterPlayProcess)
 	ffplay_stop();
 	CloseHandle(m_playProcessHandler);
 	m_playProcessHandler = NULL;
+	if (m_lyricsProcessHandler)    TerminateThread(m_lyricsProcessHandler, 0);
+	CloseHandle(m_lyricsProcessHandler);
+	m_lyricsProcessHandler = NULL;
 	m_bIsPlaying = FALSE;
 	m_sliderPlay.SetPos(0);
 	if (m_pProgressBar)
@@ -531,15 +535,17 @@ bool SaveLyric(const wchar_t * path, const wstring& lyric_wcs, CodeType code_typ
 	return char_cannot_convert;
 }
 
-int CffplayerDlg::prepareLyrics(wstring filename)
+DWORD CffplayerDlg::searchAndDownloadLyrics(LPVOID pParam)
 {
-	wchar_t szDrive[_MAX_DRIVE]; 
-	wchar_t szDir[_MAX_DIR];     
-	wchar_t szFname[_MAX_FNAME]; 
+	CffplayerDlg* pThis = (CffplayerDlg*)pParam;
+	wstring filename = pThis->m_fileNameList[pThis->m_curPlayingIndex].GetBuffer(0);
+	wchar_t szDrive[_MAX_DRIVE];
+	wchar_t szDir[_MAX_DIR];
+	wchar_t szFname[_MAX_FNAME];
 	wchar_t szExt[_MAX_EXT];
 	wchar_t lyricfn[_MAX_FNAME];
 	_wsplitpath_s(filename.c_str(), szDrive, szDir, szFname, szExt);
-	wsprintf(lyricfn, L"%s%s.lrc", m_lyricsDir.c_str(), szFname);
+	wsprintf(lyricfn, L"%s%s.lrc", pThis->m_lyricsDir.c_str(), szFname);
 	if (!CCommon::FileExist(lyricfn))
 	{
 		wstring keyword;
@@ -549,10 +555,10 @@ int CffplayerDlg::prepareLyrics(wstring filename)
 		wstring album;
 		size_t titleLen = 0, artistLen = 0;
 		int trytime = 0;
-		while ((trytime++ < 10) && (1 != ffplay_get_media_info(&m_mediaInfo))) Sleep(10);
-		if (m_mediaInfo.title) { title = CCommon::StrToUnicode(m_mediaInfo.title, CodeType::ANSI); titleLen = strlen(m_mediaInfo.title); }
-		if (m_mediaInfo.artist) { artist = CCommon::StrToUnicode(m_mediaInfo.artist, CodeType::ANSI); artistLen = strlen(m_mediaInfo.artist); }
-		if (m_mediaInfo.album) { album = CCommon::StrToUnicode(m_mediaInfo.album, CodeType::ANSI); }
+		while ((trytime++ < 10) && (1 != ffplay_get_media_info(&pThis->m_mediaInfo))) Sleep(10);
+		if (pThis->m_mediaInfo.title) { title = CCommon::StrToUnicode(pThis->m_mediaInfo.title, CodeType::ANSI); titleLen = strlen(pThis->m_mediaInfo.title); }
+		if (pThis->m_mediaInfo.artist) { artist = CCommon::StrToUnicode(pThis->m_mediaInfo.artist, CodeType::ANSI); artistLen = strlen(pThis->m_mediaInfo.artist); }
+		if (pThis->m_mediaInfo.album) { album = CCommon::StrToUnicode(pThis->m_mediaInfo.album, CodeType::ANSI); }
 		if ((titleLen < 1) && (artistLen < 1)) keyword = szFname;
 		else  keyword = artist + L' ' + title;
 		wstring keyword_url = CInternetCommon::URLEncode(keyword);
@@ -587,9 +593,11 @@ int CffplayerDlg::prepareLyrics(wstring filename)
 		SaveLyric(lyricfn, lyric_str, CodeType::UTF8);
 	}
 	CLyrics lyrics{ lyricfn };
-	m_lyrics = lyrics;
+	pThis->m_lyrics = lyrics;
 	return 0;
 }
+
+
 void CffplayerDlg::initConsole()
 {
 	DWORD threadID; 
