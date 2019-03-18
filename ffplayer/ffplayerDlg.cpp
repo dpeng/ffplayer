@@ -592,8 +592,7 @@ DWORD CffplayerDlg::searchAndDownloadLyrics(LPVOID pParam)
 		//save lyric
 		SaveLyric(lyricfn, lyric_str, CodeType::UTF8);
 	}
-	CLyrics lyrics{ lyricfn };
-	pThis->m_lyrics = lyrics;
+	pThis->m_lyrics = CffplayerDlg::loadLyrics(lyricfn);
 	return 0;
 }
 

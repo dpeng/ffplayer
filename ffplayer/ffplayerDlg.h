@@ -42,6 +42,7 @@ private:
 	void OnWndFullScreen();
 	void CreateBtnSkin();
 	void cleanupResource(bool isTerminaterPlayProcess);
+	static CLyrics loadLyrics(wchar_t *lyricfn) { CLyrics lyrics{ lyricfn }; return lyrics; }
 	WINDOWPLACEMENT m_OldWndplacement;
     HANDLE m_playProcessHandler;
     HANDLE m_consoleMonitorProcessHandler;
