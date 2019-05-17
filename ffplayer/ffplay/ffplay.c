@@ -361,6 +361,7 @@ static char *afilters = NULL;
 #endif
 static int autorotate = 1;
 static int find_stream_info = 1;
+static int filter_nbthreads = 0;
 
 /* current context */
 static int is_full_screen;
@@ -871,31 +872,27 @@ static void calculate_display_rect(SDL_Rect *rect,
                                    int scr_xleft, int scr_ytop, int scr_width, int scr_height,
                                    int pic_width, int pic_height, AVRational pic_sar)
 {
-    float aspect_ratio;
-    int width, height, x, y;
+    AVRational aspect_ratio = pic_sar;
+    int64_t width, height, x, y;
 
-    if (pic_sar.num == 0)
-        aspect_ratio = 0;
-    else
-        aspect_ratio = av_q2d(pic_sar);
+    if (av_cmp_q(aspect_ratio, av_make_q(0, 1)) <= 0)
+        aspect_ratio = av_make_q(1, 1);
 
-    if (aspect_ratio <= 0.0)
-        aspect_ratio = 1.0;
-    aspect_ratio *= (float)pic_width / (float)pic_height;
+    aspect_ratio = av_mul_q(aspect_ratio, av_make_q(pic_width, pic_height));
 
     /* XXX: we suppose the screen has a 1.0 pixel ratio */
     height = scr_height;
-    width = lrint(height * aspect_ratio) & ~1;
+    width = av_rescale(height, aspect_ratio.num, aspect_ratio.den) & ~1;
     if (width > scr_width) {
         width = scr_width;
-        height = lrint(width / aspect_ratio) & ~1;
+        height = av_rescale(width, aspect_ratio.den, aspect_ratio.num) & ~1;
     }
     x = (scr_width - width) / 2;
     y = (scr_height - height) / 2;
     rect->x = scr_xleft + x;
     rect->y = scr_ytop  + y;
-    rect->w = FFMAX(width,  1);
-    rect->h = FFMAX(height, 1);
+    rect->w = FFMAX((int)width,  1);
+    rect->h = FFMAX((int)height, 1);
 }
 
 static void get_sdl_pix_fmt_and_blendmode(int format, Uint32 *sdl_pix_fmt, SDL_BlendMode *sdl_blendmode)
@@ -1341,57 +1338,117 @@ static void sigterm_handler(int sig)
 static void set_default_window_size(int width, int height, AVRational sar)
 {
     SDL_Rect rect;
-    calculate_display_rect(&rect, 0, 0, INT_MAX, height, width, height, sar);
+    int max_width  = screen_width  ? screen_width  : INT_MAX;
+    int max_height = screen_height ? screen_height : INT_MAX;
+    if (max_width == INT_MAX && max_height == INT_MAX)
+        max_height = height;
+    calculate_display_rect(&rect, 0, 0, max_width, max_height, width, height, sar);
     default_width  = rect.w;
     default_height = rect.h;
 }
+
+/*
+static int video_open(VideoState *is, void *hwnd)
+{
+	int w,h;
+
+	if (screen_width) {
+		w = screen_width;
+		h = screen_height;
+	} else {
+		w = default_width;
+		h = default_height;
+	}
+
+	if (!window) {
+		int flags = SDL_WINDOW_SHOWN;
+		if (!window_title)
+			window_title = input_filename;
+		if (is_full_screen)
+			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		if (borderless)
+			flags |= SDL_WINDOW_BORDERLESS;
+		else
+			flags |= SDL_WINDOW_RESIZABLE;
+		//window = SDL_CreateWindow(window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, flags);
+		window = SDL_CreateWindowFrom(hwnd);
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+		if (window) {
+			SDL_RendererInfo info;
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			if (!renderer) {
+				av_log(NULL, AV_LOG_WARNING, "Failed to initialize a hardware accelerated renderer: %s\n", SDL_GetError());
+				renderer = SDL_CreateRenderer(window, -1, 0);
+			}
+			if (renderer) {
+				if (!SDL_GetRendererInfo(renderer, &info))
+					av_log(NULL, AV_LOG_VERBOSE, "Initialized %s renderer.\n", info.name);
+			}
+		}
+	} else {
+		SDL_SetWindowSize(window, w, h);
+	}
+
+	if (!window || !renderer) {
+		av_log(NULL, AV_LOG_FATAL, "SDL: could not set video mode - exiting\n");
+		do_exit(is);
+	}
+
+*/
 
 static int video_open(VideoState *is, void *hwnd)
 {
     int w,h;
 
-    if (screen_width) {
-        w = screen_width;
-        h = screen_height;
-    } else {
-        w = default_width;
-        h = default_height;
-    }
+    w = screen_width ? screen_width : default_width;
+    h = screen_height ? screen_height : default_height;
 
-    if (!window) {
-        int flags = SDL_WINDOW_SHOWN;
-        if (!window_title)
-            window_title = input_filename;
-        if (is_full_screen)
-            flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-        if (borderless)
-            flags |= SDL_WINDOW_BORDERLESS;
-        else
-            flags |= SDL_WINDOW_RESIZABLE;
-        //window = SDL_CreateWindow(window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, flags);
+    if (!window_title)
+        window_title = input_filename;
+	/*
+	window = SDL_CreateWindowFrom(hwnd);
+    SDL_SetWindowTitle(window, window_title);
+
+    SDL_SetWindowSize(window, w, h);
+    SDL_SetWindowPosition(window, screen_left, screen_top);
+    if (is_full_screen)
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    SDL_ShowWindow(window);
+*/
+	if (!window) {
+		int flags = SDL_WINDOW_SHOWN;
+		if (!window_title)
+			window_title = input_filename;
+		if (is_full_screen)
+			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		if (borderless)
+			flags |= SDL_WINDOW_BORDERLESS;
+		else
+			flags |= SDL_WINDOW_RESIZABLE;
+		//window = SDL_CreateWindow(window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, flags);
 		window = SDL_CreateWindowFrom(hwnd);
-        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-        if (window) {
-            SDL_RendererInfo info;
-            renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-            if (!renderer) {
-                av_log(NULL, AV_LOG_WARNING, "Failed to initialize a hardware accelerated renderer: %s\n", SDL_GetError());
-                renderer = SDL_CreateRenderer(window, -1, 0);
-            }
-            if (renderer) {
-                if (!SDL_GetRendererInfo(renderer, &info))
-                    av_log(NULL, AV_LOG_VERBOSE, "Initialized %s renderer.\n", info.name);
-            }
-        }
-    } else {
-        SDL_SetWindowSize(window, w, h);
-    }
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+		if (window) {
+			SDL_RendererInfo info;
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			if (!renderer) {
+				av_log(NULL, AV_LOG_WARNING, "Failed to initialize a hardware accelerated renderer: %s\n", SDL_GetError());
+				renderer = SDL_CreateRenderer(window, -1, 0);
+			}
+			if (renderer) {
+				if (!SDL_GetRendererInfo(renderer, &info))
+					av_log(NULL, AV_LOG_VERBOSE, "Initialized %s renderer.\n", info.name);
+			}
+		}
+	}
+	else {
+		SDL_SetWindowSize(window, w, h);
+	}
 
-    if (!window || !renderer) {
-        av_log(NULL, AV_LOG_FATAL, "SDL: could not set video mode - exiting\n");
-        do_exit(is);
-    }
-
+	if (!window || !renderer) {
+		av_log(NULL, AV_LOG_FATAL, "SDL: could not set video mode - exiting\n");
+		do_exit(is);
+	}
     is->width  = w;
     is->height = h;
 
@@ -2000,6 +2057,7 @@ static int configure_audio_filters(VideoState *is, const char *afilters, int for
     avfilter_graph_free(&is->agraph);
     if (!(is->agraph = avfilter_graph_alloc()))
         return AVERROR(ENOMEM);
+    is->agraph->nb_threads = filter_nbthreads;
 
     while ((e = av_dict_get(swr_opts, "", e, AV_DICT_IGNORE_SUFFIX)))
         av_strlcatf(aresample_swr_opts, sizeof(aresample_swr_opts), "%s=%s:", e->key, e->value);
@@ -2149,10 +2207,10 @@ static int audio_thread(void *arg)
     return ret;
 }
 
-static int decoder_start(Decoder *d, int (*fn)(void *), void *arg)
+static int decoder_start(Decoder *d, int (*fn)(void *), const char *thread_name, void* arg)
 {
     packet_queue_start(d->queue);
-    d->decoder_tid = SDL_CreateThread(fn, "decoder", arg);
+    d->decoder_tid = SDL_CreateThread(fn, thread_name, arg);
     if (!d->decoder_tid) {
         av_log(NULL, AV_LOG_ERROR, "SDL_CreateThread(): %s\n", SDL_GetError());
         return AVERROR(ENOMEM);
@@ -2171,26 +2229,17 @@ static int video_thread(void *arg)
     AVRational frame_rate = av_guess_frame_rate(is->ic, is->video_st, NULL);
 
 #if CONFIG_AVFILTER
-    AVFilterGraph *graph = avfilter_graph_alloc();
+    AVFilterGraph *graph = NULL;
     AVFilterContext *filt_out = NULL, *filt_in = NULL;
     int last_w = 0;
     int last_h = 0;
     enum AVPixelFormat last_format = -2;
     int last_serial = -1;
     int last_vfilter_idx = 0;
-    if (!graph) {
-        av_frame_free(&frame);
-        return AVERROR(ENOMEM);
-    }
-
 #endif
 
-    if (!frame) {
-#if CONFIG_AVFILTER
-        avfilter_graph_free(&graph);
-#endif
+    if (!frame)
         return AVERROR(ENOMEM);
-    }
 
     for (;;) {
         ret = get_video_frame(is, frame);
@@ -2213,6 +2262,11 @@ static int video_thread(void *arg)
                    (const char *)av_x_if_null(av_get_pix_fmt_name(frame->format), "none"), is->viddec.pkt_serial);
             avfilter_graph_free(&graph);
             graph = avfilter_graph_alloc();
+            if (!graph) {
+                ret = AVERROR(ENOMEM);
+                goto the_end;
+            }
+            graph->nb_threads = filter_nbthreads;
             if ((ret = configure_video_filters(graph, is, vfilters_list ? vfilters_list[is->vfilter_idx] : NULL, frame)) < 0) {
                 SDL_Event event;
                 event.type = FF_QUIT_EVENT;
@@ -2722,7 +2776,7 @@ static int stream_component_open(VideoState *is, int stream_index)
             is->auddec.start_pts = is->audio_st->start_time;
             is->auddec.start_pts_tb = is->audio_st->time_base;
         }
-        if ((ret = decoder_start(&is->auddec, audio_thread, is)) < 0)
+        if ((ret = decoder_start(&is->auddec, audio_thread, "audio_decoder", is)) < 0)
             goto out;
         SDL_PauseAudioDevice(audio_dev, 0);
         break;
@@ -2731,7 +2785,7 @@ static int stream_component_open(VideoState *is, int stream_index)
         is->video_st = ic->streams[stream_index];
 
         decoder_init(&is->viddec, avctx, &is->videoq, is->continue_read_thread);
-        if ((ret = decoder_start(&is->viddec, video_thread, is)) < 0)
+        if ((ret = decoder_start(&is->viddec, video_thread, "video_decoder", is)) < 0)
             goto out;
         is->queue_attachments_req = 1;
         break;
@@ -2740,7 +2794,7 @@ static int stream_component_open(VideoState *is, int stream_index)
         is->subtitle_st = ic->streams[stream_index];
 
         decoder_init(&is->subdec, avctx, &is->subtitleq, is->continue_read_thread);
-        if ((ret = decoder_start(&is->subdec, subtitle_thread, is)) < 0)
+        if ((ret = decoder_start(&is->subdec, subtitle_thread, "subtitle_decoder", is)) < 0)
             goto out;
         break;
     default:
@@ -2892,7 +2946,7 @@ static int read_thread(void *arg)
     is->realtime = is_realtime(ic);
 
     if (show_status)
-        av_dump_format(ic, 0, is->filename, 0); 
+        av_dump_format(ic, 0, is->filename, 0);
 	av_log(NULL, AV_LOG_INFO, "startup volume is %d, and the range is 0 ~ 100\n",startup_volume);
 	
 
@@ -2995,7 +3049,7 @@ static int read_thread(void *arg)
             ret = avformat_seek_file(is->ic, -1, seek_min, seek_target, seek_max, is->seek_flags);
             if (ret < 0) {
                 av_log(NULL, AV_LOG_ERROR,
-                       "%s: error while seeking\n", is->ic->filename);
+                       "%s: error while seeking\n", is->ic->url);
             } else {
                 if (is->audio_stream >= 0) {
                     packet_queue_flush(&is->audioq);
@@ -3109,7 +3163,7 @@ static int read_thread(void *arg)
         SDL_PushEvent(&event);
     }
     SDL_DestroyMutex(wait_mutex);
-    return ret;
+    return 0;
 }
 
 static VideoState *stream_open(const char *filename, AVInputFormat *iformat)
@@ -3148,7 +3202,7 @@ static VideoState *stream_open(const char *filename, AVInputFormat *iformat)
     init_clock(&is->audclk, &is->audioq.serial);
     init_clock(&is->extclk, &is->extclk.serial);
     is->audio_clock_serial = -1;
-    startup_volume = av_clip(startup_volume, 0, SDL_MIX_MAXVOLUME);
+    startup_volume = av_clip(startup_volume, 0, 100);
 	// if there has a list to play, the volume will increase step by step
     // startup_volume = av_clip(SDL_MIX_MAXVOLUME * startup_volume / 100, 0, SDL_MIX_MAXVOLUME);
     is->audio_volume = startup_volume;
@@ -3666,6 +3720,7 @@ static const OptionDef options[] = {
     { "autorotate", OPT_BOOL, { &autorotate }, "automatically rotate video", "" },
     { "find_stream_info", OPT_BOOL | OPT_INPUT | OPT_EXPERT, { &find_stream_info },
         "read and decode the streams to fill missing information with heuristics" },
+    { "filter_threads", HAS_ARG | OPT_INT | OPT_EXPERT, { &filter_nbthreads }, "number of filter threads per graph" },
     { NULL, },
 };
 
