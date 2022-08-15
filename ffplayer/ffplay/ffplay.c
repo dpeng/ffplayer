@@ -1339,55 +1339,6 @@ static void set_default_window_size(int width, int height, AVRational sar)
     default_height = rect.h;
 }
 
-/*
-static int video_open(VideoState *is, void *hwnd)
-{
-	int w,h;
-
-	if (screen_width) {
-		w = screen_width;
-		h = screen_height;
-	} else {
-		w = default_width;
-		h = default_height;
-	}
-
-	if (!window) {
-		int flags = SDL_WINDOW_SHOWN;
-		if (!window_title)
-			window_title = input_filename;
-		if (is_full_screen)
-			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-		if (borderless)
-			flags |= SDL_WINDOW_BORDERLESS;
-		else
-			flags |= SDL_WINDOW_RESIZABLE;
-		//window = SDL_CreateWindow(window_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, flags);
-		window = SDL_CreateWindowFrom(hwnd);
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-		if (window) {
-			SDL_RendererInfo info;
-			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-			if (!renderer) {
-				av_log(NULL, AV_LOG_WARNING, "Failed to initialize a hardware accelerated renderer: %s\n", SDL_GetError());
-				renderer = SDL_CreateRenderer(window, -1, 0);
-			}
-			if (renderer) {
-				if (!SDL_GetRendererInfo(renderer, &info))
-					av_log(NULL, AV_LOG_VERBOSE, "Initialized %s renderer.\n", info.name);
-			}
-		}
-	} else {
-		SDL_SetWindowSize(window, w, h);
-	}
-
-	if (!window || !renderer) {
-		av_log(NULL, AV_LOG_FATAL, "SDL: could not set video mode - exiting\n");
-		do_exit(is);
-	}
-
-*/
-
 static int video_open(VideoState *is, void *hwnd)
 {
     int w,h;
@@ -1397,16 +1348,7 @@ static int video_open(VideoState *is, void *hwnd)
 
     if (!window_title)
         window_title = input_filename;
-	/*
-	window = SDL_CreateWindowFrom(hwnd);
-    SDL_SetWindowTitle(window, window_title);
-
-    SDL_SetWindowSize(window, w, h);
-    SDL_SetWindowPosition(window, screen_left, screen_top);
-    if (is_full_screen)
-        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    SDL_ShowWindow(window);
-*/
+	
 	if (!window) {
 		int flags = SDL_WINDOW_SHOWN;
 		if (!window_title)
