@@ -18,6 +18,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#pragma warning (disable : 4090)
+#pragma warning (disable : 4996)
+#pragma warning (disable : 4018)
+
 #include "config.h"
 
 #include <stdio.h>
