@@ -223,7 +223,7 @@ void CffplayerDlg::OnBnClickedButtonPlay()
 	m_screenHeight = rc.bottom - rc.top;
 	ffplay_av_log_set_callback(av_log_encoder);
 
-	int ret = ffplay_init((char*)CCommon::UnicodeToStr(m_fileNameList[m_curPlayingIndex].GetBuffer(0), CodeType::ANSI, false).c_str(),
+	int ret = ffplay_init((char*)CCommon::UnicodeToStr(m_fileNameList[m_curPlayingIndex].GetBuffer(0), CodeType::UTF8_NO_BOM, false).c_str(),
 		m_screenWidth, 
 		m_screenHeight);
 	if (ret == 0) 
